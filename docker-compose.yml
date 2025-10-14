@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: piratebay-backend
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    environment:
+      - PORT=${PORT:-3001}
+      - OMDB_API_KEY=${OMDB_API_KEY:-3d5cd52a}
+      - QBITTORRENT_URL=${QBITTORRENT_URL:-http://qbittorrent:8080}
+      - QBITTORRENT_USERNAME=${QBITTORRENT_USERNAME:-admin}
+      - QBITTORRENT_PASSWORD=${QBITTORRENT_PASSWORD:-adminadmin}
+      - PIRATEBAY_URL=${PIRATEBAY_URL:-https://thepiratebay.org}
+    restart: unless-stopped
+    networks:
+      - piratebay-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: piratebay-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - piratebay-network
+
+networks:
+  piratebay-network:
+    driver: bridge

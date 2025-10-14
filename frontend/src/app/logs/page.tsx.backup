@@ -1,0 +1,240 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
+interface Log {
+    id: number
+    timestamp: string
+    level: string
+    message: string
+    data: any
+}
+
+export default function LogsPage() {
+    const [logs, setLogs] = useState<Log[]>([])
+    const [loading, setLoading] = useState(false)
+    const [filter, setFilter] = useState('all')
+    const [autoRefresh, setAutoRefresh] = useState(false)
+
+    const fetchLogs = async () => {
+        setLoading(true)
+        try {
+            const response = await axios.get(`${API_URL}/api/logs?limit=200`)
+            setLogs(response.data)
+        } catch (error) {
+            console.error('Failed to fetch logs:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const clearLogs = async () => {
+        if (confirm('Are you sure you want to clear all logs?')) {
+            try {
+                await axios.delete(`${API_URL}/api/logs`)
+                setLogs([])
+            } catch (error) {
+                console.error('Failed to clear logs:', error)
+            }
+        }
+    }
+
+    const restartBackend = async () => {
+        if (confirm('Are you sure you want to restart the backend? This will take a few seconds.')) {
+            try {
+                await axios.post(`${API_URL}/api/system/restart`)
+                alert('Backend restart initiated. Please wait 5-10 seconds and refresh this page.')
+            } catch (error) {
+                console.error('Failed to restart backend:', error)
+            }
+        }
+    }
+
+    const restartFrontend = () => {
+        if (confirm('This will reload the page. Continue?')) {
+            window.location.reload()
+        }
+    }
+
+    const runCleanup = async () => {
+        if (confirm('This will clean up search history older than 30 days. Continue?')) {
+            try {
+                const response = await axios.post(`${API_URL}/api/history/cleanup`)
+                alert(`Cleanup completed! Removed ${response.data.removed} old entries. ${response.data.remaining} entries remaining.`)
+                fetchLogs()
+            } catch (error) {
+                console.error('Failed to run cleanup:', error)
+                alert('Failed to run cleanup. Check logs for details.')
+            }
+        }
+    }
+
+    useEffect(() => {
+        fetchLogs()
+    }, [])
+
+    useEffect(() => {
+        if (autoRefresh) {
+            const interval = setInterval(fetchLogs, 3000)
+            return () => clearInterval(interval)
+        }
+    }, [autoRefresh])
+
+    const filteredLogs = filter === 'all'
+        ? logs
+        : logs.filter(log => log.level === filter)
+
+    const getLevelColor = (level: string) => {
+        switch (level) {
+            case 'error': return 'text-red-400'
+            case 'warning': return 'text-yellow-400'
+            case 'info': return 'text-blue-400'
+            case 'debug': return 'text-gray-400'
+            default: return 'text-white'
+        }
+    }
+
+    const getLevelBg = (level: string) => {
+        switch (level) {
+            case 'error': return 'bg-red-900/30'
+            case 'warning': return 'bg-yellow-900/30'
+            case 'info': return 'bg-blue-900/30'
+            case 'debug': return 'bg-gray-900/30'
+            default: return 'bg-gray-800'
+        }
+    }
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-4xl font-bold text-white">System Logs</h1>
+                    <a
+                        href="/"
+                        className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                    >
+                        ← Back to Search
+                    </a>
+                </div>
+
+                {/* Controls */}
+                <div className="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+                    <div className="flex flex-wrap gap-4 items-center">
+                        <button
+                            onClick={fetchLogs}
+                            disabled={loading}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors"
+                        >
+                            {loading ? 'Loading...' : '🔄 Refresh Logs'}
+                        </button>
+
+                        <button
+                            onClick={clearLogs}
+                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                        >
+                            🗑️ Clear Logs
+                        </button>
+
+                        <button
+                            onClick={runCleanup}
+                            className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors"
+                        >
+                            🧹 Cleanup History (&gt;30 days)
+                        </button>
+
+                        <button
+                            onClick={restartBackend}
+                            className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors"
+                        >
+                            🔄 Restart Backend
+                        </button>
+
+                        <button
+                            onClick={restartFrontend}
+                            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                        >
+                            🔄 Restart Frontend
+                        </button>
+
+                        <label className="flex items-center gap-2 text-white">
+                            <input
+                                type="checkbox"
+                                checked={autoRefresh}
+                                onChange={(e) => setAutoRefresh(e.target.checked)}
+                                className="w-4 h-4"
+                            />
+                            Auto-refresh (3s)
+                        </label>
+                    </div>
+
+                    <div className="flex gap-2 mt-4">
+                        <button
+                            onClick={() => setFilter('all')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'
+                                }`}
+                        >
+                            All ({logs.length})
+                        </button>
+                        <button
+                            onClick={() => setFilter('error')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${filter === 'error' ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'
+                                }`}
+                        >
+                            Errors ({logs.filter(l => l.level === 'error').length})
+                        </button>
+                        <button
+                            onClick={() => setFilter('warning')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${filter === 'warning' ? 'bg-yellow-600 text-white' : 'bg-gray-700 text-gray-300'
+                                }`}
+                        >
+                            Warnings ({logs.filter(l => l.level === 'warning').length})
+                        </button>
+                        <button
+                            onClick={() => setFilter('info')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${filter === 'info' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'
+                                }`}
+                        >
+                            Info ({logs.filter(l => l.level === 'info').length})
+                        </button>
+                    </div>
+                </div>
+
+                {/* Logs */}
+                <div className="space-y-2">
+                    {filteredLogs.length === 0 ? (
+                        <div className="bg-gray-800 rounded-lg p-8 text-center text-gray-400">
+                            No logs to display
+                        </div>
+                    ) : (
+                        filteredLogs.map((log) => (
+                            <div
+                                key={log.id}
+                                className={`${getLevelBg(log.level)} rounded-lg p-4 border border-gray-700`}
+                            >
+                                <div className="flex items-start gap-4">
+                                    <span className={`font-mono text-xs ${getLevelColor(log.level)} uppercase`}>
+                                        {log.level}
+                                    </span>
+                                    <span className="text-gray-400 text-xs font-mono">
+                                        {new Date(log.timestamp).toLocaleString()}
+                                    </span>
+                                    <div className="flex-1">
+                                        <p className="text-white">{log.message}</p>
+                                        {log.data && (
+                                            <pre className="mt-2 text-xs text-gray-400 bg-gray-900/50 p-2 rounded overflow-x-auto">
+                                                {JSON.stringify(log.data, null, 2)}
+                                            </pre>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
