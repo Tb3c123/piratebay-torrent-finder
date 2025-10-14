@@ -33,15 +33,45 @@ A Docker-based web application similar to Jellyseerr for searching movies and TV
 
 ## Installation
 
+### 🚀 Quick Deploy (Không cần pull code - Như cài app)
+
+**Chỉ cần 2 file, không cần clone repo!**
+
+```bash
+# 1. Tải docker-compose.deploy.yml
+wget https://raw.githubusercontent.com/Tb3c123/piratebay-torrent-finder/main/docker-compose.deploy.yml
+
+# 2. Tải file .env mẫu
+wget https://raw.githubusercontent.com/Tb3c123/piratebay-torrent-finder/main/.env.deploy -O .env
+
+# 3. Sửa .env với thông tin của bạn
+nano .env
+
+# 4. Chạy!
+docker-compose -f docker-compose.deploy.yml up -d
+```
+
+**Done!** Mở <http://localhost:3000> để sử dụng app.
+
+> **Lưu ý:** Cần có Docker images được publish trên Docker Hub:
+> - `tb3c123/piratebay-torrent-finder-backend:latest`
+> - `tb3c123/piratebay-torrent-finder-frontend:latest`
+
+**Dành cho CasaOS/Unraid/Portainer:**
+- Import file `docker-compose.deploy.yml` vào App Store
+- Điền environment variables trong UI
+- Click Install!
+
+---
+
 ### Quick Setup (Recommended)
 
 **One centralized `.env` file - Simple and easy!**
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
-cd "Jellyseer Clone"
-
+git clone https://github.com/Tb3c123/piratebay-torrent-finder.git
+cd piratebay-torrent-finder
 
 # 2. Copy and configure ONE environment file
 cp .env.example .env
@@ -94,6 +124,9 @@ BACKEND_PORT=3001
 > **Note**: The old setup with separate `backend/.env` and `frontend/.env` files still works, but using the centralized `.env` file is now recommended!
 
 ### 3. Build and run with Docker Compose
+
+```bash
+docker-compose up -d
 ```
 
 ### 4. Access the application

@@ -1,0 +1,78 @@
+name: piratebay-torrent-finder
+services:
+  piratebay-backend:
+    image: tb3c123/piratebay-torrent-finder-backend:latest
+    container_name: piratebay-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - OMDB_API_KEY=${OMDB_API_KEY}
+      - QBITTORRENT_URL=${QBITTORRENT_URL}
+      - QBITTORRENT_USERNAME=${QBITTORRENT_USERNAME}
+      - QBITTORRENT_PASSWORD=${QBITTORRENT_PASSWORD}
+    volumes:
+      - ./data:/app/data
+    networks:
+      - piratebay-network
+    labels:
+      icon: https://raw.githubusercontent.com/Tb3c123/piratebay-torrent-finder/main/icon.png
+
+  piratebay-frontend:
+    image: tb3c123/piratebay-torrent-finder-frontend:latest
+    container_name: piratebay-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://piratebay-backend:3001
+    depends_on:
+      - piratebay-backend
+    networks:
+      - piratebay-network
+    labels:
+      icon: https://raw.githubusercontent.com/Tb3c123/piratebay-torrent-finder/main/icon.png
+
+networks:
+  piratebay-network:
+    driver: bridge
+
+# CasaOS Configuration (optional)
+x-casaos:
+  architectures:
+    - amd64
+    - arm64
+  author: Tb3c123
+  category: Downloaders
+  description:
+    en_us: >
+      Pirate Bay Torrent Finder - Search movies, TV shows, and torrents on The Pirate Bay
+      with smart fuzzy search and qBittorrent integration. Multi-language support (English,
+      Vietnamese, Chinese, Korean). Features anime search via Jikan API.
+    zh_cn: >
+      Pirate Bay 种子查找器 - 在 The Pirate Bay 上搜索电影、电视节目和种子，
+      具有智能模糊搜索和 qBittorrent 集成。支持多语言（英语、越南语、中文、韩语）。
+      通过 Jikan API 搜索动漫。
+  developer: Tb3c123
+  hostname: ""
+  icon: https://raw.githubusercontent.com/Tb3c123/piratebay-torrent-finder/main/icon.png
+  index: /
+  main: piratebay-frontend
+  port_map: "3000"
+  scheme: http
+  store_app_id: piratebay-torrent-finder
+  tagline:
+    en_us: Smart Torrent Finder with Multi-language Support
+    zh_cn: 智能种子查找器，支持多语言
+  thumbnail: https://raw.githubusercontent.com/Tb3c123/piratebay-torrent-finder/main/thumbnail.png
+  title:
+    en_us: Pirate Bay Torrent Finder
+  tips:
+    before_install:
+      en_us: |
+        Required Environment Variables:
+        - OMDB_API_KEY: Get free key at http://www.omdbapi.com/apikey.aspx
+        - QBITTORRENT_URL: Your qBittorrent Web UI URL (e.g., http://192.168.1.100:8080)
+        - QBITTORRENT_USERNAME: qBittorrent username (default: admin)
+        - QBITTORRENT_PASSWORD: qBittorrent password
