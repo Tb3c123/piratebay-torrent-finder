@@ -35,7 +35,7 @@ A Docker-based web application similar to Jellyseerr for searching movies and TV
 
 ### 🚀 Quick Deploy (Không cần pull code - Như cài app)
 
-**Chỉ cần 2 file, không cần clone repo!**
+**Chỉ cần 2 file, không cần clone repo! Docker sẽ tự build từ GitHub.**
 
 ```bash
 # 1. Tải docker-compose.deploy.yml
@@ -47,20 +47,24 @@ wget https://raw.githubusercontent.com/Tb3c123/piratebay-torrent-finder/main/.en
 # 3. Sửa .env với thông tin của bạn
 nano .env
 
-# 4. Chạy!
-docker-compose -f docker-compose.deploy.yml up -d
+# 4. Build và chạy (Docker sẽ tự động clone và build từ GitHub)
+docker-compose -f docker-compose.deploy.yml up -d --build
 ```
 
 **Done!** Mở <http://localhost:3000> để sử dụng app.
 
-> **Lưu ý:** Cần có Docker images được publish trên Docker Hub:
-> - `tb3c123/piratebay-torrent-finder-backend:latest`
-> - `tb3c123/piratebay-torrent-finder-frontend:latest`
+> **Cách hoạt động:** Docker Compose sẽ tự động:
+>
+> 1. Clone code từ GitHub repository
+> 2. Build backend và frontend images
+> 3. Khởi chạy containers
+>
+> **Không cần Docker Hub, không cần pull code thủ công!**
 
 **Dành cho CasaOS/Unraid/Portainer:**
 - Import file `docker-compose.deploy.yml` vào App Store
 - Điền environment variables trong UI
-- Click Install!
+- Click Install → Docker sẽ tự build từ GitHub!
 
 ---
 
