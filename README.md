@@ -42,6 +42,7 @@ A Docker-based web application similar to Jellyseerr for searching movies and TV
 git clone <repository-url>
 cd "Jellyseer Clone"
 
+
 # 2. Copy and configure ONE environment file
 cp .env.example .env
 
@@ -93,9 +94,6 @@ BACKEND_PORT=3001
 > **Note**: The old setup with separate `backend/.env` and `frontend/.env` files still works, but using the centralized `.env` file is now recommended!
 
 ### 3. Build and run with Docker Compose
-
-```bash
-docker-compose up -d
 ```
 
 ### 4. Access the application
