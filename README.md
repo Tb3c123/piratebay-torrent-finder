@@ -62,6 +62,7 @@ docker-compose -f docker-compose.deploy.yml up -d --build
 > **Không cần Docker Hub, không cần pull code thủ công!**
 
 **Dành cho CasaOS/Unraid/Portainer:**
+
 - Import file `docker-compose.deploy.yml` vào App Store
 - Điền environment variables trong UI
 - Click Install → Docker sẽ tự build từ GitHub!
