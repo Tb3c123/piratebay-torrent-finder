@@ -12,7 +12,11 @@
         "build:frontend": "cd frontend && npm run build",
         "start": "npm run start:backend",
         "start:backend": "cd backend && npm start",
-        "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+        "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+        "lint": "npm run lint:md && npm run lint:ts",
+        "lint:md": "markdownlint '**/*.md' --ignore node_modules --ignore '**/node_modules/**' --fix",
+        "lint:ts": "cd frontend && npm run type-check",
+        "prepare": "husky install"
     },
     "keywords": [
         "torrent",
@@ -24,6 +28,17 @@
     "author": "",
     "license": "MIT",
     "devDependencies": {
-        "concurrently": "^8.2.2"
+        "concurrently": "^8.2.2",
+        "husky": "^8.0.3",
+        "lint-staged": "^15.2.0",
+        "markdownlint-cli": "^0.37.0"
+    },
+    "lint-staged": {
+        "*.md": [
+            "markdownlint --fix"
+        ],
+        "*.{ts,tsx}": [
+            "cd frontend && npm run type-check"
+        ]
     }
 }

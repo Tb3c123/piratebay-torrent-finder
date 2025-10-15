@@ -19,7 +19,7 @@ docker-compose up -d
 
 ### Before (Old way - still works!)
 
-```
+```text
 /.env                 # Docker Compose variables
 /backend/.env         # Backend variables
 /frontend/.env        # Frontend variables
@@ -27,7 +27,7 @@ docker-compose up -d
 
 ### After (New way - recommended!)
 
-```
+```text
 /.env                 # ALL variables in one place! ✅
 ```
 
@@ -35,7 +35,7 @@ docker-compose up -d
 
 If you already have `backend/.env` and `frontend/.env`:
 
-**Option 1: Use centralized .env (recommended)**
+### Option 1: Use centralized .env (recommended)
 
 ```bash
 # Create new centralized .env
@@ -47,7 +47,7 @@ nano .env
 # Optional: Keep or delete old files (they still work as fallback)
 ```
 
-**Option 2: Keep old setup (still works!)**
+### Option 2: Keep old setup (still works!)
 
 ```bash
 # No changes needed - backend/.env and frontend/.env still work

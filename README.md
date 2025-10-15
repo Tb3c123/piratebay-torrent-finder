@@ -221,11 +221,38 @@ npm install
 npm run dev
 ```
 
+### Code Quality Tools
+
+Project includes automatic code quality checks via pre-commit hooks:
+
+```bash
+# Install dependencies (this sets up git hooks automatically)
+npm run install:all
+
+# Manual linting
+npm run lint              # Run all linters
+npm run lint:md           # Fix markdown issues
+npm run lint:ts           # Check TypeScript types
+```
+
+**Pre-commit hooks automatically:**
+
+- Fix markdown formatting (markdownlint)
+- Check TypeScript types
+- Validate code before commit
+
+**Configured in:**
+
+- `package.json` - lint-staged configuration
+- `.husky/pre-commit` - git hook
+- `.markdownlint.json` - markdown rules
+- `.vscode/settings.json` - cSpell dictionary
+
 ## API Endpoints
 
 ### Search Torrents
 
-```
+```text
 GET /api/search?query=<search-term>&category=<category-id>
 ```
 
@@ -241,7 +268,7 @@ Categories:
 
 ### Add Torrent to qBittorrent
 
-```
+```http
 POST /api/qbittorrent/add
 Content-Type: application/json
 
@@ -253,7 +280,7 @@ Content-Type: application/json
 
 ### Get qBittorrent Status
 
-```
+```http
 GET /api/qbittorrent/status
 ```
 
@@ -283,7 +310,7 @@ PIRATEBAY_URL=https://tpb.party
 
 ## Project Structure
 
-```
+```text
 .
 ├── backend/                 # Node.js/Express backend
 │   ├── src/
