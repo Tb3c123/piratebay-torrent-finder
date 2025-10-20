@@ -25,10 +25,10 @@ export default function Header() {
                 const response = await axios.get(`${API_URL}/api/qbittorrent/torrents`)
                 const torrents = response.data.torrents || []
                 // Count active downloads (downloading or seeding)
-                const activeCount = torrents.filter((t: any) => 
-                    t.state === 'downloading' || 
-                    t.state === 'uploading' || 
-                    t.state === 'stalledDL' || 
+                const activeCount = torrents.filter((t: any) =>
+                    t.state === 'downloading' ||
+                    t.state === 'uploading' ||
+                    t.state === 'stalledDL' ||
                     t.state === 'stalledUP' ||
                     t.state === 'forcedDL' ||
                     t.state === 'forcedUP'
@@ -61,12 +61,28 @@ export default function Header() {
             {/* Downloads Button */}
             <button
                 onClick={handleDownloadsClick}
-                className="relative p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                className="relative p-2 hover:bg-gray-800 rounded-lg transition-all group"
                 title="Downloads"
             >
-                <span className="text-2xl">⬇️</span>
+                {/* Download Icon - Outline Style */}
+                <svg
+                    className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                </svg>
+
+                {/* Notification Badge */}
                 {downloadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shadow-lg animate-pulse">
                         {downloadCount > 99 ? '99+' : downloadCount}
                     </span>
                 )}
