@@ -147,11 +147,6 @@ export default function BurgerMenu() {
         }
     }
 
-    const navigateToDownloads = () => {
-        setIsOpen(false)
-        router.push('/downloads')
-    }
-
     const navigateToLogs = () => {
         setIsOpen(false)
         router.push('/logs')
@@ -218,7 +213,6 @@ export default function BurgerMenu() {
                             onSearchFromHistory={handleSearchFromHistory}
                             onClearHistory={clearHistory}
                             onShowFullHistory={showFullHistory}
-                            onNavigateToDownloads={navigateToDownloads}
                             onNavigateToLogs={navigateToLogs}
                             onNavigateToSettings={navigateToSettings}
                         />

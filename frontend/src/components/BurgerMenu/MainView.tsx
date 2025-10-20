@@ -17,7 +17,6 @@ interface MainViewProps {
     onShowFullHistory: () => void
     onNavigateToLogs: () => void
     onNavigateToSettings: () => void
-    onNavigateToDownloads: () => void
 }
 
 export default function MainView({
@@ -27,8 +26,7 @@ export default function MainView({
     onClearHistory,
     onShowFullHistory,
     onNavigateToLogs,
-    onNavigateToSettings,
-    onNavigateToDownloads
+    onNavigateToSettings
 }: MainViewProps) {
     const recentHistory = searchHistory.slice(0, RECENT_HISTORY_LIMIT)
 
@@ -91,23 +89,6 @@ export default function MainView({
                         </button>
                     </div>
                 )}
-            </div>
-
-            {/* Downloads Section - Flexible */}
-            <div className="p-4 sm:p-6 border-b border-gray-700 flex-shrink-0">
-                <button
-                    onClick={onNavigateToDownloads}
-                    className="w-full p-3 sm:p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between"
-                >
-                    <div className="flex items-center gap-3">
-                        <span className="text-xl sm:text-2xl">⬇️</span>
-                        <div className="text-left">
-                            <p className="text-white text-sm sm:text-base font-semibold">Downloads</p>
-                            <p className="text-gray-400 text-xs">Monitor qBittorrent downloads</p>
-                        </div>
-                    </div>
-                    <span className="text-gray-400">→</span>
-                </button>
             </div>
 
             {/* System Logs Section - Flexible */}
