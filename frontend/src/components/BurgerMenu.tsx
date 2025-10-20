@@ -1,7 +1,7 @@
 /**
  * BurgerMenu Component
  * Main navigation menu with search history and system navigation
- * 
+ *
  * Features:
  * - Two views: Main (recent history + navigation) and Full History (all history with infinite scroll)
  * - Persistent across page navigation
@@ -147,9 +147,19 @@ export default function BurgerMenu() {
         }
     }
 
+    const navigateToDownloads = () => {
+        setIsOpen(false)
+        router.push('/downloads')
+    }
+
     const navigateToLogs = () => {
         setIsOpen(false)
         router.push('/logs')
+    }
+
+    const navigateToSettings = () => {
+        setIsOpen(false)
+        router.push('/settings')
     }
 
     const showFullHistory = () => {
@@ -190,9 +200,8 @@ export default function BurgerMenu() {
 
             {/* Sidebar Menu */}
             <div
-                className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-80 bg-gray-900 shadow-2xl z-[9999] transform transition-transform duration-300 flex flex-col ${
-                    isOpen ? 'translate-x-0' : '-translate-x-full'
-                }`}
+                className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-80 bg-gray-900 shadow-2xl z-[9999] transform transition-transform duration-300 flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -209,7 +218,9 @@ export default function BurgerMenu() {
                             onSearchFromHistory={handleSearchFromHistory}
                             onClearHistory={clearHistory}
                             onShowFullHistory={showFullHistory}
+                            onNavigateToDownloads={navigateToDownloads}
                             onNavigateToLogs={navigateToLogs}
+                            onNavigateToSettings={navigateToSettings}
                         />
                     ) : (
                         <FullHistoryView

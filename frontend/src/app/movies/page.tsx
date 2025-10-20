@@ -18,21 +18,27 @@ interface Movie {
 export default function MoviesPage() {
     const [movies, setMovies] = useState<Movie[]>([])
     const [loading, setLoading] = useState(false)
+    const [loadingMore, setLoadingMore] = useState(false)
     const [error, setError] = useState('')
     const [searchQuery, setSearchQuery] = useState('')
+    const [currentSearchQuery, setCurrentSearchQuery] = useState('') // Track the actual search being displayed
     const [currentPage, setCurrentPage] = useState(1)
     const [totalResults, setTotalResults] = useState(0)
     const router = useRouter()
 
     useEffect(() => {
         // Load popular movies on mount
-        handleSearch('Marvel') // Default search
+        handleSearch('Marvel', 1, false) // Default search
     }, [])
 
-    const handleSearch = async (query: string = searchQuery, page: number = 1) => {
+    const handleSearch = async (query: string = searchQuery, page: number = 1, append: boolean = false) => {
         if (!query.trim()) return
 
-        setLoading(true)
+        if (append) {
+            setLoadingMore(true)
+        } else {
+            setLoading(true)
+        }
         setError('')
 
         try {
@@ -41,34 +47,46 @@ export default function MoviesPage() {
             })
 
             if (response.data.success) {
-                setMovies(response.data.movies)
+                if (append) {
+                    setMovies(prev => [...prev, ...response.data.movies])
+                } else {
+                    setMovies(response.data.movies)
+                    setCurrentSearchQuery(query)
+                }
                 setTotalResults(response.data.totalResults)
                 setCurrentPage(page)
             } else {
                 setError(response.data.error || 'No movies found')
-                setMovies([])
+                if (!append) {
+                    setMovies([])
+                }
             }
         } catch (err: any) {
             setError('Failed to search movies. Please try again.')
             console.error(err)
-            setMovies([])
+            if (!append) {
+                setMovies([])
+            }
         } finally {
             setLoading(false)
+            setLoadingMore(false)
         }
     }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         setCurrentPage(1)
-        handleSearch(searchQuery, 1)
+        handleSearch(searchQuery, 1, false)
     }
 
-    const handlePageChange = (newPage: number) => {
-        handleSearch(searchQuery, newPage)
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+    const handleLoadMore = () => {
+        const nextPage = currentPage + 1
+        handleSearch(currentSearchQuery, nextPage, true)
     }
 
     const totalPages = Math.ceil(totalResults / 10) // OMDB returns 10 results per page
+    // Show load more if we have exactly 10 results (might have more pages) OR if current page < total pages
+    const hasMoreResults = currentPage < totalPages || (movies.length % 10 === 0 && movies.length >= 10)
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6">
@@ -118,7 +136,9 @@ export default function MoviesPage() {
                 {/* Results Info */}
                 {totalResults > 0 && (
                     <div className="mb-4 text-gray-400">
-                        Page {currentPage} of {totalPages}
+                        Showing {movies.length} of {totalResults} results
+                        {currentPage > 1 && ` (Page ${currentPage}/${totalPages})`}
+                        {currentPage === 1 && totalPages > 1 && ` (${totalPages} pages available)`}
                     </div>
                 )}
 
@@ -146,52 +166,41 @@ export default function MoviesPage() {
                     </div>
                 )}
 
-                {/* Pagination */}
-                {!loading && movies.length > 0 && totalPages > 1 && (
-                    <div className="flex justify-center gap-2 mt-8">
+                {/* Load More Button */}
+                {!loading && !error && movies.length > 0 && hasMoreResults && (
+                    <div className="mt-6 mb-8 text-center">
                         <button
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded disabled:bg-gray-800 disabled:cursor-not-allowed transition-colors"
+                            onClick={handleLoadMore}
+                            disabled={loadingMore}
+                            className={`px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg ${loadingMore
+                                ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-xl transform hover:scale-105'
+                                }`}
                         >
-                            ← Previous
+                            {loadingMore ? (
+                                <>
+                                    <span className="inline-block animate-spin mr-2">⏳</span>
+                                    Loading more movies...
+                                </>
+                            ) : (
+                                <>
+                                    🎬 Load More Movies
+                                    {totalPages > 1 ? ` (Page ${currentPage + 1} of ${totalPages})` : ` (Page ${currentPage + 1})`}
+                                </>
+                            )}
                         </button>
+                        <p className="text-gray-500 text-sm mt-3">
+                            Showing {movies.length} of {totalResults > 0 ? totalResults : '?'} total results
+                        </p>
+                    </div>
+                )}
 
-                        <div className="flex gap-1">
-                            {[...Array(Math.min(totalPages, 5))].map((_, i) => {
-                                let pageNum: number
-                                if (totalPages <= 5) {
-                                    pageNum = i + 1
-                                } else if (currentPage <= 3) {
-                                    pageNum = i + 1
-                                } else if (currentPage >= totalPages - 2) {
-                                    pageNum = totalPages - 4 + i
-                                } else {
-                                    pageNum = currentPage - 2 + i
-                                }
-
-                                return (
-                                    <button
-                                        key={i}
-                                        onClick={() => handlePageChange(pageNum)}
-                                        className={`px-4 py-2 rounded transition-colors ${pageNum === currentPage
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-700 hover:bg-gray-600 text-white'
-                                            }`}
-                                    >
-                                        {pageNum}
-                                    </button>
-                                )
-                            })}
-                        </div>
-
-                        <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage >= totalPages}
-                            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded disabled:bg-gray-800 disabled:cursor-not-allowed transition-colors"
-                        >
-                            Next →
-                        </button>
+                {/* End of Results Message */}
+                {!loading && !error && movies.length > 0 && !hasMoreResults && movies.length >= 10 && (
+                    <div className="mt-6 mb-8 text-center py-6 bg-gray-800/50 rounded-lg border border-gray-700">
+                        <p className="text-gray-400 text-lg">
+                            ✅ All results loaded - Showing all {movies.length} movies
+                        </p>
                     </div>
                 )}
 

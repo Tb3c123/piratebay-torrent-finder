@@ -16,6 +16,8 @@ interface MainViewProps {
     onClearHistory: () => void
     onShowFullHistory: () => void
     onNavigateToLogs: () => void
+    onNavigateToSettings: () => void
+    onNavigateToDownloads: () => void
 }
 
 export default function MainView({
@@ -24,7 +26,9 @@ export default function MainView({
     onSearchFromHistory,
     onClearHistory,
     onShowFullHistory,
-    onNavigateToLogs
+    onNavigateToLogs,
+    onNavigateToSettings,
+    onNavigateToDownloads
 }: MainViewProps) {
     const recentHistory = searchHistory.slice(0, RECENT_HISTORY_LIMIT)
 
@@ -89,6 +93,23 @@ export default function MainView({
                 )}
             </div>
 
+            {/* Downloads Section - Flexible */}
+            <div className="p-4 sm:p-6 border-b border-gray-700 flex-shrink-0">
+                <button
+                    onClick={onNavigateToDownloads}
+                    className="w-full p-3 sm:p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between"
+                >
+                    <div className="flex items-center gap-3">
+                        <span className="text-xl sm:text-2xl">⬇️</span>
+                        <div className="text-left">
+                            <p className="text-white text-sm sm:text-base font-semibold">Downloads</p>
+                            <p className="text-gray-400 text-xs">Monitor qBittorrent downloads</p>
+                        </div>
+                    </div>
+                    <span className="text-gray-400">→</span>
+                </button>
+            </div>
+
             {/* System Logs Section - Flexible */}
             <div className="p-4 sm:p-6 border-b border-gray-700 flex-shrink-0">
                 <button
@@ -106,18 +127,21 @@ export default function MainView({
                 </button>
             </div>
 
-            {/* Placeholder Features - Flexible */}
+            {/* Settings Section - Flexible */}
             <div className="p-4 sm:p-6 flex-shrink-0">
-                <div className="space-y-2">
-                    <button
-                        disabled
-                        className="w-full text-left p-2 sm:p-3 bg-gray-800 text-gray-500 rounded-lg cursor-not-allowed opacity-50"
-                    >
-                        <span className="flex items-center gap-2 text-xs sm:text-sm">
-                            <span>⚙️</span> Settings (Coming Soon)
-                        </span>
-                    </button>
-                </div>
+                <button
+                    onClick={onNavigateToSettings}
+                    className="w-full p-3 sm:p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between"
+                >
+                    <div className="flex items-center gap-3">
+                        <span className="text-xl sm:text-2xl">⚙️</span>
+                        <div className="text-left">
+                            <p className="text-white text-sm sm:text-base font-semibold">Settings</p>
+                            <p className="text-gray-400 text-xs">Configure qBittorrent connection</p>
+                        </div>
+                    </div>
+                    <span className="text-gray-400">→</span>
+                </button>
             </div>
         </>
     )

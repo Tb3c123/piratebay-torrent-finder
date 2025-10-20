@@ -16,50 +16,79 @@ function DirectSearchContent() {
 
     const [torrents, setTorrents] = useState<Torrent[]>([])
     const [loading, setLoading] = useState(false)
+    const [loadingMore, setLoadingMore] = useState(false)
     const [error, setError] = useState('')
     const [selectedCategory, setSelectedCategory] = useState('0') // 0 = All categories
+    const [currentPage, setCurrentPage] = useState(0)
+    const [hasMore, setHasMore] = useState(true)
 
     useEffect(() => {
         if (query) {
-            searchPirateBay(query, selectedCategory)
+            setTorrents([])
+            setCurrentPage(0)
+            setHasMore(true)
+            searchPirateBay(query, selectedCategory, 0, false)
         }
     }, [query, selectedCategory])
 
-    const searchPirateBay = async (searchQuery: string, category: string = '0') => {
-        setLoading(true)
+    const searchPirateBay = async (searchQuery: string, category: string = '0', page: number = 0, append: boolean = false) => {
+        if (append) {
+            setLoadingMore(true)
+        } else {
+            setLoading(true)
+        }
         setError('')
 
         try {
             const response = await axios.get(`${API_URL}/api/search`, {
                 params: {
                     query: searchQuery,
-                    category: category
+                    category: category,
+                    page: page.toString()
                 }
             })
 
             // Response is array directly, not wrapped in object
             const results = Array.isArray(response.data) ? response.data : []
-            setTorrents(results)
 
-            if (results.length === 0) {
+            if (append) {
+                setTorrents(prev => [...prev, ...results])
+            } else {
+                setTorrents(results)
+            }
+
+            // Check if there are more results
+            // Pirate Bay typically returns 30 results per page
+            setHasMore(results.length >= 30)
+
+            if (results.length === 0 && !append) {
                 setError('No torrents found. Try a different search term or category.')
             }
 
-            // Save to search history
-            try {
-                await axios.post(`${API_URL}/api/history`, {
-                    query: searchQuery,
-                    category: 'piratebay' // Mark as direct Pirate Bay search
-                })
-            } catch (historyErr) {
-                console.error('Failed to save search history:', historyErr)
+            // Save to search history (only on first search, not on load more)
+            if (!append) {
+                try {
+                    await axios.post(`${API_URL}/api/history`, {
+                        query: searchQuery,
+                        category: 'piratebay' // Mark as direct Pirate Bay search
+                    })
+                } catch (historyErr) {
+                    console.error('Failed to save search history:', historyErr)
+                }
             }
         } catch (err: any) {
             console.error('Search error:', err)
             setError(err.response?.data?.error || 'Failed to search torrents')
         } finally {
             setLoading(false)
+            setLoadingMore(false)
         }
+    }
+
+    const handleLoadMore = () => {
+        const nextPage = currentPage + 1
+        setCurrentPage(nextPage)
+        searchPirateBay(query, selectedCategory, nextPage, true)
     }
 
     const handleDownload = async (magnetLink: string, name: string) => {
@@ -74,11 +103,17 @@ function DirectSearchContent() {
 
     const handleRefresh = () => {
         if (query) {
-            searchPirateBay(query, selectedCategory)
+            setTorrents([])
+            setCurrentPage(0)
+            setHasMore(true)
+            searchPirateBay(query, selectedCategory, 0, false)
         }
     }
 
     const handleAlternativeSearch = async (customQuery: string) => {
+        setTorrents([])
+        setCurrentPage(0)
+        setHasMore(true)
         setLoading(true)
         setError('')
 
@@ -86,12 +121,14 @@ function DirectSearchContent() {
             const response = await axios.get(`${API_URL}/api/search`, {
                 params: {
                     query: customQuery,
-                    category: selectedCategory
+                    category: selectedCategory,
+                    page: '0'
                 }
             })
 
             const results = Array.isArray(response.data) ? response.data : []
             setTorrents(results)
+            setHasMore(results.length >= 30)
 
             if (results.length === 0) {
                 setError('No torrents found. Try a different search term or category.')
@@ -176,6 +213,43 @@ function DirectSearchContent() {
                     refreshLabel="🔄 Search Again"
                     sectionTitle="🏴‍☠️ Available Torrents"
                 />
+
+                {/* Load More Button */}
+                {!loading && !error && torrents.length > 0 && hasMore && (
+                    <div className="mt-6 text-center">
+                        <button
+                            onClick={handleLoadMore}
+                            disabled={loadingMore}
+                            className={`px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg ${loadingMore
+                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-xl transform hover:scale-105'
+                                }`}
+                        >
+                            {loadingMore ? (
+                                <>
+                                    <span className="inline-block animate-spin mr-2">⏳</span>
+                                    Loading more results...
+                                </>
+                            ) : (
+                                <>
+                                    📥 Load More Results (Page {currentPage + 2})
+                                </>
+                            )}
+                        </button>
+                        <p className="text-gray-500 text-sm mt-3">
+                            Currently showing {torrents.length} results
+                        </p>
+                    </div>
+                )}
+
+                {/* End of Results Message */}
+                {!loading && !error && torrents.length > 0 && !hasMore && (
+                    <div className="mt-6 text-center py-6 bg-gray-800/50 rounded-lg border border-gray-700">
+                        <p className="text-gray-400 text-lg">
+                            ✅ End of results - Showing all {torrents.length} torrents
+                        </p>
+                    </div>
+                )}
 
                 {/* No Results Message (when not loading and no error) */}
                 {!loading && !error && torrents.length === 0 && query && (

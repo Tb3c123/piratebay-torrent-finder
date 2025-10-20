@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import { useManualCache } from '@/hooks/useSessionCache'
+import DownloadModal from '@/components/DownloadModal'
 
 interface TorrentBasic {
     id: string
@@ -34,10 +35,10 @@ export default function TorrentDetailPage({ params }: { params: { id: string } }
     const [torrent, setTorrent] = useState<TorrentDetail | null>(null)
     const [loading, setLoading] = useState(true)
     const [loadingDetails, setLoadingDetails] = useState(true)
-    const [downloading, setDownloading] = useState(false)
     const [downloadStatus, setDownloadStatus] = useState<string>('')
     const [error, setError] = useState<string>('')
     const [activeTab, setActiveTab] = useState<'info' | 'files' | 'description' | 'comments'>('info')
+    const [showDownloadModal, setShowDownloadModal] = useState(false)
 
     // Use manual cache hook for more control
     const { getCached, saveToCache } = useManualCache(`torrent_${params.id}`)
@@ -119,29 +120,10 @@ export default function TorrentDetailPage({ params }: { params: { id: string } }
         }
     }
 
-    const handleDownload = async () => {
+    const handleDownload = () => {
         if (!torrent) return
-
-        setDownloading(true)
-        setDownloadStatus('')
-        setError('')
-
-        try {
-            const response = await axios.post('http://localhost:3001/api/qbittorrent/download', {
-                magnetLink: torrent.magnetLink
-            })
-
-            setDownloadStatus('✅ Download started successfully!')
-
-            // Redirect to logs page after 2 seconds
-            setTimeout(() => {
-                router.push('/logs')
-            }, 2000)
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to start download')
-        } finally {
-            setDownloading(false)
-        }
+        // Open modal instead of direct download
+        setShowDownloadModal(true)
     }
 
     const copyMagnetLink = () => {
@@ -430,17 +412,9 @@ export default function TorrentDetailPage({ params }: { params: { id: string } }
                         <div className="flex gap-4 pt-4">
                             <button
                                 onClick={handleDownload}
-                                disabled={downloading}
-                                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 text-white rounded-lg transition-all transform hover:scale-105 disabled:scale-100 font-semibold text-lg"
+                                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all transform hover:scale-105 font-semibold text-lg"
                             >
-                                {downloading ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <span className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
-                                        Starting Download...
-                                    </span>
-                                ) : (
-                                    '⬇️ Download with qBittorrent'
-                                )}
+                                ⬇️ Download with qBittorrent
                             </button>
 
                             {torrent.detailsUrl && (
@@ -464,6 +438,20 @@ export default function TorrentDetailPage({ params }: { params: { id: string } }
                         Always verify the content and use a VPN when downloading torrents.
                     </p>
                 </div>
+
+                {/* Download Modal */}
+                <DownloadModal
+                    isOpen={showDownloadModal}
+                    onClose={() => setShowDownloadModal(false)}
+                    magnetLink={torrent.magnetLink}
+                    torrentName={torrent.title}
+                    onDownloadStart={() => {
+                        setDownloadStatus('✅ Download started successfully!')
+                        setTimeout(() => {
+                            router.push('/logs')
+                        }, 2000)
+                    }}
+                />
             </div>
         </div>
     )

@@ -12,6 +12,7 @@ const historyRoutes = require('./routes/history');
 const moviesRoutes = require('./routes/movies');
 const torrentRoutes = require('./routes/torrent');
 const animeRoutes = require('./routes/anime');
+const settingsRoutes = require('./routes/settings');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -35,6 +36,7 @@ app.use('/api/history', historyRoutes);
 app.use('/api/movies', moviesRoutes);
 app.use('/api/torrent', torrentRoutes);
 app.use('/api/anime', animeRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

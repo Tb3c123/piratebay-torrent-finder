@@ -1,0 +1,11 @@
+{
+    "qbittorrent": {
+        "url": "http://localhost:8080",
+        "username": "admin",
+        "password": "adminadmin"
+    },
+    "jellyfin": {
+        "url": "",
+        "apiKey": ""
+    }
+}

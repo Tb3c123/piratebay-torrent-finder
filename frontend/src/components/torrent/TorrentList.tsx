@@ -1,9 +1,10 @@
 // Shared Torrent List Component
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { Torrent } from '@/lib/types'
-import { downloadTorrent } from '@/lib/torrent'
+import DownloadModal from '@/components/DownloadModal'
 
 interface TorrentListProps {
     torrents: Torrent[]
@@ -18,19 +19,20 @@ export default function TorrentList({
     error,
     onDownload
 }: TorrentListProps) {
-    const handleDownload = async (magnetLink: string, torrentName: string) => {
+    const [showModal, setShowModal] = useState(false)
+    const [selectedMagnet, setSelectedMagnet] = useState('')
+    const [selectedName, setSelectedName] = useState('')
+
+    const handleDownload = (magnetLink: string, torrentName: string) => {
         if (onDownload) {
             onDownload(magnetLink, torrentName)
             return
         }
 
-        // Default download behavior
-        const result = await downloadTorrent(magnetLink, torrentName)
-        if (result.success) {
-            alert(`Torrent "${torrentName}" added to qBittorrent successfully!`)
-        } else {
-            alert(result.error || 'Failed to add torrent')
-        }
+        // Open modal for folder selection
+        setSelectedMagnet(magnetLink)
+        setSelectedName(torrentName)
+        setShowModal(true)
     }
 
     if (loading) {
@@ -108,6 +110,14 @@ export default function TorrentList({
                     </div>
                 </div>
             ))}
+
+            {/* Download Modal */}
+            <DownloadModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                magnetLink={selectedMagnet}
+                torrentName={selectedName}
+            />
         </div>
     )
 }
