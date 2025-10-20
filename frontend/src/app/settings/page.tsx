@@ -12,6 +12,11 @@ import Header from '@/components/Header'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
+// Placeholder constants from environment variables
+const JELLYFIN_API_KEY_PLACEHOLDER = process.env.NEXT_PUBLIC_JELLYFIN_API_KEY_PLACEHOLDER || '842803013ffd4cd4b140f9a3646e823d'
+const JELLYFIN_URL_PLACEHOLDER = process.env.NEXT_PUBLIC_JELLYFIN_URL_PLACEHOLDER || 'http://localhost:8096'
+const QBITTORRENT_URL_PLACEHOLDER = process.env.NEXT_PUBLIC_QBITTORRENT_URL_PLACEHOLDER || 'http://localhost:8080'
+
 interface QBittorrentSettings {
     url: string
     username: string
@@ -300,7 +305,7 @@ export default function SettingsPage() {
                                 type="text"
                                 value={settings.url}
                                 onChange={(e) => handleInputChange('url', e.target.value)}
-                                placeholder="https://torrent.homes-enter.xyz"
+                                placeholder={QBITTORRENT_URL_PLACEHOLDER}
                                 className={`w-full px-4 py-2 bg-gray-700 text-white border ${errors.url ? 'border-red-500' : 'border-gray-600'
                                     } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             />
@@ -454,7 +459,7 @@ export default function SettingsPage() {
                                 type="text"
                                 value={jellyfinSettings.url}
                                 onChange={(e) => handleJellyfinInputChange('url', e.target.value)}
-                                placeholder="http://localhost:8096"
+                                placeholder={JELLYFIN_URL_PLACEHOLDER}
                                 className={`w-full px-4 py-2 bg-gray-700 text-white border ${jellyfinErrors.url ? 'border-red-500' : 'border-gray-600'
                                     } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             />
@@ -476,7 +481,7 @@ export default function SettingsPage() {
                                     type={showJellyfinApiKey ? "text" : "password"}
                                     value={jellyfinSettings.apiKey}
                                     onChange={(e) => handleJellyfinInputChange('apiKey', e.target.value)}
-                                    placeholder="842803013ffd4cd4b140f9a3646e823d"
+                                    placeholder={JELLYFIN_API_KEY_PLACEHOLDER}
                                     className={`w-full px-4 py-2 pr-12 bg-gray-700 text-white border ${jellyfinErrors.apiKey ? 'border-red-500' : 'border-gray-600'
                                         } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono`}
                                 />

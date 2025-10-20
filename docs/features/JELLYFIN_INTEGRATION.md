@@ -21,7 +21,7 @@ GET /api/settings/jellyfin
   "success": true,
   "settings": {
     "url": "https://media.homes-enter.xyz",
-    "apiKey": "842803013ffd4cd4b140f9a3646e823d"
+    "apiKey": ""
   }
 }
 ```
@@ -34,7 +34,7 @@ Content-Type: application/json
 
 {
   "url": "https://media.homes-enter.xyz",
-  "apiKey": "842803013ffd4cd4b140f9a3646e823d"
+  "apiKey": ""
 }
 ```
 
@@ -55,7 +55,7 @@ Content-Type: application/json
 
 {
   "url": "https://media.homes-enter.xyz",
-  "apiKey": "842803013ffd4cd4b140f9a3646e823d"
+  "apiKey": ""
 }
 ```
 
@@ -115,7 +115,7 @@ Navigate to: **Settings** (via Burger Menu) → **Jellyfin Connection** section
 2. **API Key Input**
    - Enter your Jellyfin API key
    - Monospaced font for easy reading
-   - Example: `842803013ffd4cd4b140f9a3646e823d`
+   - Example: ``
 
 3. **Test Connection Button**
    - Tests connection without saving
@@ -137,7 +137,7 @@ Navigate to: **Settings** (via Burger Menu) → **Jellyfin Connection** section
 ### Test Server Configuration
 
 - **Server URL:** `https://media.homes-enter.xyz`
-- **API Key:** `842803013ffd4cd4b140f9a3646e823d`
+- **API Key:** ``
 - **Server Name:** jellyfin
 - **Version:** 10.10.7
 
@@ -159,12 +159,12 @@ Navigate to: **Settings** (via Burger Menu) → **Jellyfin Connection** section
 # Test connection
 curl -X POST http://localhost:3001/api/settings/jellyfin/test \
   -H "Content-Type: application/json" \
-  -d '{"url":"https://media.homes-enter.xyz","apiKey":"842803013ffd4cd4b140f9a3646e823d"}'
+  -d '{"url":"https://media.homes-enter.xyz","apiKey":""}'
 
 # Save settings
 curl -X POST http://localhost:3001/api/settings/jellyfin \
   -H "Content-Type: application/json" \
-  -d '{"url":"https://media.homes-enter.xyz","apiKey":"842803013ffd4cd4b140f9a3646e823d"}'
+  -d '{"url":"https://media.homes-enter.xyz","apiKey":""}'
 
 # Get saved settings
 curl http://localhost:3001/api/settings/jellyfin
@@ -221,7 +221,7 @@ Potential features that can leverage this integration:
   },
   "jellyfin": {
     "url": "https://media.homes-enter.xyz",
-    "apiKey": "842803013ffd4cd4b140f9a3646e823d"
+    "apiKey": ""
   }
 }
 ```
