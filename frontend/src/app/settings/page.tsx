@@ -13,7 +13,7 @@ import Header from '@/components/Header'
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 // Placeholder constants from environment variables
-const JELLYFIN_API_KEY_PLACEHOLDER = process.env.NEXT_PUBLIC_JELLYFIN_API_KEY_PLACEHOLDER || '842803013ffd4cd4b140f9a3646e823d'
+const JELLYFIN_API_KEY_PLACEHOLDER = process.env.NEXT_PUBLIC_JELLYFIN_API_KEY_PLACEHOLDER || ''
 const JELLYFIN_URL_PLACEHOLDER = process.env.NEXT_PUBLIC_JELLYFIN_URL_PLACEHOLDER || 'http://localhost:8096'
 const QBITTORRENT_URL_PLACEHOLDER = process.env.NEXT_PUBLIC_QBITTORRENT_URL_PLACEHOLDER || 'http://localhost:8080'
 
