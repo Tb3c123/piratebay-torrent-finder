@@ -81,10 +81,9 @@ export default function Header() {
                 </svg>
 
                 {/* Notification Badge - Always show count */}
-                <span className={`absolute -top-1 -right-1 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shadow-lg ${downloadCount > 0
-                        ? 'bg-red-500 animate-pulse'
-                        : 'bg-gray-600'
-                    }`}>
+                <span className={`absolute -top-1 -right-1 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shadow-lg ${
+                    downloadCount > 0 ? 'bg-red-500' : 'bg-gray-600'
+                }`}>
                     {downloadCount > 99 ? '99+' : downloadCount}
                 </span>
             </button>
