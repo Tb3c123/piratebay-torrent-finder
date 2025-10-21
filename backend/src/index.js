@@ -13,7 +13,6 @@ const moviesRoutes = require('./routes/movies');
 const torrentRoutes = require('./routes/torrent');
 const animeRoutes = require('./routes/anime');
 const settingsRoutes = require('./routes/settings');
-const youtubeRoutes = require('./routes/youtube');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -38,7 +37,6 @@ app.use('/api/movies', moviesRoutes);
 app.use('/api/torrent', torrentRoutes);
 app.use('/api/anime', animeRoutes);
 app.use('/api/settings', settingsRoutes);
-app.use('/api/youtube', youtubeRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

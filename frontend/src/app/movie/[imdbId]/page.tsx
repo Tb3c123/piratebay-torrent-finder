@@ -8,7 +8,6 @@ import { MovieDetails, Torrent } from '@/lib/types'
 import { generateMovieQueries, searchMovieTorrents, searchMovieCustom } from '@/lib/torrent'
 import { TorrentSection } from '@/components/torrent'
 import { useSessionCache } from '@/hooks/useSessionCache'
-import TrailerPlayer from '@/components/TrailerPlayer'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -18,7 +17,6 @@ export default function MovieDetailPage({ params }: { params: { imdbId: string }
     const [torrentError, setTorrentError] = useState('')
     const [imageError, setImageError] = useState(false)
     const [hasSearched, setHasSearched] = useState(false)
-    const [showTrailer, setShowTrailer] = useState(false)
     const router = useRouter()
 
     // Use the custom hook for caching
@@ -190,17 +188,6 @@ export default function MovieDetailPage({ params }: { params: { imdbId: string }
                                 <p className="text-white leading-relaxed">{movie.Plot}</p>
                             </div>
 
-                            {/* Watch Trailer Button */}
-                            <div className="mb-6">
-                                <button
-                                    onClick={() => setShowTrailer(!showTrailer)}
-                                    className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2"
-                                >
-                                    <span className="text-xl">🎬</span>
-                                    <span>{showTrailer ? 'Hide Trailer' : 'Watch Trailer'}</span>
-                                </button>
-                            </div>
-
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div>
                                     <h3 className="text-gray-400 text-sm mb-1">Director</h3>
@@ -243,17 +230,6 @@ export default function MovieDetailPage({ params }: { params: { imdbId: string }
                         </div>
                     </div>
                 </div>
-
-                {/* Trailer Section */}
-                {showTrailer && (
-                    <div className="mb-8">
-                        <TrailerPlayer
-                            title={movie.Title}
-                            year={movie.Year}
-                            onClose={() => setShowTrailer(false)}
-                        />
-                    </div>
-                )}
 
                 {/* Torrents Section - Using Reusable Component */}
                 <TorrentSection
