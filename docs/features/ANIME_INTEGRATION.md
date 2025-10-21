@@ -140,7 +140,7 @@ curl "http://localhost:3001/api/anime/20"  # Naruto
 
 - Basic info: title (multiple languages), type, episodes, status
 - Ratings & popularity: score, rank, members, favorites
-- Media: images (JPG/WebP), trailer (YouTube embed)
+- Media: images (JPG/WebP)
 - Production: studios, producers, licensors
 - Classification: genres, themes, demographics
 - Dates: aired, broadcast schedule, season/year
@@ -189,7 +189,7 @@ Returns:
 
 ### File Structure
 
-```
+```text
 backend/
 ├── src/
 │   ├── services/

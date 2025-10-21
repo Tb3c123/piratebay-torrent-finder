@@ -54,7 +54,6 @@ async function searchAnime(query, page = 1) {
             popularity: item.popularity,
             synopsis: item.synopsis,
             image: item.images?.jpg?.large_image_url || item.images?.jpg?.image_url,
-            trailer: item.trailer?.url,
             genres: item.genres?.map(g => g.name),
             studios: item.studios?.map(s => s.name),
             year: item.year,
@@ -160,11 +159,6 @@ async function getAnimeDetails(malId) {
                     images: {
                         jpg: item.images?.jpg?.large_image_url || item.images?.jpg?.image_url,
                         webp: item.images?.webp?.large_image_url || item.images?.webp?.image_url
-                    },
-                    trailer: {
-                        youtube_id: item.trailer?.youtube_id,
-                        url: item.trailer?.url,
-                        embed_url: item.trailer?.embed_url
                     },
                     streaming: item.streaming?.map(s => ({ name: s.name, url: s.url })) || [],
                     relations: item.relations?.map(r => ({

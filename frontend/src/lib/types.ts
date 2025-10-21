@@ -68,7 +68,6 @@ export interface AnimeDetails {
     background?: string
     image: string
     imageWebp?: string
-    trailer?: string
     studios: Array<{ name: string }>
     genres: Array<{ name: string }>
     themes: Array<{ name: string }>
