@@ -4,6 +4,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
 
+// Initialize database before anything else
+require('./database/init');
+
 const searchRoutes = require('./routes/search');
 const qbittorrentRoutes = require('./routes/qbittorrent');
 const { router: logsRouter, addLog, LOG_LEVELS } = require('./routes/logs');
@@ -13,6 +16,7 @@ const moviesRoutes = require('./routes/movies');
 const torrentRoutes = require('./routes/torrent');
 const animeRoutes = require('./routes/anime');
 const settingsRoutes = require('./routes/settings');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +32,7 @@ global.addLog = addLog;
 global.LOG_LEVELS = LOG_LEVELS;
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/qbittorrent', qbittorrentRoutes);
 app.use('/api/logs', logsRouter);
