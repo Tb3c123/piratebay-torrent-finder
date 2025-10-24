@@ -201,8 +201,11 @@ export default function SettingsPage() {
         setJellyfinTestResult(null)
 
         try {
-            await axios.post(`${API_URL}/api/settings/jellyfin`, jellyfinSettings)
-            alert('Jellyfin settings saved successfully!')
+            await axios.post(`${API_URL}/api/settings/jellyfin`, {
+                ...jellyfinSettings,
+                saveLibraries: true
+            })
+            alert('Jellyfin settings and libraries saved successfully!')
         } catch (error: any) {
             console.error('Failed to save Jellyfin settings:', error)
             alert(error.response?.data?.error || 'Failed to save Jellyfin settings')
