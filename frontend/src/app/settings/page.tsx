@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { useAuth } from '@/contexts/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -36,6 +37,7 @@ interface JellyfinLibrary {
 
 export default function SettingsPage() {
     const router = useRouter()
+    const { user } = useAuth()
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [testing, setTesting] = useState(false)
@@ -66,14 +68,18 @@ export default function SettingsPage() {
 
     // Load settings on mount
     useEffect(() => {
-        loadSettings()
-        loadJellyfinSettings()
-    }, [])
+        if (user?.id) {
+            loadSettings()
+            loadJellyfinSettings()
+        }
+    }, [user?.id])
 
     const loadSettings = async () => {
         setLoading(true)
         try {
-            const response = await axios.get(`${API_URL}/api/settings/qbittorrent`)
+            const response = await axios.get(`${API_URL}/api/settings/qbittorrent`, {
+                params: { userId: user?.id }
+            })
             if (response.data.settings) {
                 setSettings(response.data.settings)
             }
@@ -86,7 +92,9 @@ export default function SettingsPage() {
 
     const loadJellyfinSettings = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/settings/jellyfin`)
+            const response = await axios.get(`${API_URL}/api/settings/jellyfin`, {
+                params: { userId: user?.id }
+            })
             if (response.data.settings) {
                 setJellyfinSettings(response.data.settings)
             }
@@ -125,7 +133,10 @@ export default function SettingsPage() {
         setTestResult(null)
 
         try {
-            await axios.post(`${API_URL}/api/settings/qbittorrent`, settings)
+            await axios.post(`${API_URL}/api/settings/qbittorrent`, {
+                ...settings,
+                userId: user?.id
+            })
             alert('Settings saved successfully!')
         } catch (error: any) {
             console.error('Failed to save settings:', error)
@@ -203,7 +214,8 @@ export default function SettingsPage() {
         try {
             await axios.post(`${API_URL}/api/settings/jellyfin`, {
                 ...jellyfinSettings,
-                saveLibraries: true
+                saveLibraries: true,
+                userId: user?.id
             })
             alert('Jellyfin settings and libraries saved successfully!')
         } catch (error: any) {

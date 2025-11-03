@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import Image from 'next/image'
+import { useAuth } from '@/contexts/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -18,6 +19,7 @@ interface Movie {
 function HomeContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { user } = useAuth()
     const [searchQuery, setSearchQuery] = useState('')
     const [searchMode, setSearchMode] = useState<'movie' | 'direct'>('movie') // movie: OMDB search, direct: direct Pirate Bay
     const [searchResults, setSearchResults] = useState<Movie[]>([])
@@ -52,7 +54,9 @@ function HomeContent() {
         const searchFromUrl = searchParams.get('search')
         if (searchFromUrl && searchFromUrl !== searchQuery) {
             setSearchQuery(searchFromUrl)
-            // Don't auto-search, let user click Search button
+            setHasSearched(true)
+            // Auto-search when coming from history
+            performSearch(searchFromUrl)
         }
     }, [searchParams])
 
@@ -136,6 +140,7 @@ function HomeContent() {
                     await axios.post(`${API_URL}/api/history`, {
                         query: query,
                         type: 'movie',
+                        userId: user?.id,
                         resultCount: response.data.movies.length
                     })
                 } catch (historyErr) {

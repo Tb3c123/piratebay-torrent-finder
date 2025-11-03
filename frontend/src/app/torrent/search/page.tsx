@@ -6,12 +6,14 @@ import axios from 'axios'
 import { TorrentSection } from '@/components/torrent'
 import { Torrent } from '@/lib/types'
 import CategoryFilterComponent from '@/components/CategoryFilter'
+import { useAuth } from '@/contexts/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 function DirectSearchContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { user } = useAuth()
     const query = searchParams.get('q') || ''
 
     const [torrents, setTorrents] = useState<Torrent[]>([])
@@ -70,7 +72,8 @@ function DirectSearchContent() {
                 try {
                     await axios.post(`${API_URL}/api/history`, {
                         query: searchQuery,
-                        category: 'piratebay' // Mark as direct Pirate Bay search
+                        category: 'piratebay', // Mark as direct Pirate Bay search
+                        userId: user?.id
                     })
                 } catch (historyErr) {
                     console.error('Failed to save search history:', historyErr)

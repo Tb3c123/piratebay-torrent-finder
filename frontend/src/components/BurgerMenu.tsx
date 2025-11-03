@@ -14,6 +14,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { useAuth } from '@/contexts/AuthContext'
 
 // Local imports
 import { SearchHistoryItem, MenuView } from './BurgerMenu/types'
@@ -22,6 +23,7 @@ import MainView from './BurgerMenu/MainView'
 import FullHistoryView from './BurgerMenu/FullHistoryView'
 
 export default function BurgerMenu() {
+    const { user } = useAuth()
     // UI State
     const [isOpen, setIsOpen] = useState(false)
     const [currentView, setCurrentView] = useState<MenuView>('main')
@@ -89,7 +91,11 @@ export default function BurgerMenu() {
     const loadSearchHistory = async () => {
         setLoadingHistory(true)
         try {
-            const response = await axios.get(`${API_URL}/api/history`)
+            console.log('[BurgerMenu] Loading history for userId:', user?.id)
+            const response = await axios.get(`${API_URL}/api/history`, {
+                params: { userId: user?.id }
+            })
+            console.log('[BurgerMenu] Loaded history:', response.data.length, 'items')
             setSearchHistory(response.data)
         } catch (error) {
             console.error('Failed to load search history:', error)

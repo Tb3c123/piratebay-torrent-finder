@@ -14,31 +14,40 @@ async function loadSettings() {
         const data = await fs.readFile(SETTINGS_FILE, 'utf8');
         return JSON.parse(data);
     } catch {
-        // Fallback to environment variables if file doesn't exist
+        // Fallback to default structure
         return {
-            qbittorrent: {
-                url: process.env.QBITTORRENT_URL || 'http://localhost:8080',
-                username: process.env.QBITTORRENT_USERNAME || 'admin',
-                password: process.env.QBITTORRENT_PASSWORD || 'adminadmin'
-            }
+            users: {}
         };
     }
 }
 
 /**
- * Get current qBittorrent settings
+ * Get user-specific qBittorrent settings
+ * @param {string} userId - User ID
  */
-async function getSettings() {
-    const settings = await loadSettings();
-    return settings.qbittorrent;
+async function getSettings(userId = null) {
+    const allSettings = await loadSettings();
+
+    // If userId provided and user settings exist, return them
+    if (userId && allSettings.users && allSettings.users[userId] && allSettings.users[userId].qbittorrent) {
+        return allSettings.users[userId].qbittorrent;
+    }
+
+    // Otherwise fallback to environment variables
+    return {
+        url: process.env.QBITTORRENT_URL || 'http://localhost:8080',
+        username: process.env.QBITTORRENT_USERNAME || 'admin',
+        password: process.env.QBITTORRENT_PASSWORD || 'adminadmin'
+    };
 }
 
 /**
  * Login to qBittorrent Web UI
+ * @param {string} userId - User ID for per-user settings
  */
-async function login() {
+async function login(userId = null) {
     try {
-        const config = await getSettings();
+        const config = await getSettings(userId);
         console.log('[qBittorrent] Logging in to:', config.url);
 
         const response = await axios.post(
@@ -80,10 +89,11 @@ async function login() {
  * Add a torrent to qBittorrent
  * @param {string} magnetLink - Magnet link
  * @param {string} savePath - Optional save path
+ * @param {string} userId - User ID for per-user settings
  */
-async function addTorrent(magnetLink, savePath = null) {
+async function addTorrent(magnetLink, savePath = null, userId = null) {
     try {
-        const config = await getSettings();
+        const config = await getSettings(userId);
 
         const params = new URLSearchParams({
             urls: magnetLink
@@ -113,10 +123,11 @@ async function addTorrent(magnetLink, savePath = null) {
 
 /**
  * Get list of torrents from qBittorrent
+ * @param {string} userId - User ID for per-user settings
  */
-async function getTorrents() {
+async function getTorrents(userId = null) {
     try {
-        const config = await getSettings();
+        const config = await getSettings(userId);
 
         const response = await axios.get(
             `${config.url}/api/v2/torrents/info`,
@@ -137,10 +148,11 @@ async function getTorrents() {
 /**
  * Pause/Stop a torrent
  * @param {string} hash - Torrent hash
+ * @param {string} userId - User ID for per-user settings
  */
-async function pauseTorrent(hash) {
+async function pauseTorrent(hash, userId = null) {
     try {
-        const config = await getSettings();
+        const config = await getSettings(userId);
         console.log('[qBittorrent] Stopping torrent:', hash);
 
         const response = await axios.post(
@@ -174,10 +186,11 @@ async function pauseTorrent(hash) {
 /**
  * Resume/Start a torrent
  * @param {string} hash - Torrent hash
+ * @param {string} userId - User ID for per-user settings
  */
-async function resumeTorrent(hash) {
+async function resumeTorrent(hash, userId = null) {
     try {
-        const config = await getSettings();
+        const config = await getSettings(userId);
         console.log('[qBittorrent] Starting torrent:', hash);
 
         const response = await axios.post(
@@ -211,10 +224,11 @@ async function resumeTorrent(hash) {
 /**
  * Force start a torrent (override queue limits)
  * @param {string} hash - Torrent hash
+ * @param {string} userId - User ID for per-user settings
  */
-async function forceStartTorrent(hash) {
+async function forceStartTorrent(hash, userId = null) {
     try {
-        const config = await getSettings();
+        const config = await getSettings(userId);
         console.log('[qBittorrent] Force starting torrent:', hash);
 
         const response = await axios.post(
@@ -252,10 +266,11 @@ async function forceStartTorrent(hash) {
  * Delete a torrent
  * @param {string} hash - Torrent hash
  * @param {boolean} deleteFiles - Delete files from disk
+ * @param {string} userId - User ID for per-user settings
  */
-async function deleteTorrent(hash, deleteFiles = false) {
+async function deleteTorrent(hash, deleteFiles = false, userId = null) {
     try {
-        const config = await getSettings();
+        const config = await getSettings(userId);
         console.log('[qBittorrent] Deleting torrent:', hash, 'deleteFiles:', deleteFiles);
 
         const response = await axios.post(

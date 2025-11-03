@@ -5,14 +5,14 @@ const qbittorrentService = require('../services/qbittorrent');
 // Add torrent to qBittorrent
 router.post('/add', async (req, res) => {
     try {
-        const { magnetLink, savePath } = req.body;
+        const { magnetLink, savePath, userId } = req.body;
 
         if (!magnetLink) {
             return res.status(400).json({ error: 'Magnet link is required' });
         }
 
-        await qbittorrentService.login();
-        const result = await qbittorrentService.addTorrent(magnetLink, savePath);
+        await qbittorrentService.login(userId);
+        const result = await qbittorrentService.addTorrent(magnetLink, savePath, userId);
 
         res.json({ success: true, message: 'Torrent added successfully', result });
     } catch (error) {
@@ -24,8 +24,10 @@ router.post('/add', async (req, res) => {
 // Get qBittorrent status
 router.get('/status', async (req, res) => {
     try {
-        await qbittorrentService.login();
-        const torrents = await qbittorrentService.getTorrents();
+        const { userId } = req.query;
+
+        await qbittorrentService.login(userId);
+        const torrents = await qbittorrentService.getTorrents(userId);
 
         res.json({ success: true, torrents });
     } catch (error) {
@@ -37,8 +39,10 @@ router.get('/status', async (req, res) => {
 // Get all torrents
 router.get('/torrents', async (req, res) => {
     try {
-        await qbittorrentService.login();
-        const torrents = await qbittorrentService.getTorrents();
+        const { userId } = req.query;
+
+        await qbittorrentService.login(userId);
+        const torrents = await qbittorrentService.getTorrents(userId);
 
         res.json({ success: true, torrents });
     } catch (error) {
@@ -51,9 +55,10 @@ router.get('/torrents', async (req, res) => {
 router.post('/pause/:hash', async (req, res) => {
     try {
         const { hash } = req.params;
+        const { userId } = req.body;
 
-        await qbittorrentService.login();
-        await qbittorrentService.pauseTorrent(hash);
+        await qbittorrentService.login(userId);
+        await qbittorrentService.pauseTorrent(hash, userId);
 
         res.json({ success: true, message: 'Torrent paused' });
     } catch (error) {
@@ -66,9 +71,10 @@ router.post('/pause/:hash', async (req, res) => {
 router.post('/resume/:hash', async (req, res) => {
     try {
         const { hash } = req.params;
+        const { userId } = req.body;
 
-        await qbittorrentService.login();
-        await qbittorrentService.resumeTorrent(hash);
+        await qbittorrentService.login(userId);
+        await qbittorrentService.resumeTorrent(hash, userId);
 
         res.json({ success: true, message: 'Torrent resumed' });
     } catch (error) {
@@ -81,9 +87,10 @@ router.post('/resume/:hash', async (req, res) => {
 router.post('/force-start/:hash', async (req, res) => {
     try {
         const { hash } = req.params;
+        const { userId } = req.body;
 
-        await qbittorrentService.login();
-        await qbittorrentService.forceStartTorrent(hash);
+        await qbittorrentService.login(userId);
+        await qbittorrentService.forceStartTorrent(hash, userId);
 
         res.json({ success: true, message: 'Torrent force started' });
     } catch (error) {
@@ -96,10 +103,10 @@ router.post('/force-start/:hash', async (req, res) => {
 router.delete('/delete/:hash', async (req, res) => {
     try {
         const { hash } = req.params;
-        const { deleteFiles } = req.query;
+        const { deleteFiles, userId } = req.query;
 
-        await qbittorrentService.login();
-        await qbittorrentService.deleteTorrent(hash, deleteFiles === 'true');
+        await qbittorrentService.login(userId);
+        await qbittorrentService.deleteTorrent(hash, deleteFiles === 'true', userId);
 
         res.json({ success: true, message: 'Torrent deleted' });
     } catch (error) {

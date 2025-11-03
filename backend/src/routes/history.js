@@ -3,12 +3,12 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 
-const HISTORY_FILE = path.join(__dirname, '../../data/search-history.json');
+const HISTORY_FILE = path.join(__dirname, '../data/search-history.json');
 const MAX_HISTORY = 100;
 const RETENTION_DAYS = 30;
 
 // Ensure data directory exists
-const dataDir = path.join(__dirname, '../../data');
+const dataDir = path.join(__dirname, '../data');
 if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
 }
@@ -33,7 +33,13 @@ function loadHistory() {
  */
 function saveHistory(history) {
     try {
+        console.log(`[DEBUG] Saving history with ${history.length} entries:`, JSON.stringify(history, null, 2));
         fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
+        console.log(`[DEBUG] Successfully wrote to ${HISTORY_FILE}`);
+
+        // Verify write
+        const verifyData = fs.readFileSync(HISTORY_FILE, 'utf8');
+        console.log(`[DEBUG] Verification read: ${verifyData.length} bytes`);
     } catch (error) {
         console.error('Error saving search history:', error);
     }
@@ -48,15 +54,28 @@ function cleanOldEntries(history) {
 }
 
 /**
- * Get search history
+ * Get search history (per user)
  */
 router.get('/', (req, res) => {
     try {
-        let history = loadHistory();
-        history = cleanOldEntries(history);
-        saveHistory(history);
+        const { userId } = req.query;
+        const userIdNum = userId ? parseInt(userId, 10) : null;
 
-        res.json(history);
+        let allHistory = loadHistory();
+        let cleanedHistory = cleanOldEntries(allHistory);
+
+        // Save cleaned history (all users) only if something was cleaned
+        if (allHistory.length !== cleanedHistory.length) {
+            saveHistory(cleanedHistory);
+        }
+
+        // Filter by userId if provided for response only
+        let userHistory = cleanedHistory;
+        if (userIdNum) {
+            userHistory = cleanedHistory.filter(item => item.userId === userIdNum);
+        }
+
+        res.json(userHistory);
     } catch (error) {
         console.error('Error getting search history:', error);
         res.status(500).json({ error: 'Failed to get search history' });
@@ -87,11 +106,11 @@ router.get('/stats', (req, res) => {
         res.status(500).json({ error: 'Failed to get history stats' });
     }
 });/**
- * Add search to history
+ * Add search to history (per user)
  */
 router.post('/', (req, res) => {
     try {
-        const { query, category } = req.body;
+        const { query, category, userId } = req.body;
 
         if (!query) {
             return res.status(400).json({ error: 'Query is required' });
@@ -99,9 +118,11 @@ router.post('/', (req, res) => {
 
         let history = loadHistory();
 
-        // Remove duplicate if exists
+        // Remove duplicate if exists (for this user only)
         history = history.filter(item =>
-            !(item.query.toLowerCase() === query.toLowerCase() && item.category === category)
+            !(item.query.toLowerCase() === query.toLowerCase() &&
+                item.category === category &&
+                item.userId === userId)
         );
 
         // Add new entry at the beginning
@@ -109,18 +130,29 @@ router.post('/', (req, res) => {
             id: Date.now() + Math.random(),
             query,
             category: category || '0',
+            userId: userId || null,
             timestamp: Date.now()
         });
 
-        // Keep only MAX_HISTORY entries
-        if (history.length > MAX_HISTORY) {
-            history = history.slice(0, MAX_HISTORY);
+        // Keep only MAX_HISTORY entries per user
+        if (userId) {
+            const userHistory = history.filter(item => item.userId === userId);
+            const otherHistory = history.filter(item => item.userId !== userId);
+
+            if (userHistory.length > MAX_HISTORY) {
+                history = [...userHistory.slice(0, MAX_HISTORY), ...otherHistory];
+            }
+        } else {
+            // For legacy entries without userId
+            if (history.length > MAX_HISTORY) {
+                history = history.slice(0, MAX_HISTORY);
+            }
         }
 
         saveHistory(history);
 
         if (global.addLog) {
-            global.addLog(global.LOG_LEVELS.INFO, `Search added to history: ${query}`);
+            global.addLog(global.LOG_LEVELS.INFO, `Search added to history: ${query} (User: ${userId || 'guest'})`);
         }
 
         res.json({ success: true, history });

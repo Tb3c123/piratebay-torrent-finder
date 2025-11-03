@@ -7,26 +7,36 @@ const axios = require('axios');
 const SETTINGS_FILE = path.join(__dirname, '../data/settings.json');
 
 /**
- * Ensure settings file exists
+ * Ensure settings file exists with proper structure
  */
 async function ensureSettingsFile() {
     try {
         await fs.access(SETTINGS_FILE);
     } catch {
-        // File doesn't exist, create with defaults
+        // File doesn't exist, create with per-user structure
         const defaultSettings = {
-            qbittorrent: {
-                url: process.env.QBITTORRENT_URL || 'http://localhost:8080',
-                username: process.env.QBITTORRENT_USERNAME || 'admin',
-                password: process.env.QBITTORRENT_PASSWORD || 'adminadmin'
-            },
-            jellyfin: {
-                url: process.env.JELLYFIN_URL || '',
-                apiKey: process.env.JELLYFIN_API_KEY || ''
-            }
+            users: {}
         };
         await fs.writeFile(SETTINGS_FILE, JSON.stringify(defaultSettings, null, 2));
     }
+}
+
+/**
+ * Get default user settings
+ */
+function getDefaultUserSettings() {
+    return {
+        qbittorrent: {
+            url: process.env.QBITTORRENT_URL || 'http://localhost:8080',
+            username: process.env.QBITTORRENT_USERNAME || 'admin',
+            password: process.env.QBITTORRENT_PASSWORD || 'adminadmin'
+        },
+        jellyfin: {
+            url: process.env.JELLYFIN_URL || '',
+            apiKey: process.env.JELLYFIN_API_KEY || '',
+            libraries: []
+        }
+    };
 }
 
 /**
@@ -161,19 +171,25 @@ async function testJellyfinConnection(url, apiKey) {
     }
 }
 
-// Get qBittorrent settings
+// Get qBittorrent settings (per user)
 router.get('/qbittorrent', async (req, res) => {
     try {
-        const settings = await loadSettings();
+        const { userId } = req.query;
 
-        // Return settings without exposing password in plain text
+        if (!userId) {
+            return res.status(400).json({ error: 'userId is required' });
+        }
+
+        const allSettings = await loadSettings();
+
+        // Get user-specific settings or return defaults
+        const userSettings = allSettings.users && allSettings.users[userId]
+            ? allSettings.users[userId].qbittorrent
+            : getDefaultUserSettings().qbittorrent;
+
         res.json({
             success: true,
-            settings: {
-                url: settings.qbittorrent.url,
-                username: settings.qbittorrent.username,
-                password: settings.qbittorrent.password // Frontend will handle masking
-            }
+            settings: userSettings
         });
     } catch (error) {
         console.error('Failed to load settings:', error);
@@ -181,12 +197,16 @@ router.get('/qbittorrent', async (req, res) => {
     }
 });
 
-// Save qBittorrent settings
+// Save qBittorrent settings (per user)
 router.post('/qbittorrent', async (req, res) => {
     try {
-        const { url, username, password } = req.body;
+        const { url, username, password, userId } = req.body;
 
         // Validation
+        if (!userId) {
+            return res.status(400).json({ error: 'userId is required' });
+        }
+
         if (!url || !username || !password) {
             return res.status(400).json({ error: 'URL, username, and password are required' });
         }
@@ -196,22 +216,27 @@ router.post('/qbittorrent', async (req, res) => {
         }
 
         // Load current settings
-        const settings = await loadSettings();
+        const allSettings = await loadSettings();
 
-        // Update qBittorrent settings
-        settings.qbittorrent = {
+        // Ensure users object exists
+        if (!allSettings.users) {
+            allSettings.users = {};
+        }
+
+        // Ensure user settings object exists
+        if (!allSettings.users[userId]) {
+            allSettings.users[userId] = getDefaultUserSettings();
+        }
+
+        // Update user's qBittorrent settings
+        allSettings.users[userId].qbittorrent = {
             url: url.trim(),
             username: username.trim(),
             password: password
         };
 
         // Save to file
-        await saveSettings(settings);
-
-        // Update environment variables for the qbittorrent service
-        process.env.QBITTORRENT_URL = url.trim();
-        process.env.QBITTORRENT_USERNAME = username.trim();
-        process.env.QBITTORRENT_PASSWORD = password;
+        await saveSettings(allSettings);
 
         res.json({ success: true, message: 'Settings saved successfully' });
     } catch (error) {
@@ -243,18 +268,25 @@ router.post('/qbittorrent/test', async (req, res) => {
     }
 });
 
-// Get Jellyfin settings
+// Get Jellyfin settings (per user)
 router.get('/jellyfin', async (req, res) => {
     try {
-        const settings = await loadSettings();
+        const { userId } = req.query;
+
+        if (!userId) {
+            return res.status(400).json({ error: 'userId is required' });
+        }
+
+        const allSettings = await loadSettings();
+
+        // Get user-specific settings or return defaults
+        const userSettings = allSettings.users && allSettings.users[userId]
+            ? allSettings.users[userId].jellyfin
+            : getDefaultUserSettings().jellyfin;
 
         res.json({
             success: true,
-            settings: {
-                url: settings.jellyfin?.url || '',
-                apiKey: settings.jellyfin?.apiKey || '',
-                libraries: settings.jellyfin?.libraries || []
-            }
+            settings: userSettings
         });
     } catch (error) {
         console.error('Failed to load Jellyfin settings:', error);
@@ -262,12 +294,16 @@ router.get('/jellyfin', async (req, res) => {
     }
 });
 
-// Save Jellyfin settings
+// Save Jellyfin settings (per user)
 router.post('/jellyfin', async (req, res) => {
     try {
-        const { url, apiKey, saveLibraries } = req.body;
+        const { url, apiKey, saveLibraries, userId } = req.body;
 
         // Validation
+        if (!userId) {
+            return res.status(400).json({ error: 'userId is required' });
+        }
+
         if (!url || !apiKey) {
             return res.status(400).json({ error: 'URL and API key are required' });
         }
@@ -277,30 +313,40 @@ router.post('/jellyfin', async (req, res) => {
         }
 
         // Load current settings
-        const settings = await loadSettings();
+        const allSettings = await loadSettings();
 
-        // Update Jellyfin settings (remove trailing slash from URL)
-        settings.jellyfin = {
+        // Ensure users object exists
+        if (!allSettings.users) {
+            allSettings.users = {};
+        }
+
+        // Ensure user settings object exists
+        if (!allSettings.users[userId]) {
+            allSettings.users[userId] = getDefaultUserSettings();
+        }
+
+        // Update user's Jellyfin settings (remove trailing slash from URL)
+        allSettings.users[userId].jellyfin = {
             url: url.trim().replace(/\/+$/, ''),
             apiKey: apiKey.trim(),
-            libraries: settings.jellyfin?.libraries || []
+            libraries: allSettings.users[userId].jellyfin?.libraries || []
         };
 
         // If saveLibraries flag is true, fetch and save libraries
         if (saveLibraries) {
             const result = await testJellyfinConnection(url.trim(), apiKey.trim());
             if (result.success && result.libraries) {
-                settings.jellyfin.libraries = result.libraries;
+                allSettings.users[userId].jellyfin.libraries = result.libraries;
             }
         }
 
         // Save to file
-        await saveSettings(settings);
+        await saveSettings(allSettings);
 
         res.json({
             success: true,
             message: 'Jellyfin settings saved successfully',
-            libraries: settings.jellyfin.libraries
+            libraries: allSettings.users[userId].jellyfin.libraries
         });
     } catch (error) {
         console.error('Failed to save Jellyfin settings:', error);
@@ -362,14 +408,25 @@ router.get('/jellyfin/libraries', async (req, res) => {
     }
 });
 
-// Get saved Jellyfin libraries (from settings, no API call)
+// Get saved Jellyfin libraries (from settings, no API call, per user)
 router.get('/jellyfin/saved-libraries', async (req, res) => {
     try {
-        const settings = await loadSettings();
+        const { userId } = req.query;
+
+        if (!userId) {
+            return res.status(400).json({ error: 'userId is required' });
+        }
+
+        const allSettings = await loadSettings();
+
+        // Get user-specific libraries or return empty array
+        const libraries = allSettings.users && allSettings.users[userId] && allSettings.users[userId].jellyfin
+            ? allSettings.users[userId].jellyfin.libraries || []
+            : [];
 
         res.json({
             success: true,
-            libraries: settings.jellyfin?.libraries || []
+            libraries
         });
     } catch (error) {
         console.error('Failed to get saved libraries:', error);

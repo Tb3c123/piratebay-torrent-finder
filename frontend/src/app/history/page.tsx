@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { useAuth } from '@/contexts/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -17,6 +18,7 @@ interface SearchHistoryItem {
 
 export default function HistoryPage() {
     const router = useRouter()
+    const { user } = useAuth()
     const [history, setHistory] = useState<SearchHistoryItem[]>([])
     const [displayedHistory, setDisplayedHistory] = useState<SearchHistoryItem[]>([])
     const [loading, setLoading] = useState(true)
@@ -28,8 +30,10 @@ export default function HistoryPage() {
     const ITEMS_PER_PAGE = 20
 
     useEffect(() => {
-        loadFullHistory()
-    }, [])
+        if (user?.id) {
+            loadFullHistory()
+        }
+    }, [user?.id])
 
     // Infinite scroll observer
     useEffect(() => {
@@ -56,15 +60,28 @@ export default function HistoryPage() {
     const loadFullHistory = async () => {
         setLoading(true)
         try {
-            const response = await axios.get(`${API_URL}/api/history`)
-            const allHistory = response.data
-            setHistory(allHistory)
+            const response = await axios.get(`${API_URL}/api/history`, {
+                params: { userId: user?.id }
+            })
+            const allHistory: SearchHistoryItem[] = response.data
+
+            // Remove duplicates using Map (keep most recent)
+            const uniqueHistory: SearchHistoryItem[] = Array.from(
+                new Map(
+                    allHistory.map((item: SearchHistoryItem) => [
+                        `${item.query.toLowerCase()}-${item.category}`,
+                        item
+                    ])
+                ).values()
+            )
+
+            setHistory(uniqueHistory)
 
             // Load first page
-            const firstPage = allHistory.slice(0, ITEMS_PER_PAGE)
+            const firstPage = uniqueHistory.slice(0, ITEMS_PER_PAGE)
             setDisplayedHistory(firstPage)
             setPage(1)
-            setHasMore(allHistory.length > ITEMS_PER_PAGE)
+            setHasMore(uniqueHistory.length > ITEMS_PER_PAGE)
         } catch (error) {
             console.error('Failed to load history:', error)
         } finally {

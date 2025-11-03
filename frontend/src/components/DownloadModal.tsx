@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { useAuth } from '@/contexts/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -32,6 +33,7 @@ export default function DownloadModal({
     torrentName,
     onDownloadStart
 }: DownloadModalProps) {
+    const { user } = useAuth()
     const [libraries, setLibraries] = useState<JellyfinLibrary[]>([])
     const [selectedLibrary, setSelectedLibrary] = useState<string>('')
     const [loading, setLoading] = useState(true)
@@ -49,7 +51,9 @@ export default function DownloadModal({
         setLoading(true)
         setError(null)
         try {
-            const response = await axios.get(`${API_URL}/api/settings/jellyfin/saved-libraries`)
+            const response = await axios.get(`${API_URL}/api/settings/jellyfin/saved-libraries`, {
+                params: { userId: user?.id }
+            })
             if (response.data.success && response.data.libraries) {
                 setLibraries(response.data.libraries)
                 // Auto-select first library if available
@@ -200,8 +204,8 @@ export default function DownloadModal({
                                             key={library.id}
                                             onClick={() => setSelectedLibrary(library.id)}
                                             className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedLibrary === library.id
-                                                    ? 'border-blue-500 bg-blue-900/30'
-                                                    : 'border-gray-600 bg-gray-700 hover:border-gray-500'
+                                                ? 'border-blue-500 bg-blue-900/30'
+                                                : 'border-gray-600 bg-gray-700 hover:border-gray-500'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-3">
