@@ -1,389 +1,365 @@
 # 🏴‍☠️ Pirate Bay Torrent Finder
 
-A Docker-based web application similar to Jellyseerr for searching movies and TV shows on The Pirate Bay and integrating with qBittorrent for downloads. Designed to run on CasaOS and other Docker environments.
+A modern, Docker-based web application for searching torrents on The Pirate Bay and downloading them directly to qBittorrent, with Jellyfin integration for media library management.
 
-## Features
+## 📋 Table of Contents
 
-- 🔍 **Search torrents** on The Pirate Bay using official API
-- 🎯 **Smart Fuzzy Search** - Find movies even with typos (e.g., "breeking bad" → "Breaking Bad")
-- 📺 **Multi-type search** - Movies, TV series, games, and more
-- 🎨 **Colored badges** - Visual distinction between content types
-- 📜 **Search history** (saved for 30 days)
-- ⬇️ **One-click download** to qBittorrent
-- 📊 **System logs viewer** with filtering
-- 🔄 **Backend/Frontend restart** controls
-- **Docker ready** - Easy deployment
-- 🎨 **Modern UI** with Tailwind CSS
-- 🚀 **CasaOS compatible**
-- 🎯 **Auto-sorted by seeders** for best results
-- ⚡ **Performance optimized** - 4-layer caching system (99% faster)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Docker Deployment](#docker-deployment)
+- [Development](#development)
+- [Architecture](#architecture)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Technology Stack
+## ✨ Features
 
-- **Backend**: Node.js with Express
-- **Frontend**: Next.js with React and Tailwind CSS
-- **Container**: Docker and Docker Compose
-- **Integration**: qBittorrent Web API
+### Core Features
 
-## Prerequisites
+- 🔍 **Movie Search**: Search movies via OMDB API with rich metadata
+- 🏴‍☠️ **Torrent Search**: Direct Pirate Bay torrent search with category filters
+- ⬇️ **One-Click Download**: Download torrents directly to qBittorrent
+- 📚 **Jellyfin Integration**: Auto-organize downloads into Jellyfin media libraries
+- 📜 **Search History**: Per-user search history with quick re-search
+- 🎯 **Smart Categories**: Filter torrents by Movies, TV Shows, Music, Games, etc.
 
-- Docker and Docker Compose installed
+### User Management
+
+- 🔐 **Authentication**: JWT-based user authentication
+- 👤 **Per-User Settings**: Individual qBittorrent and Jellyfin configurations
+- 📊 **Per-User History**: Isolated search history for each user
+- 🔒 **Admin Panel**: User management and system monitoring
+
+### Advanced Features
+
+- 🎬 **Trending Movies**: Display trending, popular, and latest movies
+- 🔄 **Infinite Scroll**: Load more results seamlessly
+- 📱 **Responsive Design**: Mobile-friendly interface with Tailwind CSS
+- 🌙 **Dark Theme**: Beautiful dark mode UI
+- 🍔 **Burger Menu**: Quick access to history, settings, and logs
+- ⚡ **Fast Search**: Cached movie data for instant results
+
+## 🛠 Tech Stack
+
+### Backend
+
+- **Runtime**: Node.js 20
+- **Framework**: Express.js
+- **Database**: SQLite3 (better-sqlite3)
+- **Authentication**: JWT (jsonwebtoken) + bcrypt
+- **Web Scraping**: Cheerio
+- **HTTP Client**: Axios
+- **Security**: Helmet, CORS
+- **Logging**: Morgan + custom logging system
+
+### Frontend
+
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: React Context (AuthContext)
+- **HTTP Client**: Axios
+- **UI Components**: Custom components with responsive design
+
+### Infrastructure
+
+- **Containerization**: Docker + Docker Compose
+- **Proxy**: Nginx (optional)
+- **Process Manager**: PM2 (development)
+- **Hot Reload**: Nodemon (backend), Next.js Fast Refresh (frontend)
+
+## 📦 Prerequisites
+
+- Docker & Docker Compose
 - qBittorrent with Web UI enabled
-- CasaOS (optional, for easy management)
+- (Optional) Jellyfin Media Server
+- (Optional) OMDB API Key (free tier available)
 
-## Installation
+## 🚀 Installation
 
-### 🚀 Quick Deploy (Không cần pull code - Như cài app)
-
-**Chỉ cần 2 file, không cần clone repo! Docker sẽ tự build từ GitHub.**
-
-```bash
-# 1. Tải docker-compose.deploy.yml
-wget https://raw.githubusercontent.com/Tb3c123/piratebay-torrent-finder/main/docker-compose.deploy.yml
-
-# 2. Tải file .env mẫu
-wget https://raw.githubusercontent.com/Tb3c123/piratebay-torrent-finder/main/.env.deploy -O .env
-
-# 3. Sửa .env với thông tin của bạn
-nano .env
-
-# 4. Build và chạy (Docker sẽ tự động clone và build từ GitHub)
-docker-compose -f docker-compose.deploy.yml up -d --build
-```
-
-**Done!** Mở <http://localhost:3000> để sử dụng app.
-
-> **Cách hoạt động:** Docker Compose sẽ tự động:
->
-> 1. Clone code từ GitHub repository
-> 2. Build backend và frontend images
-> 3. Khởi chạy containers
->
-> **Không cần Docker Hub, không cần pull code thủ công!**
-
-**Dành cho CasaOS/Unraid/Portainer:**
-
-- Import file `docker-compose.deploy.yml` vào App Store
-- Điền environment variables trong UI
-- Click Install → Docker sẽ tự build từ GitHub!
-
----
-
-### Quick Setup (Recommended)
-
-**One centralized `.env` file - Simple and easy!**
+### 1. Clone the Repository
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/Tb3c123/piratebay-torrent-finder.git
 cd piratebay-torrent-finder
-
-# 2. Copy and configure ONE environment file
-cp .env.example .env
-
-# 3. Edit .env with your settings (all variables in one place!)
-nano .env
-
-# 4. Start with Docker
-docker-compose up -d
 ```
 
-**Done!** Open <http://localhost:3000> to use the app.
+### 2. Environment Configuration
 
----
-
-### Detailed Setup
-
-### 1. Clone the repository
-
-```bash
-git clone <repository-url>
-cd "Jellyseer Clone"
-```
-
-### 2. Configure environment variables
-
-**NEW: All configuration in ONE file!**
-
-```bash
-cp .env.example .env
-nano .env
-```
-
-Key settings to configure in `.env`:
+Create `.env` file in the root directory:
 
 ```env
-# OMDB API Key (for movie metadata)
-OMDB_API_KEY=your_key_here
+# Backend Configuration
+PORT=3001
+BACKEND_PORT=3001
+
+# Frontend Configuration
+FRONTEND_PORT=3000
+NEXT_PUBLIC_API_URL=http://localhost:3001
 
 # qBittorrent Configuration
-QBITTORRENT_URL=http://your-qbittorrent-host:8080
+QBITTORRENT_URL=http://localhost:8080
 QBITTORRENT_USERNAME=admin
-QBITTORRENT_PASSWORD=your-password
+QBITTORRENT_PASSWORD=adminadmin
 
-# Optional: Change ports if needed
-FRONTEND_PORT=3000
-BACKEND_PORT=3001
+# OMDB API (Optional - for movie metadata)
+OMDB_API_KEY=your_api_key_here
+
+# Jellyfin (Optional - for media library integration)
+JELLYFIN_URL=http://localhost:8096
+JELLYFIN_API_KEY=your_jellyfin_api_key
+
+# Pirate Bay Configuration
+PIRATEBAY_URL=https://thepiratebay.org
 ```
 
-> **Note**: The old setup with separate `backend/.env` and `frontend/.env` files still works, but using the centralized `.env` file is now recommended!
-
-### 3. Build and run with Docker Compose
+### 3. Docker Deployment
 
 ```bash
-docker-compose up -d
+# Build and start containers
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f
+
+# Stop containers
+docker-compose down
 ```
 
-### 4. Access the application
+Application will be available at:
 
 - Frontend: <http://localhost:3000>
 - Backend API: <http://localhost:3001>
 
-## CasaOS Installation
+## ⚙️ Configuration
 
-1. Open CasaOS App Store
-2. Click "Install a customized app"
-3. Upload or paste the `docker-compose.yml` file
-4. Configure environment variables in CasaOS UI or create a `.env` file:
-   - `OMDB_API_KEY` - Get free key at <http://www.omdbapi.com/apikey.aspx>
-   - `QBITTORRENT_URL`, `QBITTORRENT_USERNAME`, `QBITTORRENT_PASSWORD`
-   - Optional: `FRONTEND_PORT`, `BACKEND_PORT`
-5. Click "Install"
+### First-Time Setup
 
-## Advanced Features
+1. **Register an Account**
+   - Navigate to <http://localhost:3000/auth/register>
+   - Create your first user account
+   - First user is automatically admin
 
-### 🔍 Enhanced Fuzzy Search
+2. **Configure qBittorrent**
+   - Go to Settings page
+   - Enter qBittorrent Web UI URL, username, and password
+   - Test connection before saving
 
-The application includes an intelligent fuzzy search that automatically corrects typos and finds movies/series even with spelling mistakes.
+3. **Configure Jellyfin (Optional)**
+   - Go to Settings page
+   - Enter Jellyfin server URL and API key
+   - Click "Test & Load Libraries"
+   - Save configuration
 
-**Examples:**
+### qBittorrent Setup
 
-- `breeking bad` → Finds "Breaking Bad" ✅
-- `how i meet your mother` → Finds "How I Met Your Mother" ✅
-- `spyder man` → Finds "Spider-Man" ✅
-- `barbi movie` → Finds "Barbie" ✅
+Enable Web UI in qBittorrent:
 
-**How it works:**
+1. Open qBittorrent
+2. Go to Tools → Options → Web UI
+3. Enable "Web User Interface (Remote control)"
+4. Set port (default: 8080)
+5. Set username and password
+6. (Optional) Enable "Bypass authentication for clients on localhost"
 
-1. Tries exact match first
-2. Applies case variations
-3. Corrects common typos (30+ corrections)
-4. Applies character-level substitutions (c↔k, b↔p, etc.)
-5. Caches successful searches
+### Jellyfin API Key
 
-📖 See [docs/FUZZY_SEARCH.md](docs/FUZZY_SEARCH.md) for detailed documentation.
+1. Open Jellyfin web interface
+2. Go to Dashboard → API Keys
+3. Click "+" to create new API key
+4. Name it "Pirate Bay Torrent Finder"
+5. Copy the generated key
 
-### ⚡ Performance Optimization
+## 📖 Usage
 
-4-layer caching system for ultra-fast responses:
+### Movie Search
 
-- **Layer 1**: OMDB API results (15 min)
-- **Layer 2**: Movie details (1 hour)
-- **Layer 3**: Torrent listings (5 min)
-- **Layer 4**: Trending sections (1 hour)
+1. **Homepage Movie Search**
+   - Enter movie name in search bar
+   - Select "Movie Search" mode
+   - Click Search or press Enter
+   - Browse results and click on a movie
 
-**Results:** 99% faster load times, API usage reduced by 95%
+2. **Movie Detail Page**
+   - View movie information (plot, cast, ratings)
+   - Click "🔍 Find Torrents" to search Pirate Bay
+   - Select quality and download
 
-📖 See [docs/PERFORMANCE_IMPROVEMENTS.md](docs/PERFORMANCE_IMPROVEMENTS.md) for details.
+### Direct Torrent Search
 
-## Development
+1. **Direct Pirate Bay Search**
+   - Enter search query
+   - Select "Direct Pirate Bay" mode
+   - Choose category (All, Movies, TV, Music, etc.)
+   - Browse torrent results
 
-### Install dependencies
+2. **Download Torrent**
+   - Click "Download" button on any torrent
+   - Select Jellyfin library destination
+   - Torrent is added to qBittorrent automatically
+
+### Search History
+
+- Click burger menu (☰) in top-left corner
+- View recent searches
+- Click any history item to re-search
+- Access full history page for all searches
+- Clear history if needed
+
+### Downloads Management
+
+- Navigate to Downloads page
+- View all active torrents in qBittorrent
+- Pause/Resume/Delete torrents
+- Monitor download progress in real-time
+
+### System Logs
+
+- Go to Logs page (via burger menu)
+- View system events and errors
+- Filter by log level (INFO, WARN, ERROR)
+- Clear logs if needed
+
+## 🐳 Docker Deployment
+
+### Production Deployment
+
+Use `docker-compose.deploy.yml` for production:
 
 ```bash
+docker-compose -f docker-compose.deploy.yml up -d
+```
+
+### Data Persistence
+
+Data is persisted in Docker volumes:
+
+- `./backend/data:/app/src/data` - User database, search history, settings
+
+Important files:
+
+- `users.db` - SQLite database with user accounts
+- `search-history.json` - Per-user search history
+- `settings.json` - Per-user settings (qBittorrent, Jellyfin)
+
+### Backup
+
+```bash
+# Backup data directory
+tar -czf backup-$(date +%Y%m%d).tar.gz backend/data/
+
+# Restore from backup
+tar -xzf backup-YYYYMMDD.tar.gz
+```
+
+## 💻 Development
+
+### Local Development Setup
+
+```bash
+# Install all dependencies
 npm run install:all
-```
 
-### Run in development mode
-
-```bash
+# Run both backend and frontend in dev mode
 npm run dev
+
+# Or run separately
+npm run dev:backend  # Backend on port 3001
+npm run dev:frontend # Frontend on port 3000
 ```
 
-This will start both backend and frontend in development mode:
-
-- Backend: <http://localhost:3001>
-- Frontend: <http://localhost:3000>
-
-### Backend only
+### Backend Development
 
 ```bash
 cd backend
 npm install
-npm run dev
+npm run dev  # Nodemon with hot reload
 ```
 
-### Frontend only
+### Frontend Development
 
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev  # Next.js with Fast Refresh
 ```
 
-### Code Quality Tools
+### Project Structure
 
-Project includes automatic code quality checks via pre-commit hooks:
-
-```bash
-# Install dependencies (this sets up git hooks automatically)
-npm run install:all
-
-# Manual linting
-npm run lint              # Run all linters
-npm run lint:md           # Fix markdown issues
-npm run lint:ts           # Check TypeScript types
 ```
-
-**Pre-commit hooks automatically:**
-
-- Fix markdown formatting (markdownlint)
-- Check TypeScript types
-- Validate code before commit
-
-**Configured in:**
-
-- `package.json` - lint-staged configuration
-- `.husky/pre-commit` - git hook
-- `.markdownlint.json` - markdown rules
-- `.vscode/settings.json` - cSpell dictionary
-
-## API Endpoints
-
-### Search Torrents
-
-```text
-GET /api/search?query=<search-term>&category=<category-id>
-```
-
-Categories:
-
-- `0`: All
-- `200`: Video
-- `201`: Movies
-- `202`: TV Shows
-- `100`: Audio
-- `300`: Applications
-- `400`: Games
-
-### Add Torrent to qBittorrent
-
-```http
-POST /api/qbittorrent/add
-Content-Type: application/json
-
-{
-  "magnetLink": "magnet:?xt=urn:btih:...",
-  "savePath": "/downloads" (optional)
-}
-```
-
-### Get qBittorrent Status
-
-```http
-GET /api/qbittorrent/status
-```
-
-## Configuration
-
-### qBittorrent Setup
-
-1. Enable Web UI in qBittorrent:
-   - Tools → Options → Web UI
-   - Check "Enable the Web User Interface"
-   - Set username and password
-   - Note the port (default: 8080)
-
-2. Configure the application to connect to qBittorrent:
-   - Update `QBITTORRENT_URL` in `.env`
-   - Set `QBITTORRENT_USERNAME` and `QBITTORRENT_PASSWORD`
-
-### The Pirate Bay Mirror
-
-If the main The Pirate Bay domain is blocked, you can use a mirror:
-
-```env
-PIRATEBAY_URL=https://thepiratebay.org
-# Or use a mirror
-PIRATEBAY_URL=https://tpb.party
-```
-
-## Project Structure
-
-```text
-.
-├── backend/                 # Node.js/Express backend
+piratebay-torrent-finder/
+├── backend/               # Node.js Express API
 │   ├── src/
-│   │   ├── index.js        # Main server file
-│   │   ├── routes/         # API routes
-│   │   │   ├── search.js   # Search routes
-│   │   │   └── qbittorrent.js  # qBittorrent routes
-│   │   └── services/       # Business logic
-│   │       ├── piratebay.js    # PirateBay scraper
-│   │       └── qbittorrent.js  # qBittorrent API client
-│   ├── Dockerfile
-│   └── package.json
-├── frontend/               # Next.js/React frontend
+│   │   ├── database/     # SQLite database initialization
+│   │   ├── middleware/   # Auth & admin middleware
+│   │   ├── routes/       # API endpoints
+│   │   ├── services/     # Business logic
+│   │   └── index.js      # Server entry point
+│   └── data/             # Persistent data (mounted volume)
+│
+├── frontend/             # Next.js 14 React app
 │   ├── src/
-│   │   ├── app/           # Next.js app directory
-│   │   │   ├── page.tsx   # Main page
-│   │   │   ├── layout.tsx # Layout component
-│   │   │   └── globals.css
-│   │   └── components/    # React components
-│   │       ├── SearchBar.tsx
-│   │       └── TorrentResults.tsx
-│   ├── Dockerfile
-│   └── package.json
-├── docker-compose.yml      # Docker Compose configuration
-├── .env.example           # Example environment variables
-└── README.md              # This file
+│   │   ├── app/         # Next.js App Router pages
+│   │   ├── components/  # Reusable React components
+│   │   ├── contexts/    # React Context providers
+│   │   ├── hooks/       # Custom React hooks
+│   │   └── lib/         # Utility functions
+│   └── public/          # Static assets
+│
+└── docker-compose.yml   # Docker orchestration
 ```
 
-## Troubleshooting
+## 🏗 Architecture
 
-### Cannot connect to qBittorrent
+See detailed architecture documentation in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-1. Verify qBittorrent Web UI is enabled
-2. Check the URL, username, and password in `.env`
-3. Ensure qBittorrent is accessible from the Docker container
-4. If running in Docker, use the Docker network name or host IP
+### Key Design Patterns
 
-### Search not working
+- **Per-User Data Isolation**: All data (history, settings) is stored per user
+- **JWT Authentication**: Stateless authentication with JWT tokens
+- **RESTful API**: Clean REST API design
+- **Component-Based UI**: Reusable React components
+- **Service Layer**: Business logic separated from routes
+- **Middleware Pattern**: Auth and admin middleware for protected routes
 
-1. Check if The Pirate Bay is accessible
-2. Try using a mirror site in `PIRATEBAY_URL`
-3. Check backend logs: `docker-compose logs backend`
+## 🤝 Contributing
 
-### Frontend cannot connect to backend
+Contributions are welcome! Please follow these steps:
 
-1. Verify `NEXT_PUBLIC_API_URL` in frontend `.env`
-2. If running in Docker, use the backend service name: `http://backend:3001`
-3. If running locally, use: `http://localhost:3001`
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📚 Documentation
+## 📄 License
 
-Comprehensive documentation is available in the `docs/` folder:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- **[Usage Guide](docs/USAGE_GUIDE.md)** - How to use all features
-- **[Fuzzy Search](docs/FUZZY_SEARCH.md)** - Advanced search with typo correction
-- **[Performance](docs/PERFORMANCE_IMPROVEMENTS.md)** - Caching & optimization details
-- **[Performance Testing](docs/PERFORMANCE_TESTING.md)** - Benchmarks and testing
-- **[Optimization Summary](docs/OPTIMIZATION_SUMMARY.md)** - Complete optimization overview
+## ⚠️ Disclaimer
 
-## Security Notes
+This application is for educational purposes only. Please respect copyright laws and only download content you have the legal right to access. The developers are not responsible for any misuse of this software.
 
-⚠️ **Important Security Considerations:**
+## 🙏 Acknowledgments
 
-1. This application scrapes The Pirate Bay, which may be illegal in some jurisdictions
-2. Always use a VPN when accessing torrent sites
-3. Change default qBittorrent credentials
-4. Do not expose this application to the public internet without proper security measures
-5. Use HTTPS in production with a reverse proxy like Nginx
+- [The Pirate Bay](https://thepiratebay.org) - Torrent search
+- [OMDB API](https://www.omdbapi.com/) - Movie metadata
+- [qBittorrent](https://www.qbittorrent.org/) - Torrent client
+- [Jellyfin](https://jellyfin.org/) - Media server
+- [Next.js](https://nextjs.org/) - React framework
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
 
-## License
+## 📞 Support
 
-MIT License - Feel free to use and modify as needed.
+For issues and questions:
 
-## Disclaimer
+- GitHub Issues: [Create an issue](https://github.com/Tb3c123/piratebay-torrent-finder/issues)
+- Documentation: [docs/](docs/)
 
-This tool is for educational purposes only. The developers are not responsible for any misuse of this software. Always respect copyright laws and use torrents legally.
+---
+
+Made with ❤️ by the Pirate Bay Torrent Finder Team
