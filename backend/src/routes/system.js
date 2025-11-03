@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Import caches from services/routes
-let omdbService, moviesRouter, torrentRouter, jikanService;
+let omdbService, moviesRouter, torrentRouter;
 
 // Lazy load to avoid circular dependencies
 function getOmdbService() {
@@ -20,15 +20,10 @@ function getTorrentRouter() {
     return torrentRouter;
 }
 
-function getJikanService() {
-    if (!jikanService) jikanService = require('../services/jikan');
-    return jikanService;
-}
-
 /**
  * Clear specific cache or all caches
  * POST /api/system/cache/clear/:type
- * Types: omdb, movies, torrents, sections, anime, animesearch, all
+ * Types: omdb, movies, torrents, sections, all
  */
 router.post('/cache/clear/:type', (req, res) => {
     const { type } = req.params;
@@ -56,31 +51,19 @@ router.post('/cache/clear/:type', (req, res) => {
                 cleared.push('Movie sections cache');
                 break;
 
-            case 'anime':
-                getJikanService().clearAnimeCache();
-                cleared.push('Anime details cache');
-                break;
-
-            case 'animesearch':
-                getJikanService().clearCache();
-                cleared.push('Anime search cache');
-                break;
-
             case 'all':
                 getOmdbService().clearCache();
                 getOmdbService().clearMovieCache();
                 getTorrentRouter().clearCache();
                 getMoviesRouter().clearSectionCache();
-                getJikanService().clearAnimeCache();
-                getJikanService().clearCache();
-                cleared.push('OMDB API cache', 'Movie details cache', 'Torrent details cache', 'Movie sections cache', 'Anime details cache', 'Anime search cache');
+                cleared.push('OMDB API cache', 'Movie details cache', 'Torrent details cache', 'Movie sections cache');
                 break;
 
             default:
                 return res.status(400).json({
                     success: false,
                     error: `Invalid cache type: ${type}`,
-                    validTypes: ['omdb', 'movies', 'torrents', 'sections', 'anime', 'animesearch', 'all']
+                    validTypes: ['omdb', 'movies', 'torrents', 'sections', 'all']
                 });
         }
 
@@ -127,15 +110,12 @@ router.get('/cache/stats', (req, res) => {
         const omdb = getOmdbService();
         const movies = getMoviesRouter();
         const torrents = getTorrentRouter();
-        const jikan = getJikanService();
 
         const stats = {
             omdb: omdb.getCacheStats(),
             movies: omdb.getMovieCacheStats(),
             torrents: torrents.getCacheStats(),
-            sections: movies.getSectionCacheStats(),
-            anime: jikan.getAnimeCacheStats(),
-            animeSearch: jikan.getCacheStats()
+            sections: movies.getSectionCacheStats()
         };
 
         if (global.addLog) {

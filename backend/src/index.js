@@ -14,7 +14,6 @@ const systemRoutes = require('./routes/system');
 const historyRoutes = require('./routes/history');
 const moviesRoutes = require('./routes/movies');
 const torrentRoutes = require('./routes/torrent');
-const animeRoutes = require('./routes/anime');
 const settingsRoutes = require('./routes/settings');
 const authRoutes = require('./routes/auth');
 
@@ -40,7 +39,6 @@ app.use('/api/system', systemRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/movies', moviesRoutes);
 app.use('/api/torrent', torrentRoutes);
-app.use('/api/anime', animeRoutes);
 app.use('/api/settings', settingsRoutes);
 
 // Health check

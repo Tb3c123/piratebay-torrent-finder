@@ -105,10 +105,6 @@ export default function FullHistoryView({
                                                     <span className="text-xs bg-blue-900 text-blue-200 px-2 py-1 rounded whitespace-nowrap flex-shrink-0">
                                                         🎥 Movie
                                                     </span>
-                                                ) : item.type === 'anime' ? (
-                                                    <span className="text-xs bg-pink-900 text-pink-200 px-2 py-1 rounded whitespace-nowrap flex-shrink-0">
-                                                        ⭐ Anime
-                                                    </span>
                                                 ) : null}
                                             </div>
                                         </button>

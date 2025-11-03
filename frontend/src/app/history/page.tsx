@@ -218,7 +218,7 @@ export default function HistoryPage() {
                                                             </span>
                                                         ) : item.type && (
                                                             <span className="text-sm bg-blue-900 text-blue-200 px-3 py-1 rounded-full">
-                                                                {item.type === 'movie' ? '🎥 Movie' : '📺 Anime'}
+                                                                🎥 Movie
                                                             </span>
                                                         )}
                                                         <span className="text-gray-400 text-xl">→</span>

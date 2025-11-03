@@ -15,18 +15,6 @@ interface Movie {
     Poster: string
 }
 
-interface Anime {
-    malId: number
-    title: string
-    titleEnglish?: string
-    type: string
-    episodes?: number
-    score?: number
-    image: string
-    year?: number
-    genres?: string[]
-}
-
 function HomeContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -37,7 +25,6 @@ function HomeContent() {
     const [trendingMovies, setTrendingMovies] = useState<Movie[]>([])
     const [popularMovies, setPopularMovies] = useState<Movie[]>([])
     const [latestMovies, setLatestMovies] = useState<Movie[]>([])
-    const [topAnime, setTopAnime] = useState<Anime[]>([])
     const [loading, setLoading] = useState(false)
     const [sectionsLoading, setSectionsLoading] = useState(true)
     const [error, setError] = useState('')
@@ -96,11 +83,10 @@ function HomeContent() {
     const loadMovieSections = async () => {
         setSectionsLoading(true)
         try {
-            const [trending, popular, latest, anime] = await Promise.all([
+            const [trending, popular, latest] = await Promise.all([
                 axios.get(`${API_URL}/api/movies/trending/now`).catch(() => ({ data: { movies: [] } })),
                 axios.get(`${API_URL}/api/movies/trending/popular`).catch(() => ({ data: { movies: [] } })),
-                axios.get(`${API_URL}/api/movies/latest`).catch(() => ({ data: { movies: [] } })),
-                axios.get(`${API_URL}/api/anime/top?filter=airing`).catch(() => ({ data: { anime: [] } }))
+                axios.get(`${API_URL}/api/movies/latest`).catch(() => ({ data: { movies: [] } }))
             ])
 
             // Validate and filter out invalid movie data
@@ -118,7 +104,6 @@ function HomeContent() {
             setTrendingMovies(shuffleArray(validateMovies(trending.data.movies || [])))
             setPopularMovies(shuffleArray(validateMovies(popular.data.movies || [])))
             setLatestMovies(shuffleArray(validateMovies(latest.data.movies || [])))
-            setTopAnime(shuffleArray(anime.data.anime || []))
         } catch (err) {
             console.error('Error loading sections:', err)
         } finally {
@@ -345,14 +330,6 @@ function HomeContent() {
                             />
                         )}
 
-                        {/* Anime Section */}
-                        {topAnime.length > 0 && (
-                            <AnimeSection
-                                title="🎌 Top Airing Anime"
-                                anime={topAnime}
-                            />
-                        )}
-
                         {/* Loading State for Sections */}
                         {sectionsLoading && (
                             <div className="text-center py-12">
@@ -496,129 +473,6 @@ function MovieCard({ movie, onClick }: { movie: Movie; onClick: () => void }) {
                     <span className={`uppercase px-2 py-0.5 rounded text-xs ${getTypeBadgeColor(movie.Type)}`}>
                         {getTypeIcon(movie.Type)} {movie.Type}
                     </span>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-// Anime Section Component
-function AnimeSection({
-    title,
-    anime
-}: {
-    title: string;
-    anime: Anime[];
-}) {
-    const router = useRouter()
-
-    const handleAnimeClick = (malId: number) => {
-        // Navigate to anime detail page
-        router.push(`/anime/${malId}`)
-    }
-
-    return (
-        <div className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-6">{title}</h2>
-            <div className="relative">
-                <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
-                    {anime.map((item) => (
-                        <div key={item.malId} className="flex-shrink-0 w-48">
-                            <AnimeCard
-                                anime={item}
-                                onClick={() => handleAnimeClick(item.malId)}
-                            />
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    )
-}
-
-// Anime Card Component
-function AnimeCard({ anime, onClick }: { anime: Anime; onClick: () => void }) {
-    const [imageError, setImageError] = useState(false)
-    const hasImage = anime.image && !imageError
-
-    // Different colors for different types
-    const getTypeBadgeColor = (type: string) => {
-        switch (type?.toLowerCase()) {
-            case 'tv':
-                return 'bg-purple-900 text-purple-400'
-            case 'movie':
-                return 'bg-blue-900 text-blue-400'
-            case 'ova':
-                return 'bg-green-900 text-green-400'
-            case 'special':
-                return 'bg-yellow-900 text-yellow-400'
-            case 'ona':
-                return 'bg-pink-900 text-pink-400'
-            default:
-                return 'bg-gray-900 text-gray-400'
-        }
-    }
-
-    // Get icon for type
-    const getTypeIcon = (type: string) => {
-        switch (type?.toLowerCase()) {
-            case 'tv':
-                return '📺'
-            case 'movie':
-                return '🎬'
-            case 'ova':
-                return '💿'
-            case 'special':
-                return '⭐'
-            case 'ona':
-                return '🌐'
-            default:
-                return '🎌'
-        }
-    }
-
-    return (
-        <div
-            onClick={onClick}
-            className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden hover:border-purple-500 transition-all cursor-pointer transform hover:scale-105"
-        >
-            <div className="aspect-[2/3] relative bg-gray-900">
-                {hasImage ? (
-                    <Image
-                        src={anime.image}
-                        alt={anime.title}
-                        fill
-                        className="object-cover"
-                        onError={() => setImageError(true)}
-                        unoptimized={true}
-                    />
-                ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-6xl">🎌</span>
-                    </div>
-                )}
-            </div>
-            <div className="p-3">
-                <h3 className="font-semibold text-white text-sm line-clamp-2 mb-1">
-                    {anime.titleEnglish || anime.title}
-                </h3>
-                <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-gray-400">{anime.year || 'N/A'}</span>
-                    {anime.score && (
-                        <span className="text-yellow-400 font-semibold">
-                            ⭐ {anime.score.toFixed(1)}
-                        </span>
-                    )}
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                    <span className={`uppercase px-2 py-0.5 rounded text-xs ${getTypeBadgeColor(anime.type)}`}>
-                        {getTypeIcon(anime.type)} {anime.type}
-                    </span>
-                    {anime.episodes && (
-                        <span className="text-gray-400">
-                            {anime.episodes} ep
-                        </span>
-                    )}
                 </div>
             </div>
         </div>

@@ -221,8 +221,8 @@ function DirectSearchContent() {
                             onClick={handleLoadMore}
                             disabled={loadingMore}
                             className={`px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg ${loadingMore
-                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                                    : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-xl transform hover:scale-105'
+                                ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-xl transform hover:scale-105'
                                 }`}
                         >
                             {loadingMore ? (
