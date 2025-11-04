@@ -1,162 +1,109 @@
-# Quick Deploy Scripts
+# Hướng Dẫn Cài Đặt Nhanh
 
-## Chạy Backend và Frontend riêng biệt
+## Bước 1: Cài Backend
 
-### Cách 1: Deploy cả 2 services
+### Tạo network và folder
 
 ```bash
-# 1. Start backend trước
-docker-compose -f docker-compose.backend.yml up -d
+docker network create piratebay-network
+mkdir -p ./backend/data
+```
 
-# 2. Đợi backend start (2-3 giây)
-sleep 3
+### Chạy Backend
 
-# 3. Start frontend
-docker-compose -f docker-compose.frontend.yml up -d
+```bash
+docker run -d \
+  --name piratebay-backend \
+  --network piratebay-network \
+  -p 3001:3001 \
+  -e PORT=3001 \
+  -e OMDB_API_KEY=your_omdb_key_here \
+  -e QBITTORRENT_URL=http://192.168.1.100:8080 \
+  -e QBITTORRENT_USERNAME=admin \
+  -e QBITTORRENT_PASSWORD=your_password \
+  -v $(pwd)/backend/data:/app/data \
+  --restart unless-stopped \
+  tb3c123/piratebay-torrent-finder-backend:latest
+```
 
-# 4. Kiểm tra
-docker ps
+### Kiểm tra Backend
+
+```bash
+# Xem logs
+docker logs -f piratebay-backend
+
+# Health check
 curl http://localhost:3001/api/system/health
+```
+
+## Bước 2: Cài Frontend
+
+### Chạy Frontend
+
+```bash
+docker run -d \
+  --name piratebay-frontend \
+  --network piratebay-network \
+  -p 3000:3000 \
+  -e NEXT_PUBLIC_API_URL=http://localhost:3001 \
+  --restart unless-stopped \
+  tb3c123/piratebay-torrent-finder-frontend:latest
+```
+
+### Kiểm tra Frontend
+
+```bash
+# Xem logs
+docker logs -f piratebay-frontend
+
+# Test
 curl -I http://localhost:3000
 ```
 
-### Cách 2: Deploy chỉ Backend
+## Truy cập
+
+- **Frontend**: <http://localhost:3000>
+- **Backend API**: <http://localhost:3001>
+
+## Lệnh Quản Lý
+
+### Xem logs
 
 ```bash
-# Start backend
-docker-compose -f docker-compose.backend.yml up -d
-
-# Xem logs
-docker-compose -f docker-compose.backend.yml logs -f
-
-# Stop
-docker-compose -f docker-compose.backend.yml down
+docker logs -f piratebay-backend
+docker logs -f piratebay-frontend
 ```
 
-### Cách 3: Deploy chỉ Frontend
+### Restart
 
 ```bash
-# Đảm bảo backend đã chạy (localhost:3001 hoặc remote)
-docker-compose -f docker-compose.frontend.yml up -d
-
-# Xem logs
-docker-compose -f docker-compose.frontend.yml logs -f
-
-# Stop
-docker-compose -f docker-compose.frontend.yml down
+docker restart piratebay-backend
+docker restart piratebay-frontend
 ```
 
-## Environment Variables
-
-Tạo file `.env`:
+### Stop
 
 ```bash
-# Backend
-OMDB_API_KEY=your_key_here
-JWT_SECRET=your-64-character-secret-here
-QBITTORRENT_URL=http://192.168.1.100:8080
-QBITTORRENT_USERNAME=admin
-QBITTORRENT_PASSWORD=password
-
-# Frontend
-NEXT_PUBLIC_API_URL=http://localhost:3001
+docker stop piratebay-backend piratebay-frontend
 ```
 
-## Update Images
+### Remove
 
 ```bash
-# Update backend
-docker-compose -f docker-compose.backend.yml pull
-docker-compose -f docker-compose.backend.yml up -d
-
-# Update frontend
-docker-compose -f docker-compose.frontend.yml pull
-docker-compose -f docker-compose.frontend.yml up -d
-
-# Update cả 2
-docker-compose -f docker-compose.backend.yml pull
-docker-compose -f docker-compose.frontend.yml pull
-docker-compose -f docker-compose.backend.yml up -d
-docker-compose -f docker-compose.frontend.yml up -d
+docker stop piratebay-backend piratebay-frontend
+docker rm piratebay-backend piratebay-frontend
 ```
 
-## Deploy trên 2 servers khác nhau
-
-### Server 1: Backend only
-```bash
-# Backend server (e.g., 192.168.1.100)
-docker-compose -f docker-compose.backend.yml up -d
-```
-
-### Server 2: Frontend only
-```bash
-# Frontend server (e.g., 192.168.1.101)
-# Edit .env hoặc environment variable
-export NEXT_PUBLIC_API_URL=http://192.168.1.100:3001
-docker-compose -f docker-compose.frontend.yml up -d
-```
-
-## One-liner Script
+### Update images
 
 ```bash
-# Deploy all
-cat > deploy-all.sh << 'EOF'
-#!/bin/bash
-echo "🚀 Starting backend..."
-docker-compose -f docker-compose.backend.yml up -d
-sleep 3
-echo "🎨 Starting frontend..."
-docker-compose -f docker-compose.frontend.yml up -d
-echo "✅ Done! Frontend: http://localhost:3000 | Backend: http://localhost:3001"
-EOF
-chmod +x deploy-all.sh
-./deploy-all.sh
+# Pull image mới
+docker pull tb3c123/piratebay-torrent-finder-backend:latest
+docker pull tb3c123/piratebay-torrent-finder-frontend:latest
 
-# Stop all
-cat > stop-all.sh << 'EOF'
-#!/bin/bash
-echo "🛑 Stopping services..."
-docker-compose -f docker-compose.frontend.yml down
-docker-compose -f docker-compose.backend.yml down
-echo "✅ All services stopped"
-EOF
-chmod +x stop-all.sh
-# ./stop-all.sh để chạy
-```
+# Stop container cũ
+docker stop piratebay-backend piratebay-frontend
+docker rm piratebay-backend piratebay-frontend
 
-## Useful Commands
-
-```bash
-# Xem logs backend
-docker-compose -f docker-compose.backend.yml logs -f
-
-# Xem logs frontend
-docker-compose -f docker-compose.frontend.yml logs -f
-
-# Restart backend
-docker-compose -f docker-compose.backend.yml restart
-
-# Restart frontend
-docker-compose -f docker-compose.frontend.yml restart
-
-# Remove all
-docker-compose -f docker-compose.frontend.yml down
-docker-compose -f docker-compose.backend.yml down -v  # -v xóa cả volumes
-```
-
-## Deploy với specific version
-
-Edit file docker-compose để dùng SHA tag:
-
-```yaml
-# docker-compose.backend.yml
-services:
-  backend:
-    image: tb3c123/piratebay-torrent-finder-backend:847218a  # specific commit
-```
-
-Hoặc dùng environment variable:
-
-```bash
-IMAGE_TAG=847218a docker-compose -f docker-compose.backend.yml up -d
+# Chạy lại từ Bước 1
 ```

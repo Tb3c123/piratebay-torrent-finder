@@ -8,7 +8,7 @@ services:
       - "${BACKEND_PORT:-3001}:3001"
     environment:
       - PORT=${PORT:-3001}
-      - OMDB_API_KEY=${OMDB_API_KEY:-3d5cd52a}
+      - OMDB_API_KEY=${OMDB_API_KEY}
       - QBITTORRENT_URL=${QBITTORRENT_URL:-http://qbittorrent:8080}
       - QBITTORRENT_USERNAME=${QBITTORRENT_USERNAME:-admin}
       - QBITTORRENT_PASSWORD=${QBITTORRENT_PASSWORD:-adminadmin}
