@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    image: tb3c123/piratebay-torrent-finder-backend:latest
+    container_name: piratebay-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - OMDB_API_KEY=${OMDB_API_KEY:-your_omdb_key_here}
+      - JWT_SECRET=${JWT_SECRET:-your-very-long-secret-key-at-least-64-characters}
+      - QBITTORRENT_URL=${QBITTORRENT_URL:-http://localhost:8080}
+      - QBITTORRENT_USERNAME=${QBITTORRENT_USERNAME:-admin}
+      - QBITTORRENT_PASSWORD=${QBITTORRENT_PASSWORD:-adminpass}
+    volumes:
+      - ./backend/data:/app/data
+    networks:
+      - piratebay-network
+
+networks:
+  piratebay-network:
+    name: piratebay-network
+    driver: bridge
