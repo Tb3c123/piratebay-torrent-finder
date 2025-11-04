@@ -18,6 +18,7 @@ docker run -d \
   -p 3001:3001 \
   -e PORT=3001 \
   -e OMDB_API_KEY=your_omdb_key_here \
+  -e JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long \
   -e QBITTORRENT_URL=http://192.168.1.100:8080 \
   -e QBITTORRENT_USERNAME=admin \
   -e QBITTORRENT_PASSWORD=your_password \
@@ -40,12 +41,27 @@ curl http://localhost:3001/api/system/health
 
 ### Chạy Frontend
 
+**Nếu frontend và backend cùng server (Docker network):**
+
 ```bash
 docker run -d \
   --name piratebay-frontend \
   --network piratebay-network \
   -p 3000:3000 \
-  -e NEXT_PUBLIC_API_URL=http://localhost:3001 \
+  -e NEXT_PUBLIC_API_URL=http://piratebay-backend:3001 \
+  --restart unless-stopped \
+  tb3c123/piratebay-torrent-finder-frontend:latest
+```
+
+**Nếu expose qua Cloudflare Tunnel (frontend public, backend private):**
+
+```bash
+# Frontend sẽ gọi API qua internal Docker network
+docker run -d \
+  --name piratebay-frontend \
+  --network piratebay-network \
+  -p 3000:3000 \
+  -e NEXT_PUBLIC_API_URL=http://piratebay-backend:3001 \
   --restart unless-stopped \
   tb3c123/piratebay-torrent-finder-frontend:latest
 ```

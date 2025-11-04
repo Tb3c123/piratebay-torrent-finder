@@ -7,3 +7,6 @@ node_modules/
 dist/
 build/
 backend/data/
+backend/src/data/
+*.db
+*.db-*
