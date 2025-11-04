@@ -1,9 +1,7 @@
 name: piratebay-torrent-finder
 services:
   piratebay-backend:
-    build:
-      context: https://github.com/Tb3c123/piratebay-torrent-finder.git
-      dockerfile: backend/Dockerfile
+    image: tb3c123/piratebay-torrent-finder-backend:latest
     container_name: piratebay-backend
     restart: unless-stopped
     ports:
@@ -22,9 +20,7 @@ services:
       icon: https://raw.githubusercontent.com/Tb3c123/piratebay-torrent-finder/main/icon.png
 
   piratebay-frontend:
-    build:
-      context: https://github.com/Tb3c123/piratebay-torrent-finder.git
-      dockerfile: frontend/Dockerfile
+    image: tb3c123/piratebay-torrent-finder-frontend:latest
     container_name: piratebay-frontend
     restart: unless-stopped
     ports:
