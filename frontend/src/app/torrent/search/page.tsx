@@ -94,16 +94,6 @@ function DirectSearchContent() {
         searchPirateBay(query, selectedCategory, nextPage, true)
     }
 
-    const handleDownload = async (magnetLink: string, name: string) => {
-        try {
-            await axios.post(`${API_URL}/api/qbittorrent/download`, { magnetLink })
-            alert(`✅ Torrent "${name}" added to qBittorrent successfully!`)
-        } catch (err: any) {
-            console.error('Download error:', err)
-            alert(`❌ Failed to add torrent: ${err.response?.data?.error || err.message}`)
-        }
-    }
-
     const handleRefresh = () => {
         if (query) {
             setTorrents([])
@@ -112,6 +102,21 @@ function DirectSearchContent() {
             searchPirateBay(query, selectedCategory, 0, false)
         }
     }
+
+    // handleDownload disabled - use DownloadModal instead (from torrent details page)
+    // const handleDownload = async (magnetLink: string, name: string) => {
+    //     try {
+    //         await axios.post(`${API_URL}/api/qbittorrent/add`, {
+    //             magnetLink,
+    //             savePath: '/downloads',
+    //             userId: user?.id
+    //         })
+    //         alert(`✅ Torrent "${name}" added to qBittorrent successfully!`)
+    //     } catch (err: any) {
+    //         console.error('Download error:', err)
+    //         alert(`❌ Failed to add torrent: ${err.response?.data?.error || err.message}`)
+    //     }
+    // }
 
     const handleAlternativeSearch = async (customQuery: string) => {
         setTorrents([])
@@ -212,7 +217,6 @@ function DirectSearchContent() {
                     alternativeTitles={generateAlternativeTitles(query)}
                     onRefresh={handleRefresh}
                     onAlternativeSearch={handleAlternativeSearch}
-                    onDownload={handleDownload}
                     refreshLabel="🔄 Search Again"
                     sectionTitle="🏴‍☠️ Available Torrents"
                 />

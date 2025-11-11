@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { useAuth } from '@/contexts/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -32,6 +33,7 @@ interface Torrent {
 
 export default function DownloadsPage() {
     const router = useRouter()
+    const { user } = useAuth()
     const [torrents, setTorrents] = useState<Torrent[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -49,7 +51,9 @@ export default function DownloadsPage() {
 
     const loadTorrents = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/qbittorrent/torrents`)
+            const response = await axios.get(`${API_URL}/api/qbittorrent/torrents`, {
+                params: { userId: user?.id }
+            })
             if (response.data.success) {
                 setTorrents(response.data.torrents)
                 setError(null)
@@ -64,7 +68,9 @@ export default function DownloadsPage() {
 
     const handlePause = async (hash: string) => {
         try {
-            await axios.post(`${API_URL}/api/qbittorrent/pause/${hash}`)
+            await axios.post(`${API_URL}/api/qbittorrent/pause/${hash}`, {
+                userId: user?.id
+            })
             loadTorrents()
         } catch (err: any) {
             alert(err.response?.data?.error || 'Failed to pause torrent')
@@ -73,7 +79,9 @@ export default function DownloadsPage() {
 
     const handleResume = async (hash: string) => {
         try {
-            await axios.post(`${API_URL}/api/qbittorrent/resume/${hash}`)
+            await axios.post(`${API_URL}/api/qbittorrent/resume/${hash}`, {
+                userId: user?.id
+            })
             loadTorrents()
         } catch (err: any) {
             alert(err.response?.data?.error || 'Failed to resume torrent')
@@ -82,7 +90,9 @@ export default function DownloadsPage() {
 
     const handleForceStart = async (hash: string) => {
         try {
-            await axios.post(`${API_URL}/api/qbittorrent/force-start/${hash}`)
+            await axios.post(`${API_URL}/api/qbittorrent/force-start/${hash}`, {
+                userId: user?.id
+            })
             loadTorrents()
         } catch (err: any) {
             alert(err.response?.data?.error || 'Failed to force start torrent')
@@ -111,7 +121,7 @@ export default function DownloadsPage() {
         if (!confirm(confirmMsg)) return
 
         try {
-            await axios.delete(`${API_URL}/api/qbittorrent/delete/${hash}?deleteFiles=${deleteFiles}`)
+            await axios.delete(`${API_URL}/api/qbittorrent/delete/${hash}?deleteFiles=${deleteFiles}&userId=${user?.id}`)
             loadTorrents()
         } catch (err: any) {
             alert(err.response?.data?.error || 'Failed to delete torrent')

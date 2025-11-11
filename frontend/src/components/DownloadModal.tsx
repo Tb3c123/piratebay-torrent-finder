@@ -89,7 +89,8 @@ export default function DownloadModal({
         try {
             const response = await axios.post(`${API_URL}/api/qbittorrent/add`, {
                 magnetLink,
-                savePath: library.paths[0] // Use first path from library
+                savePath: library.paths[0], // Use first path from library
+                userId: user?.id
             })
 
             if (response.data.success) {

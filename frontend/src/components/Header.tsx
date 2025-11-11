@@ -56,8 +56,12 @@ export default function Header() {
     // Fetch download count
     useEffect(() => {
         const fetchDownloadCount = async () => {
+            if (!user?.id) return; // Don't fetch if no user
+
             try {
-                const response = await axios.get(`${API_URL}/api/qbittorrent/torrents`)
+                const response = await axios.get(`${API_URL}/api/qbittorrent/torrents`, {
+                    params: { userId: user.id }
+                })
                 const torrents = response.data.torrents || []
                 // Count active downloads (downloading or seeding)
                 const activeCount = torrents.filter((t: any) =>
@@ -78,7 +82,7 @@ export default function Header() {
         // Refresh count every 5 seconds
         const interval = setInterval(fetchDownloadCount, 5000)
         return () => clearInterval(interval)
-    }, [])
+    }, [user?.id])
 
     return (
         <div className="flex items-center justify-between w-full">

@@ -6,6 +6,8 @@ import axios from 'axios'
 import { useManualCache } from '@/hooks/useSessionCache'
 import DownloadModal from '@/components/DownloadModal'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 interface TorrentBasic {
     id: string
     title: string
@@ -95,7 +97,7 @@ export default function TorrentDetailPage({ params }: { params: { id: string } }
             // Fetch full details from backend if we have an ID
             if (basicTorrent.id && basicTorrent.id !== 'unknown') {
                 try {
-                    const response = await axios.get(`http://localhost:3001/api/torrent/${basicTorrent.id}`)
+                    const response = await axios.get(`${API_URL}/api/torrent/${basicTorrent.id}`)
                     // Set all data together after loading is complete
                     const fullData = { ...basicTorrent, ...response.data }
                     setTorrent(fullData)
