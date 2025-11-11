@@ -1,4 +1,4 @@
-const { getUserById } = require('../services/auth');
+const { AuthService } = require('../services/auth');
 
 /**
  * Middleware to check if user is admin
@@ -10,7 +10,7 @@ function requireAdmin(req, res, next) {
     }
 
     // Get user details to check admin status
-    const user = getUserById(req.user.userId);
+    const user = AuthService.getUserById(req.user.userId);
 
     if (!user) {
         return res.status(404).json({ error: 'User not found' });

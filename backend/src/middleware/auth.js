@@ -1,4 +1,4 @@
-const { verifyToken } = require('../services/auth');
+const { AuthService } = require('../services/auth');
 
 /**
  * Middleware to authenticate requests using JWT token
@@ -15,7 +15,7 @@ function authenticateToken(req, res, next) {
 
     try {
         // Verify token
-        const decoded = verifyToken(token);
+        const decoded = AuthService.verifyToken(token);
 
         // Add user info to request
         req.user = {
@@ -39,7 +39,7 @@ function optionalAuth(req, res, next) {
 
     if (token) {
         try {
-            const decoded = verifyToken(token);
+            const decoded = AuthService.verifyToken(token);
             req.user = {
                 userId: decoded.userId,
                 username: decoded.username

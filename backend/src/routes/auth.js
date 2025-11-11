@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const authService = require('../services/auth');
+const { AuthService } = require('../services/auth');
 const { authenticateToken } = require('../middleware/auth');
 const { requireAdmin } = require('../middleware/admin');
 const { asyncHandler } = require('../utils/helpers');
-const { successResponse, createdResponse, errorResponse } = require('../utils/response');
+const { successResponse, createdResponse } = require('../utils/response');
 const { validateBody } = require('../middleware/validator');
 const { auth: authValidators } = require('../validators');
 
@@ -18,7 +18,7 @@ router.post('/register',
     asyncHandler(async (req, res) => {
         const { username, password } = req.validated;
 
-        const user = await authService.registerUser(username, password);
+        const user = await AuthService.register(username, password);
 
         if (global.addLog) {
             global.addLog(global.LOG_LEVELS.INFO, `New user registered: ${username}`, { userId: user.id });
@@ -38,7 +38,7 @@ router.post('/login',
     asyncHandler(async (req, res) => {
         const { username, password } = req.validated;
 
-        const result = await authService.loginUser(username, password);
+        const result = await AuthService.login(username, password);
 
         if (global.addLog) {
             global.addLog(global.LOG_LEVELS.INFO, `User logged in: ${username}`, { userId: result.user.id });
@@ -60,7 +60,7 @@ router.post('/logout',
     authenticateToken,
     asyncHandler(async (req, res) => {
         const token = req.headers['authorization'].split(' ')[1];
-        authService.logoutUser(token);
+        AuthService.logout(token);
 
         if (global.addLog) {
             global.addLog(global.LOG_LEVELS.INFO, `User logged out: ${req.user.username}`, { userId: req.user.userId });
@@ -78,7 +78,7 @@ router.post('/logout',
 router.get('/me',
     authenticateToken,
     asyncHandler(async (req, res) => {
-        const user = authService.getUserById(req.user.userId);
+        const user = AuthService.getUserById(req.user.userId);
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -103,7 +103,7 @@ router.post('/change-password',
             return res.status(400).json({ error: 'Old and new passwords are required' });
         }
 
-        await authService.changePassword(req.user.userId, oldPassword, newPassword);
+        await AuthService.changePassword(req.user.userId, oldPassword, newPassword);
 
         if (global.addLog) {
             global.addLog(global.LOG_LEVELS.INFO, `Password changed: ${req.user.username}`, { userId: req.user.userId });
@@ -121,7 +121,7 @@ router.post('/change-password',
 router.get('/credentials',
     authenticateToken,
     asyncHandler(async (req, res) => {
-        const credentials = authService.getUserCredentials(req.user.userId);
+        const credentials = AuthService.getUserCredentials(req.user.userId);
         successResponse(res, credentials || {});
     })
 );
@@ -135,7 +135,7 @@ router.get('/credentials',
 router.put('/credentials',
     authenticateToken,
     asyncHandler(async (req, res) => {
-        authService.updateUserCredentials(req.user.userId, req.body);
+        AuthService.updateUserCredentials(req.user.userId, req.body);
 
         if (global.addLog) {
             global.addLog(global.LOG_LEVELS.INFO, `Credentials updated: ${req.user.username}`, { userId: req.user.userId });
@@ -154,7 +154,7 @@ router.get('/admin/users',
     authenticateToken,
     requireAdmin,
     asyncHandler(async (req, res) => {
-        const users = authService.getAllUsers();
+        const users = AuthService.getAllUsers();
 
         if (global.addLog) {
             global.addLog(global.LOG_LEVELS.INFO, `Admin viewed all users: ${req.user.username}`, {
@@ -182,7 +182,7 @@ router.delete('/admin/users/:userId',
             return res.status(400).json({ error: 'Invalid user ID' });
         }
 
-        authService.deleteUser(targetUserId);
+        AuthService.deleteUser(targetUserId);
 
         if (global.addLog) {
             global.addLog(global.LOG_LEVELS.INFO, `Admin deleted user: ${req.user.username}`, {
