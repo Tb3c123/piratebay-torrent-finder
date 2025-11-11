@@ -5,7 +5,10 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 // Initialize database before anything else
-require('./database/init');
+const db = require('./database/init');
+
+// Import repositories
+const { createRepositories } = require('./repositories');
 
 // Import new error handlers
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
@@ -24,15 +27,25 @@ const authRoutes = require('./routes/auth');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Initialize repositories
+const repos = createRepositories(db);
+
 // Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Make addLog available globally
+// Make repositories and addLog available globally
+global.repos = repos;
 global.addLog = addLog;
 global.LOG_LEVELS = LOG_LEVELS;
+
+// Add repositories to all requests
+app.use((req, res, next) => {
+    req.repos = repos;
+    next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
