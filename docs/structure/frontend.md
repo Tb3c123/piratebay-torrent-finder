@@ -6,7 +6,7 @@ Next.js 14+ application với App Router, TypeScript, Tailwind CSS. Provides mov
 
 ## Directory Structure
 
-```
+```text
 frontend/
 └── src/
     ├── app/                  # App Router pages & layouts
@@ -694,7 +694,7 @@ frontend/
 
 **`.env.local` (gitignored):**
 
-- `NEXT_PUBLIC_API_URL` - Backend URL (http://localhost:3001)
+- `NEXT_PUBLIC_API_URL` - Backend URL (`http://localhost:3001`)
 
 **Note:** NEXT_PUBLIC_ prefix for client-side access
 
@@ -708,7 +708,7 @@ npm install
 npm run dev  # Next.js dev server
 ```
 
-**URL:** http://localhost:3000
+**URL:** `http://localhost:3000`
 
 ### Building for Production
 

@@ -134,6 +134,12 @@
         "tự",
         "vào",
         "với",
-        "xong"
+        "xong",
+        "prebuild",
+        "qbittorrent",
+        "asynchandler",
+        "repos",
+        "deps",
+        "markdownlint"
     ]
 }
