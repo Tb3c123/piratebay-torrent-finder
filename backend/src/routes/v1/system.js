@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const { asyncHandler } = require('../../utils/helpers');
+const { successResponse } = require('../../utils/response');
+const { BadRequestError } = require('../../utils/errors');
+const logger = require('../../utils/logger');
 
 // Import caches from services/routes
 let omdbService, moviesRouter, torrentRouter;
@@ -22,14 +26,14 @@ function getTorrentRouter() {
 
 /**
  * Clear specific cache or all caches
- * POST /api/system/cache/clear/:type
+ * POST /api/v1/system/cache/clear/:type
  * Types: omdb, movies, torrents, sections, all
  */
-router.post('/cache/clear/:type', (req, res) => {
-    const { type } = req.params;
-    let cleared = [];
+router.post('/cache/clear/:type',
+    asyncHandler(async (req, res) => {
+        const { type } = req.params;
+        const cleared = [];
 
-    try {
         switch (type.toLowerCase()) {
             case 'omdb':
                 getOmdbService().clearCache();
@@ -60,46 +64,25 @@ router.post('/cache/clear/:type', (req, res) => {
                 break;
 
             default:
-                return res.status(400).json({
-                    success: false,
-                    error: `Invalid cache type: ${type}`,
-                    validTypes: ['omdb', 'movies', 'torrents', 'sections', 'all']
-                });
+                throw new BadRequestError(`Invalid cache type: ${type}. Valid types: omdb, movies, torrents, sections, all`);
         }
 
+        logger.info(`Cache cleared: ${type}`, { cleared });
         if (global.addLog) {
             global.addLog(global.LOG_LEVELS.INFO, `Cache cleared: ${type}`, { cleared });
         }
 
-        res.json({
-            success: true,
-            message: `Cache cleared successfully`,
-            cleared
-        });
-    } catch (error) {
-        console.error('Error clearing cache:', error);
-
-        if (global.addLog) {
-            global.addLog(global.LOG_LEVELS.ERROR, 'Cache clear failed', {
-                error: error.message,
-                type
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            error: 'Failed to clear cache',
-            message: error.message
-        });
-    }
-});
+        successResponse(res, { cleared }, 'Cache cleared successfully');
+    })
+);
 
 /**
  * Get cache statistics
- * GET /api/system/cache/stats
+ * GET /api/v1/system/cache/stats
  */
-router.get('/cache/stats', (req, res) => {
-    try {
+router.get('/cache/stats',
+    asyncHandler(async (req, res) => {
+        logger.info('Cache stats requested');
         if (global.addLog) {
             global.addLog(global.LOG_LEVELS.INFO, 'Cache stats requested', {
                 source: 'system',
@@ -129,59 +112,45 @@ router.get('/cache/stats', (req, res) => {
             });
         }
 
-        res.json({
-            success: true,
-            stats
-        });
-    } catch (error) {
-        console.error('Error getting cache stats:', error);
-
-        if (global.addLog) {
-            global.addLog(global.LOG_LEVELS.ERROR, 'Failed to get cache stats', {
-                error: error.message,
-                stack: error.stack
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            error: 'Failed to get cache statistics',
-            message: error.message
-        });
-    }
-});
+        successResponse(res, { stats });
+    })
+);
 
 /**
  * Restart the server
- * POST /api/system/restart
+ * POST /api/v1/system/restart
  */
-router.post('/restart', (req, res) => {
-    if (global.addLog) {
-        global.addLog(global.LOG_LEVELS.WARNING, 'Server restart initiated', {
-            source: 'system',
+router.post('/restart',
+    asyncHandler(async (req, res) => {
+        logger.warn('Server restart initiated', {
             requestedBy: req.ip || 'unknown',
             timestamp: new Date().toISOString()
         });
-    }
 
-    res.json({
-        success: true,
-        message: 'Server restart initiated. Please wait 5 seconds.'
-    });
+        if (global.addLog) {
+            global.addLog(global.LOG_LEVELS.WARNING, 'Server restart initiated', {
+                source: 'system',
+                requestedBy: req.ip || 'unknown',
+                timestamp: new Date().toISOString()
+            });
+        }
 
-    // Restart after sending response
-    setTimeout(() => {
-        console.log('🔄 Restarting server...');
-        process.exit(0); // nodemon will auto-restart
-    }, 1000);
-});
+        successResponse(res, null, 'Server restart initiated. Please wait 5 seconds.');
+
+        // Restart after sending response
+        setTimeout(() => {
+            logger.info('Restarting server...');
+            process.exit(0); // nodemon will auto-restart
+        }, 1000);
+    })
+);
 
 /**
  * Get server health
- * GET /api/system/health
+ * GET /api/v1/system/health
  */
-router.get('/health', (req, res) => {
-    try {
+router.get('/health',
+    asyncHandler(async (req, res) => {
         const healthData = {
             status: 'healthy',
             uptime: process.uptime(),
@@ -197,25 +166,8 @@ router.get('/health', (req, res) => {
             });
         }
 
-        res.json({
-            success: true,
-            ...healthData
-        });
-    } catch (error) {
-        console.error('Error getting health status:', error);
-
-        if (global.addLog) {
-            global.addLog(global.LOG_LEVELS.ERROR, 'Health check failed', {
-                error: error.message
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            status: 'unhealthy',
-            error: error.message
-        });
-    }
-});
+        successResponse(res, healthData);
+    })
+);
 
 module.exports = router;
