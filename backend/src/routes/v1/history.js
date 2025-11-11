@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { asyncHandler } = require('../utils/helpers');
-const { successResponse, createdResponse } = require('../utils/response');
+const { asyncHandler } = require('../../utils/helpers');
+const { successResponse, createdResponse } = require('../../utils/response');
 
 const MAX_HISTORY = 100;
 const RETENTION_DAYS = 30;

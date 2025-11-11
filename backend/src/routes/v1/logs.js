@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { asyncHandler } = require('../utils/helpers');
-const { successResponse } = require('../utils/response');
+const { asyncHandler } = require('../../utils/helpers');
+const { successResponse } = require('../../utils/response');
 
 const MAX_LOGS = 1000;
 

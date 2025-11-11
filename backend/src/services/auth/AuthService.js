@@ -322,10 +322,10 @@ class AuthService {
         if (!user) return null;
 
         const sanitized = { ...user };
-        
+
         // Remove password_hash if present
         delete sanitized.password_hash;
-        
+
         // Convert is_admin to boolean
         if ('is_admin' in sanitized) {
             sanitized.is_admin = sanitized.is_admin === 1;

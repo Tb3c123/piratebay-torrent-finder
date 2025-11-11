@@ -73,19 +73,19 @@ class Settings {
      * Check if qBittorrent is configured
      */
     hasQBittorrent() {
-        return this.qbittorrent && 
-               this.qbittorrent.url && 
-               this.qbittorrent.username && 
-               this.qbittorrent.password;
+        return this.qbittorrent &&
+            this.qbittorrent.url &&
+            this.qbittorrent.username &&
+            this.qbittorrent.password;
     }
 
     /**
      * Check if Jellyfin is configured
      */
     hasJellyfin() {
-        return this.jellyfin && 
-               this.jellyfin.url && 
-               this.jellyfin.apiKey;
+        return this.jellyfin &&
+            this.jellyfin.url &&
+            this.jellyfin.apiKey;
     }
 }
 

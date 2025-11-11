@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const omdbService = require('../services/omdb');
+const omdbService = require('../../services/omdb');
 
 // Cache for movie sections
 const sectionCache = new Map();

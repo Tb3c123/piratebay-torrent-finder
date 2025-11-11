@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const cheerio = require('cheerio');
-const { getFilesFromTorrentFile } = require('../services/torrent-parser');
+const { getFilesFromTorrentFile } = require('../../services/torrent-parser');
 
 const PIRATEBAY_URL = process.env.PIRATEBAY_URL || 'https://thepiratebay.org';
 

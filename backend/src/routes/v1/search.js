@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { searchPirateBay } = require('../services/piratebay');
+const { searchPirateBay } = require('../../services/piratebay');
 
 // Search for torrents
 router.get('/', async (req, res) => {

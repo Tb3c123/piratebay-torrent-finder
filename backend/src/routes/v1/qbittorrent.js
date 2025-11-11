@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const qbittorrentService = require('../services/qbittorrent');
+const qbittorrentService = require('../../services/qbittorrent');
 
 // Add torrent to qBittorrent
 router.post('/add', async (req, res) => {

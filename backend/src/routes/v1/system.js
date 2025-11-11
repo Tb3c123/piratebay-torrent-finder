@@ -6,7 +6,7 @@ let omdbService, moviesRouter, torrentRouter;
 
 // Lazy load to avoid circular dependencies
 function getOmdbService() {
-    if (!omdbService) omdbService = require('../services/omdb');
+    if (!omdbService) omdbService = require('../../services/omdb');
     return omdbService;
 }
 

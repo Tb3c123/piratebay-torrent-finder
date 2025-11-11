@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { AuthService } = require('../services/auth');
-const { authenticateToken } = require('../middleware/auth');
-const { requireAdmin } = require('../middleware/admin');
-const { asyncHandler } = require('../utils/helpers');
-const { successResponse, createdResponse } = require('../utils/response');
-const { validateBody } = require('../middleware/validator');
-const { auth: authValidators } = require('../validators');
+const { AuthService } = require('../../services/auth');
+const { authenticateToken } = require('../../middleware/auth');
+const { requireAdmin } = require('../../middleware/admin');
+const { asyncHandler } = require('../../utils/helpers');
+const { successResponse, createdResponse } = require('../../utils/response');
+const { validateBody } = require('../../middleware/validator');
+const { auth: authValidators } = require('../../validators');
 
 /**
  * Register new user

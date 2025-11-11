@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { asyncHandler } = require('../utils/helpers');
-const { successResponse, errorResponse } = require('../utils/response');
-const { validateBody, validateQuery } = require('../middleware/validator');
-const { settings: settingsValidators } = require('../validators');
+const { asyncHandler } = require('../../utils/helpers');
+const { successResponse, errorResponse } = require('../../utils/response');
+const { validateBody, validateQuery } = require('../../middleware/validator');
+const { settings: settingsValidators } = require('../../validators');
 
 /**
  * Test qBittorrent connection

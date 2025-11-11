@@ -220,17 +220,17 @@ const errorCount = await repos.logs.countByLevel('error');
 ```javascript
 router.get('/settings', authenticateToken, (req, res) => {
     const userId = req.user.id;
-    
+
     db.get('SELECT * FROM settings WHERE user_id = ?', [userId], (err, row) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
-        
+
         const settings = {
             qbittorrent: row.qbittorrent ? JSON.parse(row.qbittorrent) : null,
             jellyfin: row.jellyfin ? JSON.parse(row.jellyfin) : null
         };
-        
+
         res.json(settings);
     });
 });
@@ -242,7 +242,7 @@ router.get('/settings', authenticateToken, (req, res) => {
 const { asyncHandler } = require('../utils/helpers');
 const { successResponse } = require('../utils/response');
 
-router.get('/settings', 
+router.get('/settings',
     authenticateToken,
     asyncHandler(async (req, res) => {
         const userId = req.user.id;

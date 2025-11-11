@@ -14,15 +14,19 @@ const { createRepositories } = require('./repositories');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
 
-const searchRoutes = require('./routes/search');
-const qbittorrentRoutes = require('./routes/qbittorrent');
-const { router: logsRouter, addLog, LOG_LEVELS } = require('./routes/logs');
-const systemRoutes = require('./routes/system');
-const historyRoutes = require('./routes/history');
-const moviesRoutes = require('./routes/movies');
-const torrentRoutes = require('./routes/torrent');
-const settingsRoutes = require('./routes/settings');
-const authRoutes = require('./routes/auth');
+// Import v1 routes
+const v1Routes = require('./routes/v1');
+
+// Import individual routes for backward compatibility
+const searchRoutes = require('./routes/v1/search');
+const qbittorrentRoutes = require('./routes/v1/qbittorrent');
+const { router: logsRouter, addLog, LOG_LEVELS } = require('./routes/v1/logs');
+const systemRoutes = require('./routes/v1/system');
+const historyRoutes = require('./routes/v1/history');
+const moviesRoutes = require('./routes/v1/movies');
+const torrentRoutes = require('./routes/v1/torrent');
+const settingsRoutes = require('./routes/v1/settings');
+const authRoutes = require('./routes/v1/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -47,7 +51,11 @@ app.use((req, res, next) => {
     next();
 });
 
-// Routes
+// API Version 1 Routes (Recommended)
+app.use('/api/v1', v1Routes);
+
+// Legacy Routes (Deprecated - for backward compatibility)
+// TODO: Remove these in v2.0.0
 app.use('/api/auth', authRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/qbittorrent', qbittorrentRoutes);
@@ -60,7 +68,15 @@ app.use('/api/settings', settingsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Server is running' });
+    res.json({
+        status: 'ok',
+        message: 'Server is running',
+        version: 'v1',
+        deprecation: {
+            notice: 'Legacy /api/* endpoints are deprecated. Use /api/v1/* instead.',
+            endpoints: '/api/v1'
+        }
+    });
 });
 
 // 404 handler - must be after all routes
