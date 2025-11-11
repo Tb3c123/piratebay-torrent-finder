@@ -36,37 +36,92 @@ class SearchHistoryRepository {
     /**
      * Add search to history
      */
-    create(userId, query, category = 'all') {
-        const history = SearchHistory.create(userId, query, category);
-        const data = history.toDatabase();
+    create(data) {
+        const history = typeof data === 'object' && data.userId
+            ? SearchHistory.create(data.userId, data.query, data.category || 'all')
+            : SearchHistory.create(data, arguments[1], arguments[2] || 'all'); // Backward compatibility
+
+        const dbData = history.toDatabase();
 
         const stmt = this.db.prepare(
             'INSERT INTO search_history (user_id, query, category, timestamp) VALUES (?, ?, ?, ?)'
         );
-        const info = stmt.run(data.user_id, data.query, data.category, data.timestamp);
+        const info = stmt.run(dbData.user_id, dbData.query, dbData.category, dbData.timestamp);
 
         const row = this.db.prepare('SELECT * FROM search_history WHERE id = ?').get(info.lastInsertRowid);
         return SearchHistory.fromDatabase(row);
     }
 
     /**
-     * Delete history entry
+     * Delete duplicate entry (same user, query, category)
      */
-    delete(id, userId) {
+    deleteDuplicate(userId, query, category) {
         const stmt = this.db.prepare(
-            'DELETE FROM search_history WHERE id = ? AND user_id = ?'
+            'DELETE FROM search_history WHERE user_id = ? AND LOWER(query) = LOWER(?) AND category = ?'
         );
-        stmt.run(id, userId);
+        const info = stmt.run(userId, query, category);
+        return info.changes;
+    }
+
+    /**
+     * Delete by ID
+     */
+    deleteById(id) {
+        const stmt = this.db.prepare('DELETE FROM search_history WHERE id = ?');
+        stmt.run(id);
         return true;
     }
 
     /**
-     * Clear all history for user
+     * Delete entries older than cutoff date
      */
-    clearByUserId(userId) {
+    deleteOlderThan(cutoffTimestamp) {
+        const stmt = this.db.prepare('DELETE FROM search_history WHERE timestamp < ?');
+        const info = stmt.run(cutoffTimestamp);
+        return info.changes;
+    }
+
+    /**
+     * Delete entries by user ID
+     */
+    deleteByUserId(userId) {
         const stmt = this.db.prepare('DELETE FROM search_history WHERE user_id = ?');
-        stmt.run(userId);
-        return true;
+        const info = stmt.run(userId);
+        return info.changes;
+    }
+
+    /**
+     * Get statistics
+     */
+    getStatistics(userId = null) {
+        const retentionDays = 30;
+        const cutoffDate = Date.now() - (retentionDays * 24 * 60 * 60 * 1000);
+
+        let totalQuery, oldEntriesQuery, oldestQuery, newestQuery;
+
+        if (userId) {
+            totalQuery = this.db.prepare('SELECT COUNT(*) as count FROM search_history WHERE user_id = ?');
+            oldEntriesQuery = this.db.prepare('SELECT COUNT(*) as count FROM search_history WHERE user_id = ? AND timestamp <= ?');
+            oldestQuery = this.db.prepare('SELECT MIN(timestamp) as timestamp FROM search_history WHERE user_id = ?');
+            newestQuery = this.db.prepare('SELECT MAX(timestamp) as timestamp FROM search_history WHERE user_id = ?');
+        } else {
+            totalQuery = this.db.prepare('SELECT COUNT(*) as count FROM search_history');
+            oldEntriesQuery = this.db.prepare('SELECT COUNT(*) as count FROM search_history WHERE timestamp <= ?');
+            oldestQuery = this.db.prepare('SELECT MIN(timestamp) as timestamp FROM search_history');
+            newestQuery = this.db.prepare('SELECT MAX(timestamp) as timestamp FROM search_history');
+        }
+
+        const total = userId ? totalQuery.get(userId).count : totalQuery.get().count;
+        const oldEntriesCount = userId ? oldEntriesQuery.get(userId, cutoffDate).count : oldEntriesQuery.get(cutoffDate).count;
+        const oldestEntry = userId ? oldestQuery.get(userId).timestamp : oldestQuery.get().timestamp;
+        const newestEntry = userId ? newestQuery.get(userId).timestamp : newestQuery.get().timestamp;
+
+        return {
+            total,
+            oldEntriesCount,
+            oldestEntry: oldestEntry ? new Date(oldestEntry) : null,
+            newestEntry: newestEntry ? new Date(newestEntry) : null
+        };
     }
 
     /**

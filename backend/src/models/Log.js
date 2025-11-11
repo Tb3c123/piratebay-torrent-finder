@@ -31,11 +31,16 @@ class Log {
      * Convert to database format
      */
     toDatabase() {
+        // Convert details object to JSON string for database storage
+        const detailsStr = typeof this.details === 'object'
+            ? JSON.stringify(this.details)
+            : this.details;
+
         return {
             id: this.id,
             user_id: this.userId,
             action: this.action,
-            details: this.details,
+            details: detailsStr,
             timestamp: this.timestamp,
             level: this.level
         };
@@ -65,7 +70,7 @@ class Log {
             action,
             details,
             level,
-            timestamp: new Date().toISOString()
+            timestamp: Date.now() // Use integer timestamp for database
         });
     }
 

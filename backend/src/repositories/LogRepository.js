@@ -46,9 +46,25 @@ class LogRepository {
 
     /**
      * Create log entry
+     * Supports both object parameter and individual parameters for backward compatibility
      */
-    create(userId, action, details = '', level = 'info') {
-        const log = Log.create(userId, action, details, level);
+    create(userIdOrData, action, details = '', level = 'info') {
+        let log;
+
+        if (typeof userIdOrData === 'object' && userIdOrData !== null) {
+            // New style: create({ userId, action, details, level })
+            const data = userIdOrData;
+            log = Log.create(
+                data.userId || null,
+                data.action,
+                data.details || '',
+                data.level || 'info'
+            );
+        } else {
+            // Old style: create(userId, action, details, level)
+            log = Log.create(userIdOrData, action, details, level);
+        }
+
         const data = log.toDatabase();
 
         const stmt = this.db.prepare(
@@ -156,12 +172,16 @@ class LogRepository {
 
         const stats = {
             total: 0,
+            byLevel: {},
             info: 0,
             warning: 0,
-            error: 0
+            error: 0,
+            success: 0,
+            debug: 0
         };
 
         rows.forEach(row => {
+            stats.byLevel[row.level] = row.count;
             stats[row.level] = row.count;
             stats.total += row.count;
         });

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const { asyncHandler } = require('../utils/helpers');
+const { successResponse } = require('../utils/response');
 
-// In-memory logs storage (in production, use a proper logging service)
-const logs = [];
 const MAX_LOGS = 1000;
 
 // Log levels
@@ -17,147 +17,132 @@ const LOG_LEVELS = {
 /**
  * Add a log entry
  */
-function addLog(level, message, data = null) {
-    const logEntry = {
-        id: Date.now() + Math.random(),
-        timestamp: new Date().toISOString(),
-        level,
-        message,
-        data
-    };
+function addLog(level, message, data = null, userId = null) {
+    try {
+        const logEntry = {
+            userId,
+            level,
+            action: message,
+            details: data || {}
+        };
 
-    logs.unshift(logEntry); // Add to beginning
+        // Save to database if repository is available
+        if (global.repos && global.repos.logs) {
+            global.repos.logs.create(logEntry);
+        }
 
-    // Keep only MAX_LOGS entries
-    if (logs.length > MAX_LOGS) {
-        logs.pop();
+        // Also log to console
+        console.log(`[${level.toUpperCase()}] ${message}`, data || '');
+
+        return logEntry;
+    } catch (error) {
+        console.error('[LOGS] Failed to add log:', error);
     }
-
-    // Also log to console
-    console.log(`[${level.toUpperCase()}] ${message}`, data || '');
-
-    return logEntry;
 }
+
+// Expose addLog and LOG_LEVELS globally
+global.addLog = addLog;
+global.LOG_LEVELS = LOG_LEVELS;
 
 /**
  * Get all logs
  * GET /api/logs
  */
-router.get('/', (req, res) => {
-    try {
-        const { level, limit = 100 } = req.query;
+router.get('/',
+    asyncHandler(async (req, res) => {
+        const { level, limit = 100, userId } = req.query;
 
-        let filteredLogs = logs;
+        const limitNum = Math.min(parseInt(limit), MAX_LOGS);
+        let logs;
 
         if (level) {
-            filteredLogs = logs.filter(log => log.level === level);
+            logs = req.repos.logs.findByLevel(level, limitNum);
+        } else if (userId) {
+            logs = req.repos.logs.findByUserId(parseInt(userId), limitNum);
+        } else {
+            logs = req.repos.logs.findAll(limitNum);
         }
 
-        const result = filteredLogs.slice(0, parseInt(limit));
-
-        // Log the access (but don't spam if it's frequent)
-        if (Math.random() < 0.1) { // Only log 10% of requests to avoid spam
+        // Log the access occasionally to avoid spam
+        if (Math.random() < 0.1) {
             addLog(LOG_LEVELS.DEBUG, 'Logs accessed', {
                 level: level || 'all',
-                limit,
-                returned: result.length,
-                total: logs.length
+                limit: limitNum,
+                returned: logs.length
             });
         }
 
-        res.json({
-            success: true,
-            logs: result,
-            total: filteredLogs.length,
-            limit: parseInt(limit)
+        successResponse(res, {
+            logs,
+            total: logs.length,
+            limit: limitNum
         });
-    } catch (error) {
-        console.error('Error fetching logs:', error);
-        addLog(LOG_LEVELS.ERROR, 'Failed to fetch logs', {
-            error: error.message
-        });
-
-        res.status(500).json({
-            success: false,
-            error: 'Failed to fetch logs',
-            message: error.message
-        });
-    }
-});
+    })
+);
 
 /**
  * Clear all logs
  * DELETE /api/logs
  */
-router.delete('/', (req, res) => {
-    try {
-        const clearedCount = logs.length;
+router.delete('/',
+    asyncHandler(async (req, res) => {
+        const { userId } = req.query;
 
-        // Clear logs first
-        logs.length = 0;
+        let clearedCount;
 
-        // Then add log about clearing (so it doesn't get cleared)
-        addLog(LOG_LEVELS.WARNING, 'All logs cleared', {
-            count: clearedCount,
-            requestedBy: req.ip || 'unknown',
-            timestamp: new Date().toISOString()
-        });
-
-        res.json({
-            success: true,
-            message: 'Logs cleared successfully',
-            clearedCount
-        });
-    } catch (error) {
-        console.error('Error clearing logs:', error);
-        addLog(LOG_LEVELS.ERROR, 'Failed to clear logs', {
-            error: error.message
-        });
-
-        res.status(500).json({
-            success: false,
-            error: 'Failed to clear logs',
-            message: error.message
-        });
-    }
-});
+        if (userId) {
+            clearedCount = req.repos.logs.clearByUserId(parseInt(userId));
+            addLog(LOG_LEVELS.WARNING, `Logs cleared for user ${userId}`, {
+                count: clearedCount,
+                requestedBy: req.ip || 'unknown'
+            });
+            successResponse(res, { clearedCount }, `Logs cleared for user ${userId}`);
+        } else {
+            clearedCount = req.repos.logs.clearAll();
+            addLog(LOG_LEVELS.WARNING, 'All logs cleared', {
+                count: clearedCount,
+                requestedBy: req.ip || 'unknown'
+            });
+            successResponse(res, { clearedCount }, 'All logs cleared successfully');
+        }
+    })
+);
 
 /**
  * Get system status
  * GET /api/logs/status
  */
-router.get('/status', (req, res) => {
-    try {
+router.get('/status',
+    asyncHandler(async (req, res) => {
+        const stats = req.repos.logs.getStatistics();
+        const uptime = process.uptime();
+        const memory = process.memoryUsage();
+
         const statusData = {
             status: 'running',
-            uptime: process.uptime(),
-            memory: process.memoryUsage(),
-            logs_count: logs.length,
+            uptime,
+            uptimeMinutes: Math.floor(uptime / 60),
+            memory: {
+                heapUsed: memory.heapUsed,
+                heapUsedMB: Math.round(memory.heapUsed / 1024 / 1024),
+                heapTotal: memory.heapTotal,
+                heapTotalMB: Math.round(memory.heapTotal / 1024 / 1024)
+            },
+            logs: {
+                total: stats.total,
+                byLevel: stats.byLevel
+            },
             timestamp: new Date().toISOString()
         };
 
         addLog(LOG_LEVELS.INFO, 'System status checked', {
-            uptime: `${Math.floor(statusData.uptime / 60)} minutes`,
-            logsCount: statusData.logs_count,
-            memoryUsedMB: Math.round(statusData.memory.heapUsed / 1024 / 1024)
+            uptime: `${statusData.uptimeMinutes} minutes`,
+            logsCount: stats.total,
+            memoryUsedMB: statusData.memory.heapUsedMB
         });
 
-        res.json({
-            success: true,
-            ...statusData
-        });
-    } catch (error) {
-        console.error('Error getting status:', error);
-        addLog(LOG_LEVELS.ERROR, 'Failed to get system status', {
-            error: error.message
-        });
-
-        res.status(500).json({
-            success: false,
-            error: 'Failed to get system status',
-            message: error.message
-        });
-    }
-});
+        successResponse(res, statusData);
+    })
+);
 
 module.exports = { router, addLog, LOG_LEVELS };
