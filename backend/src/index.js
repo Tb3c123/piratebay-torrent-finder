@@ -7,6 +7,10 @@ require('dotenv').config();
 // Initialize database before anything else
 require('./database/init');
 
+// Import new error handlers
+const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
+const logger = require('./utils/logger');
+
 const searchRoutes = require('./routes/search');
 const qbittorrentRoutes = require('./routes/qbittorrent');
 const { router: logsRouter, addLog, LOG_LEVELS } = require('./routes/logs');
@@ -46,14 +50,14 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    addLog(LOG_LEVELS.ERROR, 'Server error', { error: err.message, stack: err.stack });
-    res.status(500).json({ error: 'Something went wrong!' });
-});
+// 404 handler - must be after all routes
+app.use(notFoundHandler);
+
+// Error handling middleware - must be last
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`Backend server running on port ${PORT}`);
+    logger.info(`Backend server started on port ${PORT}`);
     addLog(LOG_LEVELS.INFO, `Backend server started on port ${PORT}`);
 });
