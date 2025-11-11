@@ -6,7 +6,13 @@
     "scripts": {
         "dev": "nodemon src/index.js",
         "start": "node src/index.js",
-        "build": "echo 'No build step required for Node.js backend'"
+        "test": "node tests/test-all.js",
+        "test:unit": "node tests/run-all.js",
+        "test:pre-build": "node tests/pre-build/run-pre-build.js",
+        "test:env": "node tests/pre-build/environment.test.js",
+        "test:deps": "node tests/pre-build/dependencies.test.js",
+        "prebuild": "npm run test",
+        "build": "echo '✅ All tests passed! Backend ready for deployment.'"
     },
     "dependencies": {
         "axios": "^1.6.2",
