@@ -92,7 +92,7 @@ export default function BurgerMenu() {
         setLoadingHistory(true)
         try {
             console.log('[BurgerMenu] Loading history for userId:', user?.id)
-            const response = await axios.get(`${API_URL}/api/history`, {
+            const response = await axios.get(`${API_URL}/api/v1/history`, {
                 params: { userId: user?.id }
             })
             console.log('[BurgerMenu] Loaded history:', response.data.length, 'items')
@@ -108,7 +108,7 @@ export default function BurgerMenu() {
         if (!confirm('Clear all search history?')) return
 
         try {
-            await axios.delete(`${API_URL}/api/history`)
+            await axios.delete(`${API_URL}/api/v1/history`)
             setSearchHistory([])
             setDisplayedHistory([])
         } catch (error) {

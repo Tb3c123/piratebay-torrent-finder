@@ -23,7 +23,7 @@ export default function MovieDetailPage({ params }: { params: { imdbId: string }
     const { data: movie, loading, error } = useSessionCache<MovieDetails>(
         `movie_${params.imdbId}`,
         async () => {
-            const response = await axios.get(`${API_URL}/api/movies/${params.imdbId}`)
+            const response = await axios.get(`${API_URL}/api/v1/movies/${params.imdbId}`)
             if (response.data.success) {
                 return response.data.movie
             } else {

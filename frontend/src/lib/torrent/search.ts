@@ -16,7 +16,7 @@ export async function searchTorrents(
     options: TorrentSearchOptions
 ): Promise<SearchResult> {
     try {
-        const response = await axios.get(`${API_URL}/api/search`, {
+        const response = await axios.get(`${API_URL}/api/v1/search`, {
             params: {
                 query: options.query,
                 category: options.category || '0'
@@ -70,7 +70,7 @@ export async function downloadTorrent(
     torrentName: string
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        await axios.post(`${API_URL}/api/qbittorrent/add`, { magnetLink })
+        await axios.post(`${API_URL}/api/v1/qbittorrent/add`, { magnetLink })
         return { success: true }
     } catch (error) {
         console.error('Failed to add torrent:', error)

@@ -10,7 +10,7 @@ export const torrentsService = {
      */
     async searchTorrents(params: TorrentSearchParams): Promise<TorrentSearchResult> {
         try {
-            const response = await axios.get(`${API_URL}/api/search`, {
+            const response = await axios.get(`${API_URL}/api/v1/search`, {
                 params: {
                     query: params.query,
                     category: params.category || '0',
@@ -35,7 +35,7 @@ export const torrentsService = {
      */
     async getTorrentDetails(id: string): Promise<TorrentDetails> {
         try {
-            const response = await axios.get(`${API_URL}/api/torrent/${id}`)
+            const response = await axios.get(`${API_URL}/api/v1/torrent/${id}`)
             return response.data
         } catch (error) {
             console.error('Torrent details error:', error)
@@ -48,7 +48,7 @@ export const torrentsService = {
      */
     async addTorrent(magnetLink: string, savePath: string = '/downloads'): Promise<void> {
         try {
-            await axios.post(`${API_URL}/api/qbittorrent/add`, {
+            await axios.post(`${API_URL}/api/v1/qbittorrent/add`, {
                 magnetLink,
                 savePath
             })
@@ -63,7 +63,7 @@ export const torrentsService = {
      */
     async saveSearchHistory(query: string, category: string = 'piratebay', userId?: string): Promise<void> {
         try {
-            await axios.post(`${API_URL}/api/history`, {
+            await axios.post(`${API_URL}/api/v1/history`, {
                 query,
                 category,
                 userId

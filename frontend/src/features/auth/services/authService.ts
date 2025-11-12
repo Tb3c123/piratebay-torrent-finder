@@ -83,7 +83,7 @@ export const authService = {
      */
     register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
         try {
-            const response = await fetch(`${API_URL}/api/auth/register`, {
+            const response = await fetch(`${API_URL}/api/v1/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export const authService = {
      */
     login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
         try {
-            const response = await fetch(`${API_URL}/api/auth/login`, {
+            const response = await fetch(`${API_URL}/api/v1/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ export const authService = {
 
         if (token) {
             try {
-                await fetch(`${API_URL}/api/auth/logout`, {
+                await fetch(`${API_URL}/api/v1/auth/logout`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -167,7 +167,7 @@ export const authService = {
         if (!token) return null
 
         try {
-            const response = await fetch(`${API_URL}/api/auth/me`, {
+            const response = await fetch(`${API_URL}/api/v1/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -197,7 +197,7 @@ export const authService = {
         }
 
         try {
-            const response = await fetch(`${API_URL}/api/auth/change-password`, {
+            const response = await fetch(`${API_URL}/api/v1/auth/change-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -228,7 +228,7 @@ export const authService = {
      */
     checkHasUsers: async (): Promise<boolean> => {
         try {
-            const response = await fetch(`${API_URL}/api/auth/admin/users`)
+            const response = await fetch(`${API_URL}/api/v1/auth/admin/users`)
             if (!response.ok) return false
 
             const data = await response.json()

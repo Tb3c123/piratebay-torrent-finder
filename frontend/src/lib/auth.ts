@@ -21,7 +21,7 @@ export interface AuthResponse {
  * Register a new user
  */
 export async function register(username: string, password: string): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/api/auth/register`, {
+    const response = await fetch(`${API_URL}/api/v1/auth/register`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -37,7 +37,7 @@ export async function register(username: string, password: string): Promise<Auth
  * Login user
  */
 export async function login(username: string, password: string): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/api/auth/login`, {
+    const response = await fetch(`${API_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ export async function logout(): Promise<void> {
 
     if (token) {
         try {
-            await fetch(`${API_URL}/api/auth/logout`, {
+            await fetch(`${API_URL}/api/v1/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -127,7 +127,7 @@ export async function fetchUserInfo(): Promise<User | null> {
     if (!token) return null;
 
     try {
-        const response = await fetch(`${API_URL}/api/auth/me`, {
+        const response = await fetch(`${API_URL}/api/v1/auth/me`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
@@ -156,7 +156,7 @@ export async function changePassword(oldPassword: string, newPassword: string): 
         return { success: false, error: 'Not authenticated' };
     }
 
-    const response = await fetch(`${API_URL}/api/auth/change-password`, {
+    const response = await fetch(`${API_URL}/api/v1/auth/change-password`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

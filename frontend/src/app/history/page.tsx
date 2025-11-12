@@ -60,7 +60,7 @@ export default function HistoryPage() {
     const loadFullHistory = async () => {
         setLoading(true)
         try {
-            const response = await axios.get(`${API_URL}/api/history`, {
+            const response = await axios.get(`${API_URL}/api/v1/history`, {
                 params: { userId: user?.id }
             })
             const allHistory: SearchHistoryItem[] = response.data
@@ -123,7 +123,7 @@ export default function HistoryPage() {
         if (!confirm('Clear all search history?')) return
 
         try {
-            await axios.delete(`${API_URL}/api/history`)
+            await axios.delete(`${API_URL}/api/v1/history`)
             setHistory([])
             setDisplayedHistory([])
             setHasMore(false)

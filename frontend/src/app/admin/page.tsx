@@ -39,7 +39,7 @@ export default function AdminPage() {
     const fetchUsers = async () => {
         try {
             const token = getAuthToken()
-            const response = await axios.get(`${API_URL}/api/auth/admin/users`, {
+            const response = await axios.get(`${API_URL}/api/v1/auth/admin/users`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -58,7 +58,7 @@ export default function AdminPage() {
     const handleDeleteUser = async (userId: number) => {
         try {
             const token = getAuthToken()
-            await axios.delete(`${API_URL}/api/auth/admin/users/${userId}`, {
+            await axios.delete(`${API_URL}/api/v1/auth/admin/users/${userId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

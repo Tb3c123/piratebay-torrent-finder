@@ -59,7 +59,7 @@ export default function Header() {
             if (!user?.id) return; // Don't fetch if no user
 
             try {
-                const response = await axios.get(`${API_URL}/api/qbittorrent/torrents`, {
+                const response = await axios.get(`${API_URL}/api/v1/qbittorrent/torrents`, {
                     params: { userId: user.id }
                 })
                 const torrents = response.data.torrents || []

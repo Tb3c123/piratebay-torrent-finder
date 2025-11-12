@@ -13,7 +13,7 @@ export const moviesService = {
      */
     searchMovies: async (query: string, page: number = 1): Promise<MovieSearchResult> => {
         try {
-            const response = await axios.get(`${API_URL}/api/movies/search`, {
+            const response = await axios.get(`${API_URL}/api/v1/movies/search`, {
                 params: { query, page },
             })
 
@@ -51,7 +51,7 @@ export const moviesService = {
      */
     getTrendingMovies: async (): Promise<Movie[]> => {
         try {
-            const response = await axios.get(`${API_URL}/api/movies/trending/now`)
+            const response = await axios.get(`${API_URL}/api/v1/movies/trending/now`)
             const movieData = response.data.data || response.data
             return movieData.movies || []
         } catch (error) {
@@ -65,7 +65,7 @@ export const moviesService = {
      */
     getPopularMovies: async (): Promise<Movie[]> => {
         try {
-            const response = await axios.get(`${API_URL}/api/movies/trending/popular`)
+            const response = await axios.get(`${API_URL}/api/v1/movies/trending/popular`)
             const movieData = response.data.data || response.data
             return movieData.movies || []
         } catch (error) {
@@ -79,7 +79,7 @@ export const moviesService = {
      */
     getLatestMovies: async (): Promise<Movie[]> => {
         try {
-            const response = await axios.get(`${API_URL}/api/movies/latest`)
+            const response = await axios.get(`${API_URL}/api/v1/movies/latest`)
             const movieData = response.data.data || response.data
             return movieData.movies || []
         } catch (error) {

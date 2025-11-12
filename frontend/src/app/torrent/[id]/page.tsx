@@ -97,7 +97,7 @@ export default function TorrentDetailPage({ params }: { params: { id: string } }
             // Fetch full details from backend if we have an ID
             if (basicTorrent.id && basicTorrent.id !== 'unknown') {
                 try {
-                    const response = await axios.get(`${API_URL}/api/torrent/${basicTorrent.id}`)
+                    const response = await axios.get(`${API_URL}/api/v1/torrent/${basicTorrent.id}`)
                     // Set all data together after loading is complete
                     const fullData = { ...basicTorrent, ...response.data }
                     setTorrent(fullData)

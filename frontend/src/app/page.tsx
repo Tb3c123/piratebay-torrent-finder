@@ -88,9 +88,9 @@ function HomeContent() {
         setSectionsLoading(true)
         try {
             const [trending, popular, latest] = await Promise.all([
-                axios.get(`${API_URL}/api/movies/trending/now`).catch(() => ({ data: { movies: [] } })),
-                axios.get(`${API_URL}/api/movies/trending/popular`).catch(() => ({ data: { movies: [] } })),
-                axios.get(`${API_URL}/api/movies/latest`).catch(() => ({ data: { movies: [] } }))
+                axios.get(`${API_URL}/api/v1/movies/trending/now`).catch(() => ({ data: { movies: [] } })),
+                axios.get(`${API_URL}/api/v1/movies/trending/popular`).catch(() => ({ data: { movies: [] } })),
+                axios.get(`${API_URL}/api/v1/movies/latest`).catch(() => ({ data: { movies: [] } }))
             ])
 
             // Validate and filter out invalid movie data
@@ -120,10 +120,10 @@ function HomeContent() {
         setError('')
 
         console.log('🔍 Searching with API_URL:', API_URL)
-        console.log('🔍 Full URL:', `${API_URL}/api/movies/search?query=${query}`)
+        console.log('🔍 Full URL:', `${API_URL}/api/v1/movies/search?query=${query}`)
 
         try {
-            const response = await axios.get(`${API_URL}/api/movies/search`, {
+            const response = await axios.get(`${API_URL}/api/v1/movies/search`, {
                 params: {
                     query: query,
                     page: 1
@@ -140,7 +140,7 @@ function HomeContent() {
 
                 // Save to search history
                 try {
-                    await axios.post(`${API_URL}/api/history`, {
+                    await axios.post(`${API_URL}/api/v1/history`, {
                         query: query,
                         type: 'movie',
                         userId: user?.id,

@@ -83,7 +83,7 @@ export default function LogsPage() {
 
     const fetchLogs = async () => {
         try {
-            const response = await fetch(`${API_URL}/api/logs`)
+            const response = await fetch(`${API_URL}/api/v1/logs`)
             const data = await response.json()
 
             // API now returns { success: true, logs: [...], total: N }
@@ -151,7 +151,7 @@ export default function LogsPage() {
     const clearLogs = async () => {
         if (confirm('Are you sure you want to clear all logs?')) {
             try {
-                const response = await fetch(`${API_URL}/api/logs`, {
+                const response = await fetch(`${API_URL}/api/v1/logs`, {
                     method: 'DELETE'
                 })
                 if (response.ok) {
@@ -166,7 +166,7 @@ export default function LogsPage() {
     const cleanupHistory = async () => {
         if (confirm('Remove search history older than 30 days?')) {
             try {
-                const response = await fetch(`${API_URL}/api/history/cleanup`, {
+                const response = await fetch(`${API_URL}/api/v1/history/cleanup`, {
                     method: 'POST'
                 })
                 const data = await response.json()

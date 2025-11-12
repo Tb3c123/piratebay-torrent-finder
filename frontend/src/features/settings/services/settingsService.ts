@@ -20,7 +20,7 @@ export const settingsService = {
      */
     loadQBittorrent: async (userId?: number): Promise<QBittorrentSettings | null> => {
         try {
-            const response = await axios.get(`${API_URL}/api/settings/qbittorrent`, {
+            const response = await axios.get(`${API_URL}/api/v1/settings/qbittorrent`, {
                 params: { userId },
             })
             return response.data.settings || null
@@ -38,7 +38,7 @@ export const settingsService = {
         userId?: number
     ): Promise<{ success: boolean; error?: string }> => {
         try {
-            await axios.post(`${API_URL}/api/settings/qbittorrent`, {
+            await axios.post(`${API_URL}/api/v1/settings/qbittorrent`, {
                 ...settings,
                 userId,
             })
@@ -60,7 +60,7 @@ export const settingsService = {
     ): Promise<SettingsTestResult> => {
         try {
             const response = await axios.post(
-                `${API_URL}/api/settings/qbittorrent/test`,
+                `${API_URL}/api/v1/settings/qbittorrent/test`,
                 settings
             )
             return {
@@ -83,7 +83,7 @@ export const settingsService = {
      */
     loadJellyfin: async (userId?: number): Promise<JellyfinSettings | null> => {
         try {
-            const response = await axios.get(`${API_URL}/api/settings/jellyfin`, {
+            const response = await axios.get(`${API_URL}/api/v1/settings/jellyfin`, {
                 params: { userId },
             })
             return response.data.settings || null
@@ -102,7 +102,7 @@ export const settingsService = {
         saveLibraries: boolean = true
     ): Promise<{ success: boolean; error?: string }> => {
         try {
-            await axios.post(`${API_URL}/api/settings/jellyfin`, {
+            await axios.post(`${API_URL}/api/v1/settings/jellyfin`, {
                 ...settings,
                 userId,
                 saveLibraries,
@@ -125,7 +125,7 @@ export const settingsService = {
     ): Promise<JellyfinTestResult> => {
         try {
             const response = await axios.post(
-                `${API_URL}/api/settings/jellyfin/test`,
+                `${API_URL}/api/v1/settings/jellyfin/test`,
                 settings
             )
             return {

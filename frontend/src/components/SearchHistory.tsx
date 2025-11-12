@@ -28,7 +28,7 @@ export default function SearchHistory({ onSearchFromHistory }: SearchHistoryProp
 
     const loadHistory = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/history`)
+            const response = await axios.get(`${API_URL}/api/v1/history`)
             setHistory(response.data)
         } catch (error) {
             console.error('Failed to load search history:', error)
@@ -37,7 +37,7 @@ export default function SearchHistory({ onSearchFromHistory }: SearchHistoryProp
 
     const loadStats = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/history/stats`)
+            const response = await axios.get(`${API_URL}/api/v1/history/stats`)
             setStats(response.data)
         } catch (error) {
             console.error('Failed to load history stats:', error)
@@ -46,7 +46,7 @@ export default function SearchHistory({ onSearchFromHistory }: SearchHistoryProp
 
     const addToHistory = async (query: string, category: string) => {
         try {
-            const response = await axios.post(`${API_URL}/api/history`, {
+            const response = await axios.post(`${API_URL}/api/v1/history`, {
                 query,
                 category
             })
@@ -59,7 +59,7 @@ export default function SearchHistory({ onSearchFromHistory }: SearchHistoryProp
     const clearHistory = async () => {
         if (confirm('Are you sure you want to clear all search history?')) {
             try {
-                await axios.delete(`${API_URL}/api/history`)
+                await axios.delete(`${API_URL}/api/v1/history`)
                 setHistory([])
             } catch (error) {
                 console.error('Failed to clear search history:', error)

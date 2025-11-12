@@ -13,7 +13,7 @@ export const downloadsService = {
      */
     getTorrents: async (userId?: number): Promise<{ torrents: Torrent[]; error?: string }> => {
         try {
-            const response = await axios.get(`${API_URL}/api/qbittorrent/torrents`, {
+            const response = await axios.get(`${API_URL}/api/v1/qbittorrent/torrents`, {
                 params: { userId },
             })
 
@@ -36,7 +36,7 @@ export const downloadsService = {
      */
     pauseTorrent: async (hash: string, userId?: number): Promise<TorrentActionResult> => {
         try {
-            await axios.post(`${API_URL}/api/qbittorrent/pause/${hash}`, {
+            await axios.post(`${API_URL}/api/v1/qbittorrent/pause/${hash}`, {
                 userId,
             })
             return { success: true }
@@ -54,7 +54,7 @@ export const downloadsService = {
      */
     resumeTorrent: async (hash: string, userId?: number): Promise<TorrentActionResult> => {
         try {
-            await axios.post(`${API_URL}/api/qbittorrent/resume/${hash}`, {
+            await axios.post(`${API_URL}/api/v1/qbittorrent/resume/${hash}`, {
                 userId,
             })
             return { success: true }
@@ -75,7 +75,7 @@ export const downloadsService = {
         userId?: number
     ): Promise<TorrentActionResult> => {
         try {
-            await axios.post(`${API_URL}/api/qbittorrent/force-start/${hash}`, {
+            await axios.post(`${API_URL}/api/v1/qbittorrent/force-start/${hash}`, {
                 userId,
             })
             return { success: true }
@@ -98,7 +98,7 @@ export const downloadsService = {
     ): Promise<TorrentActionResult> => {
         try {
             await axios.delete(
-                `${API_URL}/api/qbittorrent/delete/${hash}?deleteFiles=${deleteFiles}&userId=${userId}`
+                `${API_URL}/api/v1/qbittorrent/delete/${hash}?deleteFiles=${deleteFiles}&userId=${userId}`
             )
             return { success: true }
         } catch (error: any) {

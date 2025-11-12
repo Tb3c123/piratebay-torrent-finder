@@ -13,6 +13,17 @@ SHA=$(git rev-parse --short HEAD)
 echo "🧪 Running tests before build..."
 echo ""
 
+# Check API endpoints first
+echo "🔍 Checking API endpoints..."
+./tests/check-api-endpoints.sh
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ API endpoint validation failed! Please fix endpoints before building."
+    exit 1
+fi
+echo "  ✓ API endpoints validated"
+echo ""
+
 # Backend tests
 echo "📦 Running backend tests..."
 cd backend

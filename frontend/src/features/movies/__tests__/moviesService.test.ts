@@ -40,7 +40,7 @@ describe('moviesService', () => {
             const result = await moviesService.searchMovies('Test', 1)
 
             expect(mockedAxios.get).toHaveBeenCalledWith(
-                expect.stringContaining('/api/movies/search'),
+                expect.stringContaining('/api/v1/movies/search'),
                 expect.objectContaining({
                     params: { query: 'Test', page: 1 },
                 })
@@ -117,7 +117,7 @@ describe('moviesService', () => {
             const result = await moviesService.getTrendingMovies()
 
             expect(mockedAxios.get).toHaveBeenCalledWith(
-                expect.stringContaining('/api/movies/trending/now')
+                expect.stringContaining('/api/v1/movies/trending/now')
             )
             expect(result).toHaveLength(2)
         })
@@ -149,7 +149,7 @@ describe('moviesService', () => {
             const result = await moviesService.getPopularMovies()
 
             expect(mockedAxios.get).toHaveBeenCalledWith(
-                expect.stringContaining('/api/movies/trending/popular')
+                expect.stringContaining('/api/v1/movies/trending/popular')
             )
             expect(result).toHaveLength(2)
         })
@@ -172,7 +172,7 @@ describe('moviesService', () => {
             const result = await moviesService.getLatestMovies()
 
             expect(mockedAxios.get).toHaveBeenCalledWith(
-                expect.stringContaining('/api/movies/latest')
+                expect.stringContaining('/api/v1/movies/latest')
             )
             expect(result).toHaveLength(1)
         })

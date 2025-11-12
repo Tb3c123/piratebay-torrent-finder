@@ -52,7 +52,7 @@ export function DownloadModal({
         setLoading(true)
         setError(null)
         try {
-            const response = await axios.get(`${API_URL}/api/settings/jellyfin/saved-libraries`, {
+            const response = await axios.get(`${API_URL}/api/v1/settings/jellyfin/saved-libraries`, {
                 params: { userId: user?.id }
             })
             if (response.data.success && response.data.libraries) {
@@ -88,7 +88,7 @@ export function DownloadModal({
         setError(null)
 
         try {
-            const response = await axios.post(`${API_URL}/api/qbittorrent/add`, {
+            const response = await axios.post(`${API_URL}/api/v1/qbittorrent/add`, {
                 magnetLink,
                 savePath: library.paths[0], // Use first path from library
                 userId: user?.id
