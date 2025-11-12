@@ -2,7 +2,7 @@
 
 import { useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { TorrentSection } from '@/components/torrent'
+import { TorrentSection } from '@/features/torrents'
 import { useTorrentSearch, TorrentList } from '@/features/torrents'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -101,14 +101,37 @@ function DirectSearchContent() {
                     sectionTitle="🏴‍☠️ Available Torrents"
                 />
 
-                {/* Load More & End Messages */}
-                <TorrentList
-                    torrents={[]}
-                    loading={false}
-                    loadingMore={loadingMore}
-                    onLoadMore={loadMore}
-                    hasMore={hasMore}
-                />
+                {/* Load More Button */}
+                {!loading && torrents.length > 0 && hasMore && (
+                    <div className="mt-8 text-center">
+                        <button
+                            onClick={loadMore}
+                            disabled={loadingMore}
+                            className={`px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg ${loadingMore
+                                ? 'bg-gray-600 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700 transform hover:scale-105'
+                                } text-white`}
+                        >
+                            {loadingMore ? (
+                                <span className="flex items-center gap-2">
+                                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                                    Loading more torrents...
+                                </span>
+                            ) : (
+                                '📥 Load More Torrents'
+                            )}
+                        </button>
+                    </div>
+                )}
+
+                {/* End of Results Message */}
+                {!loading && !hasMore && torrents.length >= 10 && (
+                    <div className="mt-8 text-center py-8 bg-gray-800/50 rounded-lg border border-gray-700">
+                        <p className="text-gray-400 text-lg">
+                            🎉 You've reached the end of the results
+                        </p>
+                    </div>
+                )}
 
                 {/* No Results Message */}
                 {!loading && torrents.length === 0 && !error && query && (

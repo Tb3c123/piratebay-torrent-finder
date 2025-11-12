@@ -5,6 +5,8 @@ export { CategoryFilter, PIRATEBAY_CATEGORIES, POPULAR_CATEGORIES } from './comp
 export { TorrentSearchBar } from './components/TorrentSearchBar'
 export { TorrentCard } from './components/TorrentCard'
 export { TorrentList } from './components/TorrentList'
+export { TorrentSection } from './components/TorrentSection'
+export { AlternativeSearch } from './components/AlternativeSearch'
 
 // Hooks
 export { useTorrentSearch } from './hooks/useTorrentSearch'

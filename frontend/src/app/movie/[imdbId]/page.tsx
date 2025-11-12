@@ -6,7 +6,7 @@ import Image from 'next/image'
 import axios from 'axios'
 import { MovieDetails, Torrent } from '@/lib/types'
 import { generateMovieQueries, searchMovieTorrents, searchMovieCustom } from '@/lib/torrent'
-import { TorrentSection } from '@/components/torrent'
+import { TorrentSection } from '@/features/torrents'
 import { useSessionCache } from '@/hooks/useSessionCache'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
