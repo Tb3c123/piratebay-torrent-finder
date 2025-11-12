@@ -62,6 +62,8 @@ docker run -d \
   --name $BACKEND_CONTAINER \
   --network $NETWORK_NAME \
   -p $BACKEND_PORT:3001 \
+  -e OMDB_API_KEY=3d5cd52a \
+  -e PIRATEBAY_URL=https://apibay.org \
   $BACKEND_IMAGE
 
 echo "  ✓ Backend container started"

@@ -16,8 +16,8 @@ echo ""
 # Test 1: Frontend loads
 echo "Test 1: Frontend homepage loads"
 FRONTEND_RESPONSE=$(curl -s -w "\n%{http_code}" "$FRONTEND_URL")
-HTTP_CODE=$(echo "$FRONTEND_RESPONSE" | tail -n 1)
-BODY=$(echo "$FRONTEND_RESPONSE" | head -n -1)
+HTTP_CODE=$(echo "$FRONTEND_RESPONSE" | tail -1)
+BODY=$(echo "$FRONTEND_RESPONSE" | sed $d)
 
 if [ "$HTTP_CODE" != "200" ]; then
     echo "  ❌ FAILED - Expected HTTP 200, got $HTTP_CODE"

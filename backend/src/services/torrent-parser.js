@@ -1,4 +1,4 @@
-const readTorrent = require('read-torrent');
+const parseTorrent = require('parse-torrent');
 const axios = require('axios');
 
 /**
@@ -9,12 +9,7 @@ const axios = require('axios');
  */
 async function getFilesFromMagnet(magnetLink) {
     try {
-        const torrentInfo = await new Promise((resolve, reject) => {
-            readTorrent(magnetLink, (err, torrent) => {
-                if (err) reject(err);
-                else resolve(torrent);
-            });
-        });
+        const torrentInfo = parseTorrent(magnetLink);
 
         return {
             infoHash: torrentInfo.infoHash,
@@ -43,16 +38,7 @@ async function getFilesFromTorrentFile(torrentUrl) {
             maxRedirects: 3 // Limit redirects
         });
 
-        const torrentInfo = await new Promise((resolve, reject) => {
-            // Add timeout for parsing as well
-            const timeoutId = setTimeout(() => reject(new Error('Parsing timeout')), 3000);
-
-            readTorrent(Buffer.from(response.data), (err, torrent) => {
-                clearTimeout(timeoutId);
-                if (err) reject(err);
-                else resolve(torrent);
-            });
-        });
+        const torrentInfo = parseTorrent(Buffer.from(response.data));
 
         // Extract file list and sort alphabetically
         const files = (torrentInfo.files || [])

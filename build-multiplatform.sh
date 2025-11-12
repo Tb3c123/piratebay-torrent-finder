@@ -34,7 +34,7 @@ cd ..
 echo ""
 echo "🎨 Running frontend tests..."
 cd frontend
-npm ci --quiet
+npm install --quiet
 echo "  ✓ Dependencies installed"
 
 npm run type-check

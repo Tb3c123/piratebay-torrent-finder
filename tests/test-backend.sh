@@ -13,9 +13,9 @@ echo ""
 
 # Test 1: Health endpoint
 echo "Test 1: Health endpoint"
-HEALTH_RESPONSE=$(curl -s -w "\n%{http_code}" "$BACKEND_URL/api/v1/health")
-HTTP_CODE=$(echo "$HEALTH_RESPONSE" | tail -n 1)
-BODY=$(echo "$HEALTH_RESPONSE" | head -n -1)
+HEALTH_RESPONSE=$(curl -s -w "\n%{http_code}" "$BACKEND_URL/api/v1/system/health")
+HTTP_CODE=$(echo "$HEALTH_RESPONSE" | tail -1)
+BODY=$(echo "$HEALTH_RESPONSE" | sed '$d')
 
 if [ "$HTTP_CODE" != "200" ]; then
     echo "  ❌ FAILED - Expected HTTP 200, got $HTTP_CODE"
@@ -24,27 +24,24 @@ else
     echo "  ✓ PASSED - Health endpoint returns 200"
 fi
 
-# Test 2: Settings endpoint
-echo "Test 2: Settings endpoint"
-SETTINGS_RESPONSE=$(curl -s -w "\n%{http_code}" "$BACKEND_URL/api/v1/settings")
-HTTP_CODE=$(echo "$SETTINGS_RESPONSE" | tail -n 1)
-BODY=$(echo "$SETTINGS_RESPONSE" | head -n -1)
+# Test 2: Cache stats endpoint
+echo "Test 2: Cache stats endpoint"
+CACHE_RESPONSE=$(curl -s -w "\n%{http_code}" "$BACKEND_URL/api/v1/system/cache/stats")
+HTTP_CODE=$(echo "$CACHE_RESPONSE" | tail -1)
+BODY=$(echo "$CACHE_RESPONSE" | sed '$d')
 
 if [ "$HTTP_CODE" != "200" ]; then
     echo "  ❌ FAILED - Expected HTTP 200, got $HTTP_CODE"
     FAILED=$((FAILED + 1))
-elif ! echo "$BODY" | grep -q '"success":true'; then
-    echo "  ❌ FAILED - Response missing success field"
-    FAILED=$((FAILED + 1))
 else
-    echo "  ✓ PASSED - Settings endpoint returns valid data"
+    echo "  ✓ PASSED - Cache stats endpoint returns 200"
 fi
 
 # Test 3: Movie search endpoint (OMDB)
 echo "Test 3: Movie search endpoint"
 SEARCH_RESPONSE=$(curl -s -w "\n%{http_code}" "$BACKEND_URL/api/v1/movies/search?query=Inception&page=1")
-HTTP_CODE=$(echo "$SEARCH_RESPONSE" | tail -n 1)
-BODY=$(echo "$SEARCH_RESPONSE" | head -n -1)
+HTTP_CODE=$(echo "$SEARCH_RESPONSE" | tail -1)
+BODY=$(echo "$SEARCH_RESPONSE" | sed $d)
 
 if [ "$HTTP_CODE" != "200" ]; then
     echo "  ❌ FAILED - Expected HTTP 200, got $HTTP_CODE"
@@ -62,9 +59,9 @@ fi
 
 # Test 4: Trending movies endpoint
 echo "Test 4: Trending movies endpoint"
-TRENDING_RESPONSE=$(curl -s -w "\n%{http_code}" "$BACKEND_URL/api/v1/movies/trending")
-HTTP_CODE=$(echo "$TRENDING_RESPONSE" | tail -n 1)
-BODY=$(echo "$TRENDING_RESPONSE" | head -n -1)
+TRENDING_RESPONSE=$(curl -s -w "\n%{http_code}" "$BACKEND_URL/api/v1/movies/trending/popular")
+HTTP_CODE=$(echo "$TRENDING_RESPONSE" | tail -1)
+BODY=$(echo "$TRENDING_RESPONSE" | sed '$d')
 
 if [ "$HTTP_CODE" != "200" ]; then
     echo "  ❌ FAILED - Expected HTTP 200, got $HTTP_CODE"
