@@ -11,14 +11,14 @@ const { settings: settingsValidators } = require('../../validators');
  * Validate and parse userId from request
  */
 function validateUserId(userId) {
-  if (!userId) {
-    throw new BadRequestError('userId is required');
-  }
-  const parsed = parseInt(userId);
-  if (isNaN(parsed)) {
-    throw new BadRequestError('userId must be a valid number');
-  }
-  return parsed;
+    if (!userId) {
+        throw new BadRequestError('userId is required');
+    }
+    const parsed = parseInt(userId);
+    if (isNaN(parsed)) {
+        throw new BadRequestError('userId must be a valid number');
+    }
+    return parsed;
 }
 
 // Get qBittorrent settings (per user)

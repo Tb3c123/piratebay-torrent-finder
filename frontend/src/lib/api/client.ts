@@ -56,8 +56,8 @@ apiClient.interceptors.response.use(
         // Log response in development
         if (process.env.NODE_ENV === 'development') {
             const config = response.config as InternalAxiosRequestConfig & { metadata?: { startTime: number } }
-            const duration = config.metadata?.startTime 
-                ? Date.now() - config.metadata.startTime 
+            const duration = config.metadata?.startTime
+                ? Date.now() - config.metadata.startTime
                 : 0
 
             console.log(
@@ -69,15 +69,15 @@ apiClient.interceptors.response.use(
         return response
     },
     async (error: AxiosError) => {
-        const config = error.config as (InternalAxiosRequestConfig & { 
-            _retry?: number 
+        const config = error.config as (InternalAxiosRequestConfig & {
+            _retry?: number
             metadata?: { startTime: number }
         }) | undefined
 
         // Log error in development
         if (process.env.NODE_ENV === 'development' && config) {
-            const duration = config.metadata?.startTime 
-                ? Date.now() - config.metadata.startTime 
+            const duration = config.metadata?.startTime
+                ? Date.now() - config.metadata.startTime
                 : 0
 
             console.error(
@@ -93,7 +93,7 @@ apiClient.interceptors.response.use(
         if (error.response?.status === 401) {
             // Clear auth token
             clearAuthToken()
-            
+
             // Redirect to login (only in browser)
             if (typeof window !== 'undefined' && window.location.pathname !== '/auth/login') {
                 window.location.href = '/auth/login'

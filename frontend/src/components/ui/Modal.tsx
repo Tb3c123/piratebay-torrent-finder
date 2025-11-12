@@ -32,13 +32,13 @@ const Modal: React.FC<ModalProps> = ({
                 onClose()
             }
         }
-        
+
         if (isOpen) {
             document.addEventListener('keydown', handleEscape)
             // Prevent body scroll when modal is open
             document.body.style.overflow = 'hidden'
         }
-        
+
         return () => {
             document.removeEventListener('keydown', handleEscape)
             document.body.style.overflow = 'unset'

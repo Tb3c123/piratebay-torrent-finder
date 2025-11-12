@@ -19,17 +19,17 @@ export function getErrorMessage(error: unknown): string {
         // Backend returned error response
         if (error.response?.data) {
             const data = error.response.data
-            
+
             // Standard API error format: { success: false, error: "message" }
             if (typeof data === 'object' && 'error' in data && typeof data.error === 'string') {
                 return data.error
             }
-            
+
             // Alternative format: { message: "..." }
             if (typeof data === 'object' && 'message' in data && typeof data.message === 'string') {
                 return data.message
             }
-            
+
             // Raw string error
             if (typeof data === 'string') {
                 return data
@@ -40,7 +40,7 @@ export function getErrorMessage(error: unknown): string {
         if (error.code === 'ECONNABORTED') {
             return 'Request timeout. Please try again.'
         }
-        
+
         if (error.code === 'ERR_NETWORK') {
             return 'Network error. Please check your connection.'
         }
@@ -107,7 +107,7 @@ export function createApiError(error: unknown): ApiError {
 export function logError(context: string, error: unknown): void {
     if (process.env.NODE_ENV === 'development') {
         console.error(`[API Error - ${context}]:`, error)
-        
+
         if (isAxiosError(error)) {
             console.error('Request config:', error.config)
             console.error('Response:', error.response?.data)

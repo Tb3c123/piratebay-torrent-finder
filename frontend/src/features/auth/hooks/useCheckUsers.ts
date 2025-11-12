@@ -9,26 +9,26 @@ import { authService } from '../services/authService'
  * Used to show "first user becomes admin" message
  */
 export function useCheckUsers() {
-  const [hasUser, setHasUser] = useState<boolean | null>(null)
-  const [loading, setLoading] = useState(true)
+    const [hasUser, setHasUser] = useState<boolean | null>(null)
+    const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function checkUsers() {
-      try {
-        const exists = await authService.checkHasUsers()
-        setHasUser(exists)
-      } catch {
-        setHasUser(false)
-      } finally {
-        setLoading(false)
-      }
+    useEffect(() => {
+        async function checkUsers() {
+            try {
+                const exists = await authService.checkHasUsers()
+                setHasUser(exists)
+            } catch {
+                setHasUser(false)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        checkUsers()
+    }, [])
+
+    return {
+        hasUser,
+        loading,
     }
-
-    checkUsers()
-  }, [])
-
-  return {
-    hasUser,
-    loading,
-  }
 }

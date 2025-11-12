@@ -71,7 +71,7 @@ const Alert: React.FC<AlertProps> = ({
                 <div className="flex-shrink-0 mt-0.5">
                     {icon}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                     {title && (
                         <h3 className="font-semibold mb-1">
@@ -82,7 +82,7 @@ const Alert: React.FC<AlertProps> = ({
                         {message}
                     </p>
                 </div>
-                
+
                 {dismissible && (
                     <button
                         onClick={handleDismiss}

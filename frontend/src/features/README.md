@@ -4,7 +4,7 @@ This directory contains the feature-based architecture for the Jellyseer Clone f
 
 ## Directory Structure
 
-```
+```text
 features/
 ├── auth/           # Authentication & authorization
 ├── movies/         # Movie search & details
@@ -20,7 +20,7 @@ features/
 
 Each feature follows a consistent structure:
 
-```
+```text
 feature-name/
 ├── components/     # React UI components
 ├── hooks/          # Custom React hooks
@@ -30,23 +30,27 @@ feature-name/
 ```
 
 ### Components (`components/`)
+
 - Presentation layer React components
 - Reusable UI elements specific to the feature
 - Exported through feature's `index.ts`
 
 ### Hooks (`hooks/`)
+
 - Custom React hooks for state management
 - API data fetching hooks
 - Business logic encapsulation
 - Example: `useAuth`, `useMovieSearch`, `useSettings`
 
 ### Services (`services/`)
+
 - API communication functions
 - Data transformation logic
 - Integration with backend endpoints
 - Uses the centralized API client from `lib/api`
 
 ### Types (`types/`)
+
 - TypeScript interfaces and types
 - Feature-specific data models
 - Component prop types
@@ -54,131 +58,163 @@ feature-name/
 ## Features Overview
 
 ### 🔐 Auth Feature
+
 **Purpose**: User authentication and authorization
 
 **Components**:
+
 - `LoginForm` - User login interface
 - `RegisterForm` - New user registration
 - `ProtectedRoute` - Auth-gated route wrapper
 
 **Hooks**:
+
 - `useAuth` - Authentication state management
 - `useLogin` - Login form logic
 - `useRegister` - Registration form logic
 
 **Services**:
+
 - `authService` - Login, register, logout API calls
 
 ### 🎬 Movies Feature
+
 **Purpose**: Movie search and details display
 
 **Components**:
+
 - `MovieCard` - Movie preview card
 - `MovieSearch` - Search interface
 - `MovieDetails` - Detailed movie view
 - `TrendingMovies` - Trending list
 
 **Hooks**:
+
 - `useMovieSearch` - Search functionality
 - `useMovieDetails` - Movie detail fetching
 - `useTrendingMovies` - Trending data
 
 **Services**:
+
 - `movieService` - OMDB API integration
 
 ### 🌊 Torrents Feature
+
 **Purpose**: Torrent search and management
 
 **Components**:
+
 - `TorrentCard` - Torrent preview
 - `TorrentSearch` - Search torrents
 - `TorrentDetails` - Detailed torrent info
 - `TorrentList` - List view
 
 **Hooks**:
+
 - `useTorrentSearch` - Search logic
 - `useTorrentDetails` - Detail fetching
 
 **Services**:
+
 - `torrentService` - PirateBay API integration
 
 ### ⬇️ Downloads Feature
+
 **Purpose**: qBittorrent download management
 
 **Components**:
+
 - `DownloadList` - Active downloads list
 - `DownloadCard` - Individual download card
 - `DownloadActions` - Action buttons
 - `DownloadModal` - Download details modal
 
 **Hooks**:
+
 - `useDownloads` - Download list management
 - `useDownloadActions` - Pause, resume, delete
 - `useQBittorrentStatus` - Connection status
 
 **Services**:
+
 - `qbittorrentService` - qBittorrent API calls
 
 ### ⚙️ Settings Feature
+
 **Purpose**: Application configuration
 
 **Components**:
+
 - `QBittorrentSettings` - qBittorrent config
 - `JellyfinSettings` - Jellyfin integration
 - `SettingsCard` - Reusable settings card
 
 **Hooks**:
+
 - `useSettings` - Settings state management
 - `useSettingsValidation` - Form validation
 - `useTestConnection` - Connection testing
 
 **Services**:
+
 - `settingsService` - Settings CRUD operations
 
 ### 📜 History Feature
+
 **Purpose**: Search history tracking
 
 **Components**:
+
 - `HistoryList` - Search history list
 - `HistoryItem` - Individual history item
 
 **Hooks**:
+
 - `useHistory` - History data fetching
 - `useHistoryActions` - Clear, delete actions
 
 **Services**:
+
 - `historyService` - History API calls
 
 ### 👥 Admin Feature
+
 **Purpose**: User and system management
 
 **Components**:
+
 - `UserList` - User management list
 - `UserCard` - User card display
 - `UserActions` - User action buttons
 - `UserForm` - Create/edit user
 
 **Hooks**:
+
 - `useUsers` - User list management
 - `useUserManagement` - CRUD operations
 
 **Services**:
+
 - `adminService` - Admin API endpoints
 
 ### 🔧 Shared Utilities
+
 **Purpose**: Cross-feature utilities and constants
 
 **Utils**:
+
 - Date formatting helpers
 - Byte size formatting
 - Debounce utilities
 
 **Hooks**:
+
 - `useDebounce` - Debounced values
 - `useLocalStorage` - localStorage integration
 - `usePagination` - Pagination logic
 
 **Constants**:
+
 - Route definitions
 - Configuration values
 - App-wide constants
@@ -206,6 +242,7 @@ import { formatDate, useDebounce } from '@/features/shared'
 5. Use API client from `@/lib/api`
 
 Example:
+
 ```typescript
 // features/movies/components/MovieCard.tsx
 import { Card, Badge } from '@/components/ui'
@@ -231,9 +268,9 @@ import type { Movie } from '../types'
 export function useMovieSearch(query: string) {
   const [movies, setMovies] = useState<Movie[]>([])
   const [loading, setLoading] = useState(false)
-  
+
   // Hook implementation
-  
+
   return { movies, loading }
 }
 
@@ -256,7 +293,7 @@ export const movieService = {
     )
     return response.data.data.movies
   },
-  
+
   getDetails: async (imdbId: string): Promise<Movie> => {
     const response = await apiClient.get<Movie>(
       MOVIE_ENDPOINTS.DETAILS(imdbId)
@@ -274,6 +311,7 @@ export { movieService } from './services/movieService'
 This feature structure supports extracting logic from monolithic page components:
 
 **Before** (monolithic page):
+
 ```typescript
 // app/settings/page.tsx - 622 lines
 export default function SettingsPage() {
@@ -282,6 +320,7 @@ export default function SettingsPage() {
 ```
 
 **After** (feature-based):
+
 ```typescript
 // app/settings/page.tsx - ~50 lines
 import { QBittorrentSettings, JellyfinSettings } from '@/features/settings'
@@ -326,5 +365,5 @@ export default function SettingsPage() {
 
 ---
 
-**Last Updated**: Phase 4 - PR #12 (Feature Folder Structure)  
+**Last Updated**: Phase 4 - PR #12 (Feature Folder Structure)
 **Status**: Foundation complete, ready for extraction

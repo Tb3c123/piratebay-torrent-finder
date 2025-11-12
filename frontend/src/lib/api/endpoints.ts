@@ -22,7 +22,7 @@ export const AUTH_ENDPOINTS = {
     LOGOUT: buildUrl('/auth/logout'),
     VERIFY: buildUrl('/auth/verify'),
     REFRESH: buildUrl('/auth/refresh'),
-    
+
     // Legacy (for backward compatibility)
     LEGACY_LOGIN: buildUrl('/auth/login', 'legacy'),
     LEGACY_REGISTER: buildUrl('/auth/register', 'legacy'),
@@ -37,7 +37,7 @@ export const MOVIE_ENDPOINTS = {
     TRENDING_POPULAR: buildUrl('/movies/trending/popular'),
     TRENDING_NOW: buildUrl('/movies/trending/now'),
     LATEST: buildUrl('/movies/latest'),
-    
+
     // Legacy
     LEGACY_SEARCH: buildUrl('/movies/search', 'legacy'),
     LEGACY_DETAILS: (imdbId: string) => buildUrl(`/movies/${imdbId}`, 'legacy'),
@@ -49,7 +49,7 @@ export const TORRENT_ENDPOINTS = {
     SEARCH: buildUrl('/search'),
     DETAILS: (id: string) => buildUrl(`/torrent/${id}`),
     PARSE_MAGNET: buildUrl('/torrent/parse'),
-    
+
     // Legacy
     LEGACY_SEARCH: buildUrl('/search', 'legacy'),
 } as const
@@ -64,7 +64,7 @@ export const QBITTORRENT_ENDPOINTS = {
     RESUME: (hash: string) => buildUrl(`/qbittorrent/resume/${hash}`),
     FORCE_START: (hash: string) => buildUrl(`/qbittorrent/force-start/${hash}`),
     DELETE: (hash: string) => buildUrl(`/qbittorrent/delete/${hash}`),
-    
+
     // Legacy
     LEGACY_ADD: buildUrl('/qbittorrent/add', 'legacy'),
     LEGACY_STATUS: buildUrl('/qbittorrent/status', 'legacy'),
@@ -77,14 +77,14 @@ export const SETTINGS_ENDPOINTS = {
     QBITTORRENT_GET: buildUrl('/settings/qbittorrent'),
     QBITTORRENT_UPDATE: buildUrl('/settings/qbittorrent'),
     QBITTORRENT_TEST: buildUrl('/settings/qbittorrent/test'),
-    
+
     // Jellyfin Settings
     JELLYFIN_GET: buildUrl('/settings/jellyfin'),
     JELLYFIN_UPDATE: buildUrl('/settings/jellyfin'),
     JELLYFIN_TEST: buildUrl('/settings/jellyfin/test'),
     JELLYFIN_LIBRARIES: buildUrl('/settings/jellyfin/libraries'),
     JELLYFIN_SAVED_LIBRARIES: buildUrl('/settings/jellyfin/saved-libraries'),
-    
+
     // Legacy
     LEGACY_QBITTORRENT_GET: buildUrl('/settings/qbittorrent', 'legacy'),
     LEGACY_JELLYFIN_GET: buildUrl('/settings/jellyfin', 'legacy'),
@@ -97,7 +97,7 @@ export const HISTORY_ENDPOINTS = {
     CREATE: buildUrl('/history'),
     DELETE: (id: number) => buildUrl(`/history/${id}`),
     CLEAR_ALL: buildUrl('/history/clear'),
-    
+
     // Legacy
     LEGACY_GET_ALL: buildUrl('/history', 'legacy'),
 } as const
@@ -107,7 +107,7 @@ export const HISTORY_ENDPOINTS = {
 export const LOG_ENDPOINTS = {
     GET_ALL: buildUrl('/logs'),
     GET_STATUS: buildUrl('/logs/status'),
-    
+
     // Legacy
     LEGACY_GET_ALL: buildUrl('/logs', 'legacy'),
 } as const
@@ -119,7 +119,7 @@ export const SYSTEM_ENDPOINTS = {
     CACHE_STATS: buildUrl('/system/cache/stats'),
     CACHE_CLEAR: (type: string) => buildUrl(`/system/cache/clear/${type}`),
     RESTART: buildUrl('/system/restart'),
-    
+
     // Legacy
     LEGACY_HEALTH: buildUrl('/system/health', 'legacy'),
 } as const

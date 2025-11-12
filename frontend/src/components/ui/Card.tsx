@@ -28,22 +28,22 @@ const Card: React.FC<CardProps> & {
     Footer: React.FC<CardFooterProps>
 } = ({ variant = 'default', padding = 'md', className = '', children }) => {
     const baseStyles = 'rounded-lg bg-gray-800 transition-all duration-200'
-    
+
     const variantStyles = {
         default: '',
         bordered: 'border border-gray-700',
         elevated: 'shadow-lg'
     }
-    
+
     const paddingStyles = {
         none: '',
         sm: 'p-3',
         md: 'p-4',
         lg: 'p-6'
     }
-    
+
     const combinedClassName = `${baseStyles} ${variantStyles[variant]} ${paddingStyles[padding]} ${className}`
-    
+
     return (
         <div className={combinedClassName}>
             {children}
