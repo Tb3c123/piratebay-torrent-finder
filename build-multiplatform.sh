@@ -59,7 +59,7 @@ echo "🔨 Building backend for AMD64..."
 docker buildx build --platform linux/amd64 \
   -t tb3c123/piratebay-torrent-finder-backend:latest \
   -t tb3c123/piratebay-torrent-finder-backend:$SHA \
-  --push \
+  --load \
   ./backend
 
 echo ""
@@ -69,11 +69,43 @@ docker buildx build \
   --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3001} \
   -t tb3c123/piratebay-torrent-finder-frontend:latest \
   -t tb3c123/piratebay-torrent-finder-frontend:$SHA \
-  --push \
+  --load \
   ./frontend
 
 echo ""
-echo "✅ Build completed successfully!"
+echo "🧪 Running post-build integration tests..."
+echo ""
+
+# Make test script executable
+chmod +x ./tests/run-post-build-tests.sh
+
+# Run post-build tests with built images
+BACKEND_IMAGE=tb3c123/piratebay-torrent-finder-backend:$SHA \
+FRONTEND_IMAGE=tb3c123/piratebay-torrent-finder-frontend:$SHA \
+./tests/run-post-build-tests.sh
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Post-build tests failed! Aborting push to Docker Hub."
+    exit 1
+fi
+
+echo ""
+echo "✅ All post-build tests passed! Pushing to Docker Hub..."
+echo ""
+
+# Push images to Docker Hub
+echo "📤 Pushing backend images..."
+docker push tb3c123/piratebay-torrent-finder-backend:latest
+docker push tb3c123/piratebay-torrent-finder-backend:$SHA
+
+echo ""
+echo "📤 Pushing frontend images..."
+docker push tb3c123/piratebay-torrent-finder-frontend:latest
+docker push tb3c123/piratebay-torrent-finder-frontend:$SHA
+
+echo ""
+echo "✅ Build and deployment completed successfully!"
 echo ""
 echo "📊 Build Summary:"
 echo "  Git SHA: $SHA"

@@ -6,7 +6,7 @@ This project uses **Jest** and **React Testing Library** for comprehensive testi
 
 ## Test Structure
 
-```
+```text
 frontend/
 ├── jest.config.js          # Jest configuration
 ├── jest.setup.js           # Test environment setup
@@ -39,16 +39,17 @@ npm run test:coverage
 **Purpose:** Test API service layer logic
 
 **Example:**
+
 ```typescript
 // features/movies/__tests__/moviesService.test.ts
 describe('moviesService', () => {
   it('should search movies successfully', async () => {
     // Mock axios response
     mockedAxios.get.mockResolvedValueOnce(mockResponse)
-    
+
     // Call service
     const result = await moviesService.searchMovies('Test')
-    
+
     // Assert
     expect(result.success).toBe(true)
     expect(result.movies).toHaveLength(1)
@@ -57,6 +58,7 @@ describe('moviesService', () => {
 ```
 
 **What to test:**
+
 - ✅ Successful API calls
 - ✅ Error handling
 - ✅ Data transformation
@@ -68,12 +70,13 @@ describe('moviesService', () => {
 **Purpose:** Test individual React components in isolation
 
 **Example:**
+
 ```typescript
 // features/movies/__tests__/MovieCard.test.tsx
 describe('MovieCard', () => {
   it('should render movie information', () => {
     render(<MovieCard movie={mockMovie} />)
-    
+
     expect(screen.getByText('Test Movie')).toBeInTheDocument()
     expect(screen.getByRole('link')).toHaveAttribute('href', '/movie/tt123')
   })
@@ -81,6 +84,7 @@ describe('MovieCard', () => {
 ```
 
 **What to test:**
+
 - ✅ Component renders correctly
 - ✅ Props are displayed properly
 - ✅ User interactions (clicks, inputs)
@@ -92,18 +96,19 @@ describe('MovieCard', () => {
 **Purpose:** Test critical user flows end-to-end
 
 **Example:**
+
 ```typescript
 // features/movies/__tests__/movies.integration.test.tsx
 describe('Movie Search Flow', () => {
   it('should search and display movies', async () => {
     // Render app with providers
     render(<HomePage />, { wrapper: AllProviders })
-    
+
     // User searches for movie
     const searchInput = screen.getByPlaceholderText('Search movies')
     await userEvent.type(searchInput, 'Inception')
     await userEvent.click(screen.getByText('Search'))
-    
+
     // Wait for results
     await waitFor(() => {
       expect(screen.getByText('Inception')).toBeInTheDocument()
@@ -113,6 +118,7 @@ describe('Movie Search Flow', () => {
 ```
 
 **What to test:**
+
 - ✅ Complete user workflows
 - ✅ Multi-step interactions
 - ✅ State changes across components
@@ -134,15 +140,17 @@ describe('Movie Search Flow', () => {
 ### ✅ DO
 
 1. **Test behavior, not implementation**
+
    ```typescript
    // Good: Test what user sees
    expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument()
-   
+
    // Bad: Test implementation details
    expect(component.state.isSubmitting).toBe(false)
    ```
 
 2. **Use accessible queries**
+
    ```typescript
    // Preferred order:
    screen.getByRole('button')           // Best (accessibility)
@@ -153,14 +161,16 @@ describe('Movie Search Flow', () => {
    ```
 
 3. **Test user interactions realistically**
+
    ```typescript
    import userEvent from '@testing-library/user-event'
-   
+
    await userEvent.type(input, 'Hello')    // Realistic typing
    await userEvent.click(button)           // Realistic click
    ```
 
 4. **Wait for async operations**
+
    ```typescript
    await waitFor(() => {
      expect(screen.getByText('Loaded')).toBeInTheDocument()
@@ -168,6 +178,7 @@ describe('Movie Search Flow', () => {
    ```
 
 5. **Clean up after tests**
+
    ```typescript
    afterEach(() => {
      jest.clearAllMocks()
@@ -178,19 +189,21 @@ describe('Movie Search Flow', () => {
 ### ❌ DON'T
 
 1. **Don't test third-party libraries**
+
    ```typescript
    // Bad: Testing React Router
    expect(useNavigate).toHaveBeenCalled()
-   
+
    // Good: Test your component's behavior
    expect(screen.getByText('Success')).toBeInTheDocument()
    ```
 
 2. **Don't test implementation details**
+
    ```typescript
    // Bad
    expect(component.instance().handleClick).toHaveBeenCalled()
-   
+
    // Good
    expect(screen.getByText('Clicked')).toBeInTheDocument()
    ```
@@ -257,6 +270,7 @@ expect(result.current.loading).toBe(true)
 ## Continuous Integration
 
 Tests run automatically on:
+
 - ✅ Every pull request
 - ✅ Push to main branch
 - ✅ Before deployment
@@ -274,21 +288,25 @@ Tests run automatically on:
 ## Debugging Tests
 
 ### Run single test file
+
 ```bash
 npm test -- MovieCard.test.tsx
 ```
 
 ### Run tests matching pattern
+
 ```bash
 npm test -- --testNamePattern="search movies"
 ```
 
 ### Debug mode
+
 ```bash
 node --inspect-brk node_modules/.bin/jest --runInBand
 ```
 
 ### See console.log output
+
 ```bash
 npm test -- --verbose
 ```
@@ -298,6 +316,7 @@ npm test -- --verbose
 ### Issue: "Cannot find module '@testing-library/jest-dom'"
 
 **Solution:**
+
 ```bash
 npm install --save-dev @testing-library/jest-dom
 ```
@@ -305,6 +324,7 @@ npm install --save-dev @testing-library/jest-dom
 ### Issue: "ReferenceError: fetch is not defined"
 
 **Solution:**
+
 ```typescript
 // jest.setup.js
 global.fetch = jest.fn()
@@ -313,6 +333,7 @@ global.fetch = jest.fn()
 ### Issue: "window.matchMedia is not a function"
 
 **Solution:**
+
 ```typescript
 // jest.setup.js (already configured)
 global.matchMedia = jest.fn().mockImplementation(query => ({
@@ -326,6 +347,7 @@ global.matchMedia = jest.fn().mockImplementation(query => ({
 ### Issue: Next.js Image component fails
 
 **Solution:**
+
 ```typescript
 // jest.setup.js (already configured)
 jest.mock('next/image', () => ({
@@ -346,9 +368,9 @@ describe('moviesService', () => {
 
   it('should handle API errors gracefully', async () => {
     mockedAxios.get.mockRejectedValueOnce(new Error('Network error'))
-    
+
     const result = await moviesService.searchMovies('Test')
-    
+
     expect(result.success).toBe(false)
     expect(result.error).toContain('Failed to search')
   })
@@ -362,11 +384,11 @@ describe('SearchBar', () => {
   it('should call onSearch when form submitted', async () => {
     const mockOnSearch = jest.fn()
     render(<SearchBar onSearch={mockOnSearch} />)
-    
+
     const input = screen.getByRole('textbox')
     await userEvent.type(input, 'Inception')
     await userEvent.click(screen.getByRole('button', { name: 'Search' }))
-    
+
     expect(mockOnSearch).toHaveBeenCalledWith('Inception')
   })
 })
@@ -380,9 +402,9 @@ describe('Movie Details Flow', () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: { success: true, movie: mockMovieDetails }
     })
-    
+
     render(<MovieDetailPage params={{ imdbId: 'tt123' }} />)
-    
+
     await waitFor(() => {
       expect(screen.getByText('Inception')).toBeInTheDocument()
       expect(screen.getByText('Director: Christopher Nolan')).toBeInTheDocument()
@@ -409,6 +431,6 @@ describe('Movie Details Flow', () => {
 
 ---
 
-**Last Updated:** PR #18 - Testing Framework Setup  
-**Maintainer:** Development Team  
+**Last Updated:** PR #18 - Testing Framework Setup
+**Maintainer:** Development Team
 **Status:** ✅ Active

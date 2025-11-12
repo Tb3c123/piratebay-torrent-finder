@@ -7,65 +7,66 @@ import { MovieCard } from '../components/MovieCard'
 import type { Movie } from '../types'
 
 describe('MovieCard', () => {
-  const mockMovie: Movie = {
-    imdbID: 'tt1234567',
-    Title: 'Test Movie',
-    Year: '2024',
-    Type: 'movie',
-    Poster: 'https://example.com/poster.jpg',
-  }
-
-  it('should render movie information correctly', () => {
-    render(<MovieCard movie={mockMovie} />)
-
-    expect(screen.getByText('Test Movie')).toBeInTheDocument()
-    expect(screen.getByText('2024')).toBeInTheDocument()
-    expect(screen.getByText('movie')).toBeInTheDocument()
-  })
-
-  it('should render movie poster', () => {
-    render(<MovieCard movie={mockMovie} />)
-
-    const poster = screen.getByAltText('Test Movie')
-    expect(poster).toBeInTheDocument()
-    expect(poster).toHaveAttribute('src', expect.stringContaining('poster.jpg'))
-  })
-
-  it('should render placeholder when no poster', () => {
-    const movieWithoutPoster = {
-      ...mockMovie,
-      Poster: 'N/A',
+    const mockMovie: Movie = {
+        imdbID: 'tt1234567',
+        Title: 'Test Movie',
+        Year: '2024',
+        Type: 'movie',
+        Poster: 'https://example.com/poster.jpg',
     }
 
-    render(<MovieCard movie={movieWithoutPoster} />)
+    it('should render movie information correctly', () => {
+        render(<MovieCard movie={mockMovie} />)
 
-    expect(screen.getByText('🎬')).toBeInTheDocument()
-  })
+        expect(screen.getByText('Test Movie')).toBeInTheDocument()
+        expect(screen.getByText('2024')).toBeInTheDocument()
+        expect(screen.getByText('movie')).toBeInTheDocument()
+    })
 
-  it('should have correct link to movie details', () => {
-    render(<MovieCard movie={mockMovie} />)
+    it('should render movie poster', () => {
+        render(<MovieCard movie={mockMovie} />)
 
-    const link = screen.getByRole('link')
-    expect(link).toHaveAttribute('href', '/movie/tt1234567')
-  })
+        const poster = screen.getByAltText('Test Movie')
+        expect(poster).toBeInTheDocument()
+        expect(poster).toHaveAttribute('src', expect.stringContaining('poster.jpg'))
+    })
 
-  it('should apply hover effects on card', () => {
-    const { container } = render(<MovieCard movie={mockMovie} />)
+    it('should render placeholder when no poster', () => {
+        const movieWithoutPoster = {
+            ...mockMovie,
+            Poster: 'N/A',
+        }
 
-    const card = container.firstChild as HTMLElement
-    expect(card).toHaveClass('hover:scale-105')
-  })
+        render(<MovieCard movie={movieWithoutPoster} />)
 
-  it('should render different movie types correctly', () => {
-    const seriesMovie = {
-      ...mockMovie,
-      Type: 'series',
-    }
+        expect(screen.getByText('🎬')).toBeInTheDocument()
+    })
 
-    const { rerender } = render(<MovieCard movie={seriesMovie} />)
-    expect(screen.getByText('series')).toBeInTheDocument()
+    it('should have correct link to movie details', () => {
+        render(<MovieCard movie={mockMovie} />)
 
-    rerender(<MovieCard movie={mockMovie} />)
-    expect(screen.getByText('movie')).toBeInTheDocument()
-  })
+        const link = screen.getByRole('link')
+        expect(link).toHaveAttribute('href', '/movie/tt1234567')
+    })
+
+    it('should apply hover effects on card', () => {
+        const { container } = render(<MovieCard movie={mockMovie} />)
+
+        const card = container.querySelector('div[class*="hover:scale-105"]')
+        expect(card).toBeInTheDocument()
+        expect(card).toHaveClass('hover:scale-105')
+    })
+
+    it('should render different movie types correctly', () => {
+        const seriesMovie = {
+            ...mockMovie,
+            Type: 'series',
+        }
+
+        const { rerender } = render(<MovieCard movie={seriesMovie} />)
+        expect(screen.getByText('series')).toBeInTheDocument()
+
+        rerender(<MovieCard movie={mockMovie} />)
+        expect(screen.getByText('movie')).toBeInTheDocument()
+    })
 })

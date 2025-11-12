@@ -342,6 +342,7 @@ This project uses **GitHub Actions** for automated CI/CD:
 ### Quick Deploy
 
 **1. Automated (via GitHub Actions):**
+
 ```bash
 # Create and push a version tag
 git tag -a v1.0.0 -m "Release version 1.0.0"
@@ -355,6 +356,7 @@ git push origin v1.0.0
 ```
 
 **2. Manual (local build):**
+
 ```bash
 # Build and push images
 ./build-multiplatform.sh  # macOS/Linux with buildx
@@ -363,6 +365,7 @@ git push origin v1.0.0
 ```
 
 **3. Pull and deploy:**
+
 ```bash
 # On your production server
 docker-compose -f docker-compose.deploy.yml pull

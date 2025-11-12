@@ -28,8 +28,9 @@ export const MovieCard = React.memo(({ movie }) => {
 ```
 
 **Applied to:**
+
 - ✅ `MovieCard` - Memoized to prevent re-renders in lists
-- ✅ `TorrentCard` - Prevents re-renders when scrolling  
+- ✅ `TorrentCard` - Prevents re-renders when scrolling
 - ✅ `CategoryFilter` - Static component, rarely changes
 - ✅ UI components (Button, Card, Badge, etc.)
 
@@ -51,12 +52,13 @@ function MovieGrid({ movies }) {
   const sortedMovies = useMemo(() => {
     return movies.sort((a, b) => b.Year - a.Year)
   }, [movies])
-  
+
   return <div>{sortedMovies.map(...)}</div>
 }
 ```
 
 **Applied to:**
+
 - ✅ Torrent list filtering
 - ✅ Movie search results sorting
 - ✅ Category list generation
@@ -75,7 +77,7 @@ function SearchBar({ onSearch }) {
     e.preventDefault()
     onSearch(searchQuery)
   }
-  
+
   return <form onSubmit={handleSubmit}>...</form>
 }
 
@@ -85,12 +87,13 @@ function SearchBar({ onSearch }) {
     e.preventDefault()
     onSearch(searchQuery)
   }, [searchQuery, onSearch])
-  
+
   return <form onSubmit={handleSubmit}>...</form>
 }
 ```
 
 **Applied to:**
+
 - ✅ Event handlers passed to child components
 - ✅ Callback functions in custom hooks
 - ✅ API call functions
@@ -117,6 +120,7 @@ const TorrentDetails = lazy(() => import('./TorrentDetails'))
 ```
 
 **Applied to:**
+
 - ✅ Admin pages (not needed for regular users)
 - ✅ Torrent details page
 - ✅ Settings page
@@ -145,6 +149,7 @@ const TorrentDetails = lazy(() => import('./TorrentDetails'))
 ```
 
 **Features:**
+
 - ✅ Automatic image optimization
 - ✅ Lazy loading
 - ✅ Responsive images
@@ -152,6 +157,7 @@ const TorrentDetails = lazy(() => import('./TorrentDetails'))
 - ✅ WebP format conversion
 
 **Applied to:**
+
 - ✅ Movie posters
 - ✅ User avatars
 - ✅ UI icons
@@ -184,6 +190,7 @@ function MovieList({ movies }) {
 ```
 
 **Considered for:**
+
 - 🔄 Torrent search results (100+ items)
 - 🔄 Movie search results (50+ items)
 - 🔄 Search history list
@@ -215,6 +222,7 @@ const throttledScroll = useMemo(
 ```
 
 **Applied to:**
+
 - ✅ Search input (debounce 300ms)
 - ✅ Scroll to load more (throttle 1s)
 - ✅ Window resize handlers
@@ -232,6 +240,7 @@ npx @next/bundle-analyzer
 ```
 
 **Optimizations:**
+
 - ✅ Remove unused dependencies
 - ✅ Tree-shaking for dead code elimination
 - ✅ Dynamic imports for large libraries
@@ -259,11 +268,11 @@ npx @next/bundle-analyzer
 // Custom hook for session cache
 export function useSessionCache(key, fetchFn) {
   const cached = sessionStorage.getItem(key)
-  
+
   if (cached) {
     return JSON.parse(cached)
   }
-  
+
   const data = await fetchFn()
   sessionStorage.setItem(key, JSON.stringify(data))
   return data
@@ -271,6 +280,7 @@ export function useSessionCache(key, fetchFn) {
 ```
 
 **Applied to:**
+
 - ✅ Movie details (session storage)
 - ✅ Trending movies (5 min cache)
 - ✅ User settings (local storage)
@@ -318,6 +328,7 @@ export async function getServerSideProps() {
 ```
 
 **Applied to:**
+
 - ✅ Homepage (SSR for trending movies)
 - ✅ Static pages (About, Privacy, Terms)
 - 🔄 Movie details (SSG for popular movies)
@@ -448,6 +459,6 @@ npm run dev
 
 ---
 
-**Last Updated:** PR #20 - Performance Optimization  
-**Status:** ✅ Optimized  
+**Last Updated:** PR #20 - Performance Optimization
+**Status:** ✅ Optimized
 **Next Review:** Q1 2026

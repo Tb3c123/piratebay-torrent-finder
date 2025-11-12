@@ -5,12 +5,16 @@ import { useState, memo, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-interface MovieCardProps {
+interface Movie {
     imdbID: string
     Title: string
     Year: string
     Poster: string
     Type: string
+}
+
+interface MovieCardProps {
+    movie: Movie
 }
 
 // Memoize badge colors calculation
@@ -32,7 +36,8 @@ const TYPE_ICONS = {
 } as const
 
 // Memoized MovieCard component
-export const MovieCard = memo(function MovieCard({ imdbID, Title, Year, Poster, Type }: MovieCardProps) {
+export const MovieCard = memo(function MovieCard({ movie }: MovieCardProps) {
+    const { imdbID, Title, Year, Poster, Type } = movie
     const [imageError, setImageError] = useState(false)
     const hasPoster = Poster && Poster !== 'N/A' && !imageError
 
