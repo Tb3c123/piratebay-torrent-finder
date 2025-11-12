@@ -16,11 +16,11 @@ export { settingsService } from './services/settingsService'
 
 // Types
 export type {
-  QBittorrentSettings,
-  JellyfinSettings,
-  JellyfinLibrary,
-  SettingsTestResult,
-  JellyfinTestResult,
-  SettingsFormErrors,
-  SettingsConfig,
+    QBittorrentSettings,
+    JellyfinSettings,
+    JellyfinLibrary,
+    SettingsTestResult,
+    JellyfinTestResult,
+    SettingsFormErrors,
+    SettingsConfig,
 } from './types'

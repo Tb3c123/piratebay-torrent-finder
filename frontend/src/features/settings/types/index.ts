@@ -1,40 +1,40 @@
 // Settings Feature - Type Definitions
 
 export interface QBittorrentSettings {
-  url: string
-  username: string
-  password: string
+    url: string
+    username: string
+    password: string
 }
 
 export interface JellyfinSettings {
-  url: string
-  apiKey: string
+    url: string
+    apiKey: string
 }
 
 export interface JellyfinLibrary {
-  id: string
-  name: string
-  type: string
-  paths: string[]
+    id: string
+    name: string
+    type: string
+    paths: string[]
 }
 
 export interface SettingsTestResult {
-  success: boolean
-  message: string
+    success: boolean
+    message: string
 }
 
 export interface JellyfinTestResult extends SettingsTestResult {
-  serverName?: string
-  version?: string
-  libraries?: JellyfinLibrary[]
+    serverName?: string
+    version?: string
+    libraries?: JellyfinLibrary[]
 }
 
 export interface SettingsFormErrors {
-  [key: string]: string
+    [key: string]: string
 }
 
 export interface SettingsConfig {
-  userId?: number
-  qbittorrent?: QBittorrentSettings
-  jellyfin?: JellyfinSettings
+    userId?: number
+    qbittorrent?: QBittorrentSettings
+    jellyfin?: JellyfinSettings
 }
