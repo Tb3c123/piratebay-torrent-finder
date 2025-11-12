@@ -1,21 +1,20 @@
-// Movies Feature - Central Export
-// This feature handles movie search, details, and trending movies
+// Movies Feature - Central Exports
 
-// Components will be exported here after refactoring
-// export { MovieCard } from './components/MovieCard'
-// export { MovieSearch } from './components/MovieSearch'
-// export { MovieDetails } from './components/MovieDetails'
-// export { TrendingMovies } from './components/TrendingMovies'
+// Components
+export { MovieGrid } from './components/MovieGrid'
+export { MovieSearchBar } from './components/MovieSearchBar'
 
-// Hooks will be exported here
-// export { useMovieSearch } from './hooks/useMovieSearch'
-// export { useMovieDetails } from './hooks/useMovieDetails'
-// export { useTrendingMovies } from './hooks/useTrendingMovies'
+// Hooks
+export { useMovieSearch } from './hooks/useMovieSearch'
+export { useMovieSections } from './hooks/useMovieSections'
 
-// Services will be exported here
-// export { movieService } from './services/movieService'
+// Services
+export { moviesService } from './services/moviesService'
 
-// Types will be exported here
-// export type * from './types'
-
-export {}
+// Types
+export type {
+    Movie,
+    MovieSearchParams,
+    MovieSearchResult,
+    MovieSections,
+} from './types'
