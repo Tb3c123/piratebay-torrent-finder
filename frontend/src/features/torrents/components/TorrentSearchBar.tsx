@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
-import CategoryFilterComponent from '@/components/CategoryFilter'
+import { CategoryFilter } from './CategoryFilter'
 
 interface TorrentSearchBarProps {
     onSearch: (query: string, category: string) => void
@@ -60,7 +60,7 @@ export function TorrentSearchBar({
 
             {/* Category Filter */}
             {onCategoryChange && (
-                <CategoryFilterComponent
+                <CategoryFilter
                     selectedCategory={selectedCategory}
                     onCategoryChange={handleCategoryChange}
                 />

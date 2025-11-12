@@ -5,6 +5,7 @@
 export { DownloadCard } from './components/DownloadCard'
 export { DownloadList } from './components/DownloadList'
 export { DownloadsSummary as DownloadsSummaryCard } from './components/DownloadsSummary'
+export { DownloadModal } from './components/DownloadModal'
 
 // Hooks
 export { useDownloads } from './hooks/useDownloads'

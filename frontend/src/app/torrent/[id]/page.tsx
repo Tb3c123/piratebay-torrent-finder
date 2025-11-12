@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import { useManualCache } from '@/hooks/useSessionCache'
-import DownloadModal from '@/components/DownloadModal'
+import { DownloadModal } from '@/features/downloads'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 

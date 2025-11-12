@@ -1,6 +1,7 @@
 // Movies Feature - Central Exports
 
 // Components
+export { MovieCard } from './components/MovieCard'
 export { MovieGrid } from './components/MovieGrid'
 export { MovieSearchBar } from './components/MovieSearchBar'
 

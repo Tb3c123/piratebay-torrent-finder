@@ -19,7 +19,7 @@ export const torrentsService = {
             })
 
             const torrents = Array.isArray(response.data) ? response.data : []
-            
+
             // Pirate Bay typically returns 30 results per page
             const hasMore = torrents.length >= 30
 

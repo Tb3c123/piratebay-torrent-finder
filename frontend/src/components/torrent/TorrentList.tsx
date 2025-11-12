@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Torrent } from '@/lib/types'
-import DownloadModal from '@/components/DownloadModal'
+import { DownloadModal } from '@/features/downloads'
 
 interface TorrentListProps {
     torrents: Torrent[]

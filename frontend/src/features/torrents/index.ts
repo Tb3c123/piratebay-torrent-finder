@@ -1,6 +1,7 @@
 // Torrents Feature - Central Exports
 
 // Components
+export { CategoryFilter, PIRATEBAY_CATEGORIES, POPULAR_CATEGORIES } from './components/CategoryFilter'
 export { TorrentSearchBar } from './components/TorrentSearchBar'
 export { TorrentCard } from './components/TorrentCard'
 export { TorrentList } from './components/TorrentList'
