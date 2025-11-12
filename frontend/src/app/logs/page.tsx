@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface Log {
-    id: string
+    id: number
     level: 'info' | 'success' | 'warning' | 'error' | 'debug'
-    message: string
-    timestamp: string
-    data?: any
+    action: string  // Backend uses 'action' not 'message'
+    timestamp: string  // Unix timestamp as string, needs parsing
+    details?: string  // JSON string, needs parsing
 }
 
 interface CacheStats {
@@ -86,9 +86,9 @@ export default function LogsPage() {
             const response = await fetch(`${API_URL}/api/v1/logs`)
             const data = await response.json()
 
-            // API now returns { success: true, logs: [...], total: N }
-            if (data.success && data.logs) {
-                setLogs(data.logs)
+            // API returns { success: true, data: { logs: [...], total: N } }
+            if (data.success && data.data && data.data.logs) {
+                setLogs(data.data.logs)
             } else if (Array.isArray(data)) {
                 // Fallback for old format
                 setLogs(data)
@@ -107,8 +107,8 @@ export default function LogsPage() {
         try {
             const response = await fetch(`${API_URL}/api/system/cache/stats`)
             const data = await response.json()
-            if (data.success) {
-                setCacheStats(data.stats)
+            if (data.success && data.data && data.data.stats) {
+                setCacheStats(data.data.stats)
             }
         } catch (error) {
             console.error('Failed to fetch cache stats:', error)
@@ -136,11 +136,12 @@ export default function LogsPage() {
                 method: 'POST'
             })
             const data = await response.json()
-            if (data.success) {
-                alert(`✓ ${data.message}\n\nCleared: ${data.cleared.join(', ')}`)
+            if (data.success && data.data) {
+                const cleared = data.data.cleared || []
+                alert(`✓ ${data.message}\n\nCleared: ${cleared.join(', ')}`)
                 fetchCacheStats() // Refresh stats
             } else {
-                alert(`❌ Failed: ${data.error}`)
+                alert(`❌ Failed: ${data.error || 'Unknown error'}`)
             }
         } catch (error) {
             console.error('Failed to clear cache:', error)
@@ -170,9 +171,14 @@ export default function LogsPage() {
                     method: 'POST'
                 })
                 const data = await response.json()
-                alert(`✓ Removed ${data.removed} old entries`)
+                if (data.success && data.data) {
+                    alert(`✓ Removed ${data.data.removed} old entries`)
+                } else {
+                    alert('✓ ' + (data.message || 'Cleanup completed'))
+                }
             } catch (error) {
                 console.error('Failed to cleanup history:', error)
+                alert('❌ Failed to cleanup history')
             }
         }
     }
@@ -331,32 +337,47 @@ export default function LogsPage() {
                     {/* Row 2: Cache Stats Display */}
                     {cacheStats && (
                         <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="text-gray-400 text-sm">📊 Cache Statistics:</span>
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-gray-400 text-sm font-semibold">📊 Cache Statistics</span>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                <div>
-                                    <div className="text-gray-400">OMDB API</div>
-                                    <div className="text-white">{cacheStats.omdb.size} entries • {cacheStats.omdb.ttl}</div>
-                                </div>
-                                <div>
-                                    <div className="text-gray-400">Movies</div>
-                                    <div className="text-white">{cacheStats.movies.size} entries • {cacheStats.movies.ttl}</div>
-                                </div>
-                                <div>
-                                    <div className="text-gray-400">Torrents</div>
-                                    <div className="text-white">{cacheStats.torrents.size} entries • {cacheStats.torrents.ttl}</div>
-                                </div>
-                                <div>
-                                    <div className="text-gray-400">Sections</div>
-                                    <div className="text-white">
-                                        {cacheStats.sections.size} entries • {cacheStats.sections.ttl}
-                                        {cacheStats.sections.keys.length > 0 && (
-                                            <div className="text-xs text-gray-500">
-                                                ({cacheStats.sections.keys.join(', ')})
-                                            </div>
-                                        )}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                                <div className="bg-gray-900/50 p-3 rounded-lg">
+                                    <div className="text-gray-400 text-xs font-semibold uppercase mb-1">OMDB API</div>
+                                    <div className="text-white font-mono">
+                                        <span className="text-blue-400 font-bold">{cacheStats.omdb.size}</span> entries
                                     </div>
+                                    <div className="text-gray-500 text-xs mt-1">TTL: {cacheStats.omdb.ttl}</div>
+                                </div>
+                                <div className="bg-gray-900/50 p-3 rounded-lg">
+                                    <div className="text-gray-400 text-xs font-semibold uppercase mb-1">Movies</div>
+                                    <div className="text-white font-mono">
+                                        <span className="text-green-400 font-bold">{cacheStats.movies.size}</span> entries
+                                    </div>
+                                    <div className="text-gray-500 text-xs mt-1">TTL: {cacheStats.movies.ttl}</div>
+                                </div>
+                                <div className="bg-gray-900/50 p-3 rounded-lg">
+                                    <div className="text-gray-400 text-xs font-semibold uppercase mb-1">Torrents</div>
+                                    <div className="text-white font-mono">
+                                        <span className="text-purple-400 font-bold">{cacheStats.torrents.size}</span> entries
+                                    </div>
+                                    <div className="text-gray-500 text-xs mt-1">TTL: {cacheStats.torrents.ttl}</div>
+                                </div>
+                                <div className="bg-gray-900/50 p-3 rounded-lg">
+                                    <div className="text-gray-400 text-xs font-semibold uppercase mb-1">Sections</div>
+                                    <div className="text-white font-mono">
+                                        <span className="text-yellow-400 font-bold">{cacheStats.sections.size}</span> entries
+                                    </div>
+                                    <div className="text-gray-500 text-xs mt-1">TTL: {cacheStats.sections.ttl}</div>
+                                    {cacheStats.sections.keys && cacheStats.sections.keys.length > 0 && (
+                                        <div className="mt-2 pt-2 border-t border-gray-700">
+                                            <div className="text-gray-500 text-xs mb-1">Keys:</div>
+                                            {cacheStats.sections.keys.map((key, idx) => (
+                                                <div key={idx} className="text-gray-400 text-xs font-mono">
+                                                    • {key}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -438,13 +459,24 @@ export default function LogsPage() {
                                         {log.level}
                                     </span>
                                     <span className="text-gray-400 text-xs font-mono">
-                                        {new Date(log.timestamp).toLocaleString()}
+                                        {new Date(parseFloat(log.timestamp)).toLocaleString()}
                                     </span>
                                     <div className="flex-1">
-                                        <p className="text-white">{log.message}</p>
-                                        {log.data && (
-                                            <pre className="mt-2 text-xs text-gray-400 bg-gray-900/50 p-2 rounded overflow-x-auto">
-                                                {JSON.stringify(log.data, null, 2)}
+                                        <p className="text-white">{log.action}</p>
+                                        {log.details && (
+                                            <pre className="mt-2 text-xs text-gray-400 bg-gray-900/50 p-2 rounded overflow-x-auto whitespace-pre-wrap break-words">
+                                                {(() => {
+                                                    try {
+                                                        // Try to parse JSON string
+                                                        const parsed = typeof log.details === 'string'
+                                                            ? JSON.parse(log.details)
+                                                            : log.details
+                                                        return JSON.stringify(parsed, null, 2)
+                                                    } catch (e) {
+                                                        // If not JSON, return as is
+                                                        return log.details
+                                                    }
+                                                })()}
                                             </pre>
                                         )}
                                     </div>

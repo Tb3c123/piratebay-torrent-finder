@@ -10,18 +10,28 @@ import { Button, Input, Alert } from '@/components/ui'
 export function LoginForm() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const [success, setSuccess] = useState(false)
     const { login, loading, error, setError } = useLogin()
     const { refreshUser } = useAuth()
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
+        setSuccess(false)
 
-        await login(
+        const result = await login(
             { username, password },
             async () => {
                 await refreshUser()
             }
         )
+
+        if (result.success) {
+            setSuccess(true)
+            // Will redirect in hook after 500ms
+            setTimeout(() => {
+                // Hook handles redirect
+            }, 500)
+        }
     }
 
     return (
@@ -51,6 +61,14 @@ export function LoginForm() {
                 minLength={6}
                 disabled={loading}
             />
+
+            {/* Success Message */}
+            {success && (
+                <Alert
+                    type="success"
+                    message="Login successful! Redirecting to homepage..."
+                />
+            )}
 
             {/* Error Message */}
             {error && (

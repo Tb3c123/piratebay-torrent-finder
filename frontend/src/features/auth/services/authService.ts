@@ -95,6 +95,9 @@ export const authService = {
             })
 
             const data = await response.json()
+
+            // Backend returns: { success: true, data: user, message }
+            // Auto-login after registration not implemented, user needs to login manually
             return data
         } catch (error) {
             console.error('Register error:', error)
@@ -120,10 +123,14 @@ export const authService = {
 
             const data = await response.json()
 
-            if (data.success && data.token && data.user) {
-                // Save to localStorage
-                setAuthToken(data.token)
-                saveUser(data.user)
+            // Backend returns: { success: true, data: { token, user }, message }
+            if (data.success && data.data) {
+                const { token, user } = data.data
+                if (token && user) {
+                    // Save to localStorage
+                    setAuthToken(token)
+                    saveUser(user)
+                }
             }
 
             return data
@@ -175,10 +182,11 @@ export const authService = {
 
             const data = await response.json()
 
-            if (data.success && data.user) {
+            // Backend returns: { success: true, data: user }
+            if (data.success && data.data) {
                 // Update localStorage
-                saveUser(data.user)
-                return data.user
+                saveUser(data.data)
+                return data.data
             }
         } catch (error) {
             console.error('Fetch user info error:', error)

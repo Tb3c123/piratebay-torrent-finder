@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { useAuth } from '@/contexts/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -17,40 +18,58 @@ interface SearchHistoryProps {
 }
 
 export default function SearchHistory({ onSearchFromHistory }: SearchHistoryProps) {
+    const { user } = useAuth()
     const [history, setHistory] = useState<SearchHistory[]>([])
     const [isOpen, setIsOpen] = useState(false)
     const [stats, setStats] = useState<any>(null)
 
     useEffect(() => {
-        loadHistory()
-        loadStats()
-    }, [])
+        if (user?.id) {
+            loadHistory()
+            loadStats()
+        }
+    }, [user?.id])
 
     const loadHistory = async () => {
+        if (!user?.id) return
+
         try {
-            const response = await axios.get(`${API_URL}/api/v1/history`)
-            setHistory(response.data)
+            const response = await axios.get(`${API_URL}/api/v1/history`, {
+                params: { userId: user.id }
+            })
+            // Backend returns: { success: true, data: [...] }
+            setHistory(response.data.data || [])
         } catch (error) {
             console.error('Failed to load search history:', error)
         }
     }
 
     const loadStats = async () => {
+        if (!user?.id) return
+
         try {
-            const response = await axios.get(`${API_URL}/api/v1/history/stats`)
-            setStats(response.data)
+            const response = await axios.get(`${API_URL}/api/v1/history/stats`, {
+                params: { userId: user.id }
+            })
+            // Backend returns: { success: true, data: {...} }
+            setStats(response.data.data || null)
         } catch (error) {
             console.error('Failed to load history stats:', error)
         }
     }
 
     const addToHistory = async (query: string, category: string) => {
+        if (!user?.id) return
+
         try {
             const response = await axios.post(`${API_URL}/api/v1/history`, {
                 query,
-                category
+                category,
+                userId: user.id
             })
-            setHistory(response.data.history)
+            // Backend returns: { success: true, data: {...} }
+            // Reload history after adding
+            loadHistory()
         } catch (error) {
             console.error('Failed to add to search history:', error)
         }

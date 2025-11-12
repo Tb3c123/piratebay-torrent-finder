@@ -65,14 +65,14 @@ export function TorrentList({
             {torrents.map((torrent, index) => (
                 <div
                     key={index}
-                    className="bg-gray-700 border border-gray-600 p-5 rounded-lg hover:border-blue-500 transition-all"
+                    className="bg-gray-800/40 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                 >
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-3">
-                        <h3 className="text-white font-semibold text-lg flex-1">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
+                        <h3 className="text-white font-semibold text-lg flex-1 leading-relaxed">
                             {torrent.title}
                         </h3>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                             <Link
                                 href={`/torrent/${torrent.id || 'unknown'}?${new URLSearchParams({
                                     title: torrent.title,
@@ -82,13 +82,13 @@ export function TorrentList({
                                     leechers: torrent.leechers.toString(),
                                     uploaded: torrent.uploaded || '',
                                 }).toString()}`}
-                                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all transform hover:scale-105 font-semibold whitespace-nowrap"
+                                className="px-5 py-2.5 bg-blue-500/80 hover:bg-blue-400 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-medium whitespace-nowrap"
                             >
                                 📄 View Details
                             </Link>
                             <button
                                 onClick={() => handleDownload(torrent.magnetLink, torrent.title)}
-                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all transform hover:scale-105 font-semibold whitespace-nowrap"
+                                className="px-5 py-2.5 bg-teal-500/80 hover:bg-teal-400 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-medium whitespace-nowrap"
                             >
                                 ⬇️ Download
                             </button>
@@ -96,16 +96,16 @@ export function TorrentList({
                     </div>
 
                     <div className="flex flex-wrap gap-4 text-sm">
-                        <span className="text-green-400 font-semibold">
+                        <span className="text-emerald-400 font-semibold">
                             🌱 {torrent.seeders} seeders
                         </span>
-                        <span className="text-red-400">
+                        <span className="text-rose-400">
                             📥 {torrent.leechers} leechers
                         </span>
-                        <span className="text-blue-400">💾 {torrent.size}</span>
+                        <span className="text-sky-400">💾 {torrent.size}</span>
                         <span className="text-gray-400">📅 {torrent.uploaded}</span>
                         {torrent.username && (
-                            <span className="text-purple-400">👤 {torrent.username}</span>
+                            <span className="text-violet-400">👤 {torrent.username}</span>
                         )}
                     </div>
                 </div>

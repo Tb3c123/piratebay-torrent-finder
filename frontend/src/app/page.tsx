@@ -88,9 +88,9 @@ function HomeContent() {
         setSectionsLoading(true)
         try {
             const [trending, popular, latest] = await Promise.all([
-                axios.get(`${API_URL}/api/v1/movies/trending/now`).catch(() => ({ data: { movies: [] } })),
-                axios.get(`${API_URL}/api/v1/movies/trending/popular`).catch(() => ({ data: { movies: [] } })),
-                axios.get(`${API_URL}/api/v1/movies/latest`).catch(() => ({ data: { movies: [] } }))
+                axios.get(`${API_URL}/api/v1/movies/trending/now`).catch(() => ({ data: { success: false, data: { movies: [] } } })),
+                axios.get(`${API_URL}/api/v1/movies/trending/popular`).catch(() => ({ data: { success: false, data: { movies: [] } } })),
+                axios.get(`${API_URL}/api/v1/movies/latest`).catch(() => ({ data: { success: false, data: { movies: [] } } }))
             ])
 
             // Validate and filter out invalid movie data
@@ -104,10 +104,11 @@ function HomeContent() {
                 )
             }
 
+            // Backend returns: { success: true, data: { movies: [...] } }
             // Shuffle arrays on client side (only shuffles on F5/page load)
-            setTrendingMovies(shuffleArray(validateMovies(trending.data.movies || [])))
-            setPopularMovies(shuffleArray(validateMovies(popular.data.movies || [])))
-            setLatestMovies(shuffleArray(validateMovies(latest.data.movies || [])))
+            setTrendingMovies(shuffleArray(validateMovies(trending.data.data?.movies || [])))
+            setPopularMovies(shuffleArray(validateMovies(popular.data.data?.movies || [])))
+            setLatestMovies(shuffleArray(validateMovies(latest.data.data?.movies || [])))
         } catch (err) {
             console.error('Error loading sections:', err)
         } finally {

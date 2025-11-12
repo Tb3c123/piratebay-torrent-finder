@@ -17,8 +17,9 @@ export const downloadsService = {
                 params: { userId },
             })
 
-            if (response.data.success) {
-                return { torrents: response.data.torrents }
+            // Backend returns: { success: true, data: { torrents: [...] } }
+            if (response.data.success && response.data.data) {
+                return { torrents: response.data.data.torrents || [] }
             }
 
             return { torrents: [], error: 'Failed to load torrents' }

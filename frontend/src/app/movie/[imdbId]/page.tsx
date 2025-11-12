@@ -24,8 +24,9 @@ export default function MovieDetailPage({ params }: { params: { imdbId: string }
         `movie_${params.imdbId}`,
         async () => {
             const response = await axios.get(`${API_URL}/api/v1/movies/${params.imdbId}`)
-            if (response.data.success) {
-                return response.data.movie
+            // Backend returns: { success: true, data: { movie: {...} } }
+            if (response.data.success && response.data.data) {
+                return response.data.data.movie
             } else {
                 throw new Error(response.data.error || 'Movie not found')
             }

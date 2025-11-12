@@ -45,8 +45,8 @@ export default function AdminPage() {
                 }
             })
 
-            if (response.data.success) {
-                setUsers(response.data.users)
+            if (response.data.success && response.data.data) {
+                setUsers(response.data.data)
             }
         } catch (err: any) {
             setError(err.response?.data?.error || 'Failed to load users')

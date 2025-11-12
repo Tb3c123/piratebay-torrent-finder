@@ -55,11 +55,11 @@ export function DownloadModal({
             const response = await axios.get(`${API_URL}/api/v1/settings/jellyfin/saved-libraries`, {
                 params: { userId: user?.id }
             })
-            if (response.data.success && response.data.libraries) {
-                setLibraries(response.data.libraries)
+            if (response.data.success && response.data.data) {
+                setLibraries(response.data.data)
                 // Auto-select first library if available
-                if (response.data.libraries.length > 0) {
-                    setSelectedLibrary(response.data.libraries[0].id)
+                if (response.data.data.length > 0) {
+                    setSelectedLibrary(response.data.data[0].id)
                 }
             } else {
                 setError('No libraries found. Please configure Jellyfin in Settings.')

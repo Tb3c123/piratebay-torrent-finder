@@ -16,14 +16,15 @@ export const settingsService = {
     // ============ qBittorrent Settings ============
 
     /**
-     * Load qBittorrent settings for a user
+     * Load qBittorrent settings
      */
     loadQBittorrent: async (userId?: number): Promise<QBittorrentSettings | null> => {
         try {
             const response = await axios.get(`${API_URL}/api/v1/settings/qbittorrent`, {
                 params: { userId },
             })
-            return response.data.settings || null
+            // Backend returns: { success: true, data: { url, username, password } }
+            return response.data.data || null
         } catch (error) {
             console.error('Failed to load qBittorrent settings:', error)
             return null
@@ -63,9 +64,10 @@ export const settingsService = {
                 `${API_URL}/api/v1/settings/qbittorrent/test`,
                 settings
             )
+            // Backend returns: { success: true, data: {...}, message: "..." }
             return {
                 success: true,
-                message: response.data.message || 'Connection successful!',
+                message: response.data.message || response.data.data?.message || 'Connection successful!',
             }
         } catch (error: any) {
             console.error('qBittorrent connection test failed:', error)
@@ -79,14 +81,15 @@ export const settingsService = {
     // ============ Jellyfin Settings ============
 
     /**
-     * Load Jellyfin settings for a user
+     * Load Jellyfin settings
      */
     loadJellyfin: async (userId?: number): Promise<JellyfinSettings | null> => {
         try {
             const response = await axios.get(`${API_URL}/api/v1/settings/jellyfin`, {
                 params: { userId },
             })
-            return response.data.settings || null
+            // Backend returns: { success: true, data: { url, apiKey, libraries } }
+            return response.data.data || null
         } catch (error) {
             console.error('Failed to load Jellyfin settings:', error)
             return null
@@ -128,12 +131,14 @@ export const settingsService = {
                 `${API_URL}/api/v1/settings/jellyfin/test`,
                 settings
             )
+            // Backend may return data nested in response.data.data
+            const data = response.data.data || response.data
             return {
                 success: true,
-                message: response.data.message || 'Connection successful!',
-                serverName: response.data.serverName,
-                version: response.data.version,
-                libraries: response.data.libraries,
+                message: response.data.message || data.message || 'Connection successful!',
+                serverName: data.serverName,
+                version: data.version,
+                libraries: data.libraries,
             }
         } catch (error: any) {
             console.error('Jellyfin connection test failed:', error)

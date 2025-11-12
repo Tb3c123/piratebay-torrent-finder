@@ -89,26 +89,37 @@ export default function BurgerMenu() {
     // ========== API Functions ==========
 
     const loadSearchHistory = async () => {
+        if (!user?.id) {
+            console.log('[BurgerMenu] No user logged in, skipping history load')
+            return
+        }
+
         setLoadingHistory(true)
         try {
             console.log('[BurgerMenu] Loading history for userId:', user?.id)
             const response = await axios.get(`${API_URL}/api/v1/history`, {
                 params: { userId: user?.id }
             })
-            console.log('[BurgerMenu] Loaded history:', response.data.length, 'items')
-            setSearchHistory(response.data)
+            // Backend returns: { success: true, data: [...] }
+            const historyData = response.data.data || []
+            console.log('[BurgerMenu] Loaded history:', historyData.length, 'items')
+            setSearchHistory(historyData)
         } catch (error) {
             console.error('Failed to load search history:', error)
+            setSearchHistory([]) // Set empty array on error
         } finally {
             setLoadingHistory(false)
         }
     }
 
     const clearHistory = async () => {
+        if (!user?.id) return
         if (!confirm('Clear all search history?')) return
 
         try {
-            await axios.delete(`${API_URL}/api/v1/history`)
+            await axios.delete(`${API_URL}/api/v1/history`, {
+                params: { userId: user.id }
+            })
             setSearchHistory([])
             setDisplayedHistory([])
         } catch (error) {

@@ -19,17 +19,19 @@ export function useLogin() {
             const result = await authService.login(credentials)
 
             if (result.success) {
+                // Call success callback (e.g., refresh user)
                 if (onSuccess) {
-                    onSuccess()
-                } else {
+                    await onSuccess()
+                }
+
+                // Redirect to home after 800ms to show success message
+                setTimeout(() => {
                     router.push('/')
                     router.refresh()
-                }
+                }, 800)
             } else {
                 setError(result.error || 'Login failed')
-            }
-
-            return result
+            } return result
         } catch (err) {
             const errorMessage = 'An error occurred. Please try again.'
             setError(errorMessage)

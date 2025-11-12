@@ -47,10 +47,14 @@ export async function login(username: string, password: string): Promise<AuthRes
 
     const data = await response.json();
 
-    if (data.success && data.token) {
-        // Save token and user to localStorage
-        localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+    // Backend returns: { success: true, data: { token, user }, message }
+    if (data.success && data.data) {
+        const { token, user } = data.data;
+        if (token && user) {
+            // Save token and user to localStorage
+            localStorage.setItem('auth_token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+        }
     }
 
     return data;
@@ -135,10 +139,11 @@ export async function fetchUserInfo(): Promise<User | null> {
 
         const data = await response.json();
 
-        if (data.success && data.user) {
+        // Backend returns: { success: true, data: user }
+        if (data.success && data.data) {
             // Update localStorage
-            localStorage.setItem('user', JSON.stringify(data.user));
-            return data.user;
+            localStorage.setItem('user', JSON.stringify(data.data));
+            return data.data;
         }
     } catch (error) {
         console.error('Fetch user info error:', error);
