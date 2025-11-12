@@ -1,0 +1,200 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  # Job 1: Validate PR
+  pr-validation:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check PR title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          
+          # Check if PR title follows conventional commits
+          if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?:\ .+ ]]; then
+            echo "❌ PR title must follow conventional commits format:"
+            echo "   feat: add new feature"
+            echo "   fix: bug fix"
+            echo "   docs: documentation changes"
+            echo "   refactor: code refactoring"
+            echo "   test: adding tests"
+            echo "   chore: maintenance"
+            exit 1
+          fi
+          
+          echo "✅ PR title follows conventional commits format"
+      
+      - name: Check for merge conflicts
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          
+          # Try to merge with target branch
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          if ! git merge-tree $(git merge-base HEAD origin/${{ github.event.pull_request.base.ref }}) HEAD origin/${{ github.event.pull_request.base.ref }} | grep -q "^+<<<<<<< "; then
+            echo "✅ No merge conflicts detected"
+          else
+            echo "❌ Merge conflicts detected. Please resolve conflicts."
+            exit 1
+          fi
+
+  # Job 2: Code Quality
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Check for console.log (backend)
+        working-directory: ./backend
+        run: |
+          if grep -r "console.log" src/ --exclude-dir=node_modules; then
+            echo "⚠️ Warning: console.log found in backend code"
+            echo "Consider using the logger utility instead"
+          else
+            echo "✅ No console.log found in backend"
+          fi
+      
+      - name: Check for console.log (frontend)
+        working-directory: ./frontend
+        run: |
+          if grep -r "console.log\|console.error\|console.warn" src/ --exclude-dir=node_modules; then
+            echo "⚠️ Warning: console statements found in frontend code"
+            echo "Consider removing before production"
+          else
+            echo "✅ No console statements found in frontend"
+          fi
+      
+      - name: Check file sizes
+        run: |
+          echo "Checking for large files..."
+          find . -type f -size +1M ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/build/*" ! -path "*/.next/*" -exec ls -lh {} \; | awk '{print $5 " " $9}'
+
+  # Job 3: Security Scan
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Scan backend dependencies
+        working-directory: ./backend
+        run: |
+          npm install
+          npm audit --audit-level=moderate || echo "⚠️ Vulnerabilities found in backend"
+      
+      - name: Scan frontend dependencies
+        working-directory: ./frontend
+        run: |
+          npm install
+          npm audit --audit-level=moderate || echo "⚠️ Vulnerabilities found in frontend"
+
+  # Job 4: Run Tests
+  tests:
+    name: Run All Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        test-suite: [backend-pre-build, backend-unit, backend-integration, frontend-build]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Run backend pre-build tests
+        if: matrix.test-suite == 'backend-pre-build'
+        working-directory: ./backend
+        run: |
+          npm ci
+          npm run test:pre-build
+      
+      - name: Run backend unit tests
+        if: matrix.test-suite == 'backend-unit'
+        working-directory: ./backend
+        run: |
+          npm ci
+          npm run test:unit
+      
+      - name: Run backend integration tests
+        if: matrix.test-suite == 'backend-integration'
+        working-directory: ./backend
+        run: |
+          npm ci
+          npm run test:integration
+      
+      - name: Test frontend build
+        if: matrix.test-suite == 'frontend-build'
+        working-directory: ./frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+        run: |
+          npm ci
+          npm run lint
+          npm run type-check
+          npm run build
+
+  # Job 5: PR Summary
+  pr-summary:
+    name: Generate PR Summary
+    runs-on: ubuntu-latest
+    needs: [pr-validation, code-quality, tests]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Generate summary
+        run: |
+          echo "## 📊 Pull Request Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**PR:** #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Author:** @${{ github.event.pull_request.user.login }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.event.pull_request.head.ref }}\` → \`${{ github.event.pull_request.base.ref }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Job statuses
+          echo "### Job Results" >> $GITHUB_STEP_SUMMARY
+          echo "- PR Validation: ${{ needs.pr-validation.result == 'success' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Code Quality: ${{ needs.code-quality.result == 'success' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Tests: ${{ needs.tests.result == 'success' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Next steps
+          if [[ "${{ needs.pr-validation.result }}" == "success" && "${{ needs.tests.result }}" == "success" ]]; then
+            echo "### ✅ Ready for Review" >> $GITHUB_STEP_SUMMARY
+            echo "All checks passed! This PR is ready for code review." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Action Required" >> $GITHUB_STEP_SUMMARY
+            echo "Some checks failed. Please review the logs and fix the issues." >> $GITHUB_STEP_SUMMARY
+          fi

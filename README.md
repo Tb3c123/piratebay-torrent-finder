@@ -13,6 +13,7 @@ A modern, Docker-based web application for searching torrents on The Pirate Bay 
 - [Docker Deployment](#docker-deployment)
 - [Development](#development)
 - [Architecture](#architecture)
+- [CI/CD & Deployment](#cicd--deployment)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -325,6 +326,50 @@ See detailed architecture documentation in [docs/ARCHITECTURE.md](docs/ARCHITECT
 - **Component-Based UI**: Reusable React components
 - **Service Layer**: Business logic separated from routes
 - **Middleware Pattern**: Auth and admin middleware for protected routes
+
+## 🚀 CI/CD & Deployment
+
+### Automated Deployment
+
+This project uses **GitHub Actions** for automated CI/CD:
+
+- ✅ **Automated Testing** - Run tests on every push and PR
+- 🏗️ **Multi-Platform Builds** - Build for AMD64 and ARM64
+- 📤 **Docker Hub** - Automatic push to Docker Hub
+- 🏷️ **Version Tagging** - Semantic versioning with Git tags
+- 📝 **GitHub Releases** - Automatic release notes
+
+### Quick Deploy
+
+**1. Automated (via GitHub Actions):**
+```bash
+# Create and push a version tag
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
+
+# GitHub Actions will automatically:
+# - Run all tests
+# - Build multi-platform Docker images
+# - Push to Docker Hub
+# - Create GitHub release
+```
+
+**2. Manual (local build):**
+```bash
+# Build and push images
+./build-multiplatform.sh  # macOS/Linux with buildx
+# or
+./build-linux.sh          # Linux server (AMD64 only)
+```
+
+**3. Pull and deploy:**
+```bash
+# On your production server
+docker-compose -f docker-compose.deploy.yml pull
+docker-compose -f docker-compose.deploy.yml up -d
+```
+
+**See full deployment guide:** [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## 🤝 Contributing
 
