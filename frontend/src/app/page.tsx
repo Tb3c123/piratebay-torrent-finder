@@ -132,8 +132,11 @@ function HomeContent() {
 
             console.log('✅ Response:', response.data)
 
-            if (response.data.movies) {
-                setSearchResults(response.data.movies)
+            // Backend returns: { success: true, data: { success: true, movies: [...] } }
+            const movies = response.data.data?.movies || response.data.movies || []
+
+            if (movies && movies.length > 0) {
+                setSearchResults(movies)
 
                 // Save to search history
                 try {
@@ -141,7 +144,7 @@ function HomeContent() {
                         query: query,
                         type: 'movie',
                         userId: user?.id,
-                        resultCount: response.data.movies.length
+                        resultCount: movies.length
                     })
                 } catch (historyErr) {
                     console.error('Failed to save search history:', historyErr)

@@ -46,17 +46,21 @@ export default function MoviesPage() {
                 params: { query, page }
             })
 
-            if (response.data.success) {
+            // Backend returns: { success: true, data: { success: true, movies: [...] } }
+            const movieData = response.data.data || response.data
+            const movies = movieData.movies || []
+
+            if (response.data.success && movies.length > 0) {
                 if (append) {
-                    setMovies(prev => [...prev, ...response.data.movies])
+                    setMovies(prev => [...prev, ...movies])
                 } else {
-                    setMovies(response.data.movies)
+                    setMovies(movies)
                     setCurrentSearchQuery(query)
                 }
-                setTotalResults(response.data.totalResults)
+                setTotalResults(movieData.totalResults || movies.length)
                 setCurrentPage(page)
             } else {
-                setError(response.data.error || 'No movies found')
+                setError(movieData.error || 'No movies found')
                 if (!append) {
                     setMovies([])
                 }
