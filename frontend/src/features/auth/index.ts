@@ -1,18 +1,31 @@
 // Auth Feature - Central Export
 // This feature handles user authentication and authorization
 
-// Components will be exported here after refactoring
-// export { LoginForm } from './components/LoginForm'
-// export { RegisterForm } from './components/RegisterForm'
+// Components
+export { LoginForm } from './components/LoginForm'
+export { RegisterForm } from './components/RegisterForm'
+export { AuthLayout } from './components/AuthLayout'
 
-// Hooks will be exported here
-// export { useAuth } from './hooks/useAuth'
-// export { useLogin } from './hooks/useLogin'
+// Hooks
+export { useLogin } from './hooks/useLogin'
+export { useRegister } from './hooks/useRegister'
+export { useCheckUsers } from './hooks/useCheckUsers'
 
-// Services will be exported here
-// export { authService } from './services/authService'
+// Services
+export { authService } from './services/authService'
+export {
+  getAuthToken,
+  getCurrentUser,
+  isAuthenticated,
+  isAdmin
+} from './services/authService'
 
-// Types will be exported here
-// export type * from './types'
-
-export {}
+// Types
+export type {
+  User,
+  AuthResponse,
+  LoginCredentials,
+  RegisterCredentials,
+  ChangePasswordData,
+  AuthContextType
+} from './types'
