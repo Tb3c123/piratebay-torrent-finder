@@ -1,14 +1,10 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import axios from 'axios'
 import { TorrentSection } from '@/components/torrent'
-import { Torrent } from '@/lib/types'
-import CategoryFilterComponent from '@/components/CategoryFilter'
+import { useTorrentSearch, TorrentList } from '@/features/torrents'
 import { useAuth } from '@/contexts/AuthContext'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 function DirectSearchContent() {
     const router = useRouter()
@@ -16,142 +12,32 @@ function DirectSearchContent() {
     const { user } = useAuth()
     const query = searchParams.get('q') || ''
 
-    const [torrents, setTorrents] = useState<Torrent[]>([])
-    const [loading, setLoading] = useState(false)
-    const [loadingMore, setLoadingMore] = useState(false)
-    const [error, setError] = useState('')
-    const [selectedCategory, setSelectedCategory] = useState('0') // 0 = All categories
-    const [currentPage, setCurrentPage] = useState(0)
-    const [hasMore, setHasMore] = useState(true)
+    const {
+        torrents,
+        loading,
+        loadingMore,
+        error,
+        currentCategory,
+        hasMore,
+        search,
+        loadMore,
+        refresh,
+    } = useTorrentSearch()
 
     useEffect(() => {
         if (query) {
-            setTorrents([])
-            setCurrentPage(0)
-            setHasMore(true)
-            searchPirateBay(query, selectedCategory, 0, false)
+            search(query, currentCategory)
         }
-    }, [query, selectedCategory])
+    }, [query, currentCategory])
 
-    const searchPirateBay = async (searchQuery: string, category: string = '0', page: number = 0, append: boolean = false) => {
-        if (append) {
-            setLoadingMore(true)
-        } else {
-            setLoading(true)
-        }
-        setError('')
-
-        try {
-            const response = await axios.get(`${API_URL}/api/search`, {
-                params: {
-                    query: searchQuery,
-                    category: category,
-                    page: page.toString()
-                }
-            })
-
-            // Response is array directly, not wrapped in object
-            const results = Array.isArray(response.data) ? response.data : []
-
-            if (append) {
-                setTorrents(prev => [...prev, ...results])
-            } else {
-                setTorrents(results)
-            }
-
-            // Check if there are more results
-            // Pirate Bay typically returns 30 results per page
-            setHasMore(results.length >= 30)
-
-            if (results.length === 0 && !append) {
-                setError('No torrents found. Try a different search term or category.')
-            }
-
-            // Save to search history (only on first search, not on load more)
-            if (!append) {
-                try {
-                    await axios.post(`${API_URL}/api/history`, {
-                        query: searchQuery,
-                        category: 'piratebay', // Mark as direct Pirate Bay search
-                        userId: user?.id
-                    })
-                } catch (historyErr) {
-                    console.error('Failed to save search history:', historyErr)
-                }
-            }
-        } catch (err: any) {
-            console.error('Search error:', err)
-            setError(err.response?.data?.error || 'Failed to search torrents')
-        } finally {
-            setLoading(false)
-            setLoadingMore(false)
-        }
-    }
-
-    const handleLoadMore = () => {
-        const nextPage = currentPage + 1
-        setCurrentPage(nextPage)
-        searchPirateBay(query, selectedCategory, nextPage, true)
-    }
-
-    const handleRefresh = () => {
-        if (query) {
-            setTorrents([])
-            setCurrentPage(0)
-            setHasMore(true)
-            searchPirateBay(query, selectedCategory, 0, false)
-        }
-    }
-
-    // handleDownload disabled - use DownloadModal instead (from torrent details page)
-    // const handleDownload = async (magnetLink: string, name: string) => {
-    //     try {
-    //         await axios.post(`${API_URL}/api/qbittorrent/add`, {
-    //             magnetLink,
-    //             savePath: '/downloads',
-    //             userId: user?.id
-    //         })
-    //         alert(`✅ Torrent "${name}" added to qBittorrent successfully!`)
-    //     } catch (err: any) {
-    //         console.error('Download error:', err)
-    //         alert(`❌ Failed to add torrent: ${err.response?.data?.error || err.message}`)
-    //     }
-    // }
-
-    const handleAlternativeSearch = async (customQuery: string) => {
-        setTorrents([])
-        setCurrentPage(0)
-        setHasMore(true)
-        setLoading(true)
-        setError('')
-
-        try {
-            const response = await axios.get(`${API_URL}/api/search`, {
-                params: {
-                    query: customQuery,
-                    category: selectedCategory,
-                    page: '0'
-                }
-            })
-
-            const results = Array.isArray(response.data) ? response.data : []
-            setTorrents(results)
-            setHasMore(results.length >= 30)
-
-            if (results.length === 0) {
-                setError('No torrents found. Try a different search term or category.')
-            }
-        } catch (err: any) {
-            console.error('Search error:', err)
-            setError(err.response?.data?.error || 'Failed to search torrents')
-        } finally {
-            setLoading(false)
-        }
+    const handleAlternativeSearch = (customQuery: string) => {
+        search(customQuery, currentCategory)
     }
 
     const handleCategoryChange = (category: string) => {
-        setSelectedCategory(category)
-        // Search will auto-trigger via useEffect
+        if (query) {
+            search(query, category)
+        }
     }
 
     const handleBackToHome = () => {
@@ -203,63 +89,29 @@ function DirectSearchContent() {
                     </p>
                 </div>
 
-                {/* Category Filter */}
-                <CategoryFilterComponent
-                    selectedCategory={selectedCategory}
-                    onCategoryChange={handleCategoryChange}
-                />
-
                 {/* Torrent Section - Using same component as movie/anime pages */}
                 <TorrentSection
                     torrents={torrents}
                     loading={loading}
                     error={error}
                     alternativeTitles={generateAlternativeTitles(query)}
-                    onRefresh={handleRefresh}
+                    onRefresh={refresh}
                     onAlternativeSearch={handleAlternativeSearch}
                     refreshLabel="🔄 Search Again"
                     sectionTitle="🏴‍☠️ Available Torrents"
                 />
 
-                {/* Load More Button */}
-                {!loading && !error && torrents.length > 0 && hasMore && (
-                    <div className="mt-6 text-center">
-                        <button
-                            onClick={handleLoadMore}
-                            disabled={loadingMore}
-                            className={`px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg ${loadingMore
-                                ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-xl transform hover:scale-105'
-                                }`}
-                        >
-                            {loadingMore ? (
-                                <>
-                                    <span className="inline-block animate-spin mr-2">⏳</span>
-                                    Loading more results...
-                                </>
-                            ) : (
-                                <>
-                                    📥 Load More Results (Page {currentPage + 2})
-                                </>
-                            )}
-                        </button>
-                        <p className="text-gray-500 text-sm mt-3">
-                            Currently showing {torrents.length} results
-                        </p>
-                    </div>
-                )}
+                {/* Load More & End Messages */}
+                <TorrentList
+                    torrents={[]}
+                    loading={false}
+                    loadingMore={loadingMore}
+                    onLoadMore={loadMore}
+                    hasMore={hasMore}
+                />
 
-                {/* End of Results Message */}
-                {!loading && !error && torrents.length > 0 && !hasMore && (
-                    <div className="mt-6 text-center py-6 bg-gray-800/50 rounded-lg border border-gray-700">
-                        <p className="text-gray-400 text-lg">
-                            ✅ End of results - Showing all {torrents.length} torrents
-                        </p>
-                    </div>
-                )}
-
-                {/* No Results Message (when not loading and no error) */}
-                {!loading && !error && torrents.length === 0 && query && (
+                {/* No Results Message */}
+                {!loading && torrents.length === 0 && !error && query && (
                     <div className="text-center py-12 bg-gray-800 rounded-lg">
                         <p className="text-gray-400 text-lg mb-4">No results found for "{query}"</p>
                         <button
