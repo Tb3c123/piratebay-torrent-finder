@@ -1,20 +1,26 @@
 // Settings Feature - Central Export
-// This feature handles application settings (qBittorrent, Jellyfin, etc.)
+// This feature handles application configuration
 
-// Components will be exported here after refactoring
-// export { QBittorrentSettings } from './components/QBittorrentSettings'
-// export { JellyfinSettings } from './components/JellyfinSettings'
-// export { SettingsCard } from './components/SettingsCard'
+// Components
+export { QBittorrentSettings as QBittorrentSettingsForm } from './components/QBittorrentSettings'
+export { JellyfinSettings as JellyfinSettingsForm } from './components/JellyfinSettings'
+export { SettingsCard } from './components/SettingsCard'
 
-// Hooks will be exported here
-// export { useSettings } from './hooks/useSettings'
-// export { useSettingsValidation } from './hooks/useSettingsValidation'
-// export { useTestConnection } from './hooks/useTestConnection'
+// Hooks
+export { useQBittorrentSettings } from './hooks/useQBittorrentSettings'
+export { useJellyfinSettings } from './hooks/useJellyfinSettings'
+export { useSettingsValidation } from './hooks/useSettingsValidation'
 
-// Services will be exported here
-// export { settingsService } from './services/settingsService'
+// Services
+export { settingsService } from './services/settingsService'
 
-// Types will be exported here
-// export type * from './types'
-
-export {}
+// Types
+export type {
+  QBittorrentSettings,
+  JellyfinSettings,
+  JellyfinLibrary,
+  SettingsTestResult,
+  JellyfinTestResult,
+  SettingsFormErrors,
+  SettingsConfig,
+} from './types'
