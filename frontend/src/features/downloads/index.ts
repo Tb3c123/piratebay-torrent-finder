@@ -1,21 +1,26 @@
 // Downloads Feature - Central Export
-// This feature handles qBittorrent integration and download management
+// This feature handles torrent downloads and qBittorrent management
 
-// Components will be exported here after refactoring
-// export { DownloadList } from './components/DownloadList'
-// export { DownloadCard } from './components/DownloadCard'
-// export { DownloadActions } from './components/DownloadActions'
-// export { DownloadModal } from './components/DownloadModal'
+// Components
+export { DownloadCard } from './components/DownloadCard'
+export { DownloadList } from './components/DownloadList'
+export { DownloadsSummary as DownloadsSummaryCard } from './components/DownloadsSummary'
 
-// Hooks will be exported here
-// export { useDownloads } from './hooks/useDownloads'
-// export { useDownloadActions } from './hooks/useDownloadActions'
-// export { useQBittorrentStatus } from './hooks/useQBittorrentStatus'
+// Hooks
+export { useDownloads } from './hooks/useDownloads'
+export { useDownloadActions } from './hooks/useDownloadActions'
 
-// Services will be exported here
-// export { qbittorrentService } from './services/qbittorrentService'
+// Services
+export { downloadsService } from './services/downloadsService'
 
-// Types will be exported here
-// export type * from './types'
+// Utils
+export {
+    formatBytes,
+    formatSpeed,
+    formatETA,
+    getStateDisplay,
+    calculateSummary,
+} from './utils'
 
-export {}
+// Types
+export type { Torrent, TorrentStateInfo, DownloadsSummary, TorrentActionResult } from './types'
