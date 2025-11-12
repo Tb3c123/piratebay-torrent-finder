@@ -17,11 +17,11 @@ async function runTests() {
   console.log('\n📋 Test 1: node_modules Directory');
   try {
     const nodeModulesPath = path.join(__dirname, '../../node_modules');
-    
+
     if (!fs.existsSync(nodeModulesPath)) {
       throw new Error('node_modules not found. Run: npm install');
     }
-    
+
     console.log('✅ PASSED: node_modules directory exists');
     passedTests++;
   } catch (error) {
@@ -36,11 +36,12 @@ async function runTests() {
       'express',
       'cors',
       'better-sqlite3',
-      'bcrypt',
+      'bcryptjs',
       'jsonwebtoken',
       'axios',
+      'lru-cache',
     ];
-    
+
     for (const dep of coreDeps) {
       try {
         require.resolve(dep);
@@ -48,7 +49,7 @@ async function runTests() {
         throw new Error(`Required dependency missing: ${dep}`);
       }
     }
-    
+
     console.log('✅ PASSED: All core dependencies installed');
     passedTests++;
   } catch (error) {
@@ -62,10 +63,11 @@ async function runTests() {
     require('express');
     require('cors');
     require('better-sqlite3');
-    require('bcrypt');
+    require('bcryptjs');
     require('jsonwebtoken');
     require('axios');
-    
+    require('lru-cache');
+
     console.log('✅ PASSED: All key modules can be imported');
     passedTests++;
   } catch (error) {
@@ -77,13 +79,13 @@ async function runTests() {
   console.log('\n📋 Test 4: Package Lock File');
   try {
     const lockPath = path.join(__dirname, '../../package-lock.json');
-    
+
     if (!fs.existsSync(lockPath)) {
       console.log('⚠️  WARNING: package-lock.json not found');
     } else {
       console.log('✅ PASSED: package-lock.json exists');
     }
-    
+
     passedTests++;
   } catch (error) {
     console.log('❌ FAILED:', error.message);
@@ -96,7 +98,7 @@ async function runTests() {
   console.log(`   ✅ Passed: ${passedTests}`);
   console.log(`   ❌ Failed: ${failedTests}`);
   console.log(`   📈 Total:  ${passedTests + failedTests}`);
-  
+
   return failedTests === 0;
 }
 

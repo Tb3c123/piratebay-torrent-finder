@@ -1,11 +1,20 @@
 /**
  * Password Service
- * Handles password hashing, validation, and comparison
+ * Handles password hashing, validation, and comparison with LRU cache
  */
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+const { LRUCache } = require('lru-cache');
 
 const SALT_ROUNDS = 10;
+
+// LRU Cache for password comparison results
+// Cache successful comparisons to reduce bcrypt overhead
+const comparisonCache = new LRUCache({
+    max: 500, // Maximum 500 entries
+    ttl: 1000 * 60 * 5, // 5 minutes TTL
+    updateAgeOnGet: true,
+});
 
 class PasswordService {
     /**
@@ -36,6 +45,7 @@ class PasswordService {
 
     /**
      * Compare password with hash
+     * Uses LRU cache to reduce bcrypt overhead for repeated comparisons
      * @param {string} password - Plain text password
      * @param {string} hash - Hashed password
      * @returns {Promise<boolean>} True if password matches
@@ -44,7 +54,25 @@ class PasswordService {
         if (!password || !hash) {
             return false;
         }
-        return bcrypt.compare(password, hash);
+
+        // Create cache key from password + hash
+        const cacheKey = `${password}:${hash}`;
+
+        // Check cache first
+        const cached = comparisonCache.get(cacheKey);
+        if (cached !== undefined) {
+            return cached;
+        }
+
+        // Perform bcrypt comparison
+        const result = await bcrypt.compare(password, hash);
+
+        // Cache only successful comparisons
+        if (result) {
+            comparisonCache.set(cacheKey, result);
+        }
+
+        return result;
     }
 
     /**
@@ -60,6 +88,25 @@ class PasswordService {
             throw new Error(errorMessage);
         }
         return true;
+    }
+
+    /**
+     * Clear the password comparison cache
+     * Useful for security or testing purposes
+     */
+    static clearCache() {
+        comparisonCache.clear();
+    }
+
+    /**
+     * Get cache statistics
+     * @returns {Object} Cache stats
+     */
+    static getCacheStats() {
+        return {
+            size: comparisonCache.size,
+            max: comparisonCache.max,
+        };
     }
 }
 
