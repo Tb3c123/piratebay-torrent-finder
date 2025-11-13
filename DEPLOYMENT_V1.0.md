@@ -4,16 +4,16 @@ Production deployment guide using Docker images from Docker Hub.
 
 ## 📦 Docker Images
 
-- **Backend**: `tb3c123/piratebay-backend:1.0` (161MB)
-- **Frontend**: `tb3c123/piratebay-frontend:1.0` (180MB)
+- **Backend**: `tb3c123/piratebay-backend:1.0.1` (161MB)
+- **Frontend**: `tb3c123/piratebay-frontend:1.0.1` (180MB)
 
 ## 🚀 Quick Start
 
 ### 1. Pull images from Docker Hub
 
 ```bash
-docker pull tb3c123/piratebay-backend:1.0
-docker pull tb3c123/piratebay-frontend:1.0
+docker pull tb3c123/piratebay-backend:1.0.1
+docker pull tb3c123/piratebay-frontend:1.0.1
 ```
 
 ### 2. Create environment file
@@ -47,12 +47,12 @@ docker-compose up -d
 
 ### 4. Access the application
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:3001
+- **Frontend**: <http://localhost:3000>
+- **Backend API**: <http://localhost:3001>
 
 ## 📝 First Time Setup
 
-1. Open http://localhost:3000
+1. Open <http://localhost:3000>
 2. Click on the Account icon (top right)
 3. Register the first user - **this user automatically becomes admin**
 4. Login with your credentials
@@ -71,7 +71,7 @@ docker run -d \
   -e PORT=3001 \
   -v ./backend/data:/app/src/data \
   --restart unless-stopped \
-  tb3c123/piratebay-backend:1.0
+  tb3c123/piratebay-backend:1.0.1
 ```
 
 ### Frontend
@@ -82,7 +82,7 @@ docker run -d \
   -p 3000:3000 \
   -e NEXT_PUBLIC_API_URL=http://localhost:3001 \
   --restart unless-stopped \
-  tb3c123/piratebay-frontend:1.0
+  tb3c123/piratebay-frontend:1.0.1
 ```
 
 ## 🌐 Production Deployment
@@ -134,6 +134,7 @@ server {
 ## 📊 Data Persistence
 
 Application data is stored in `./backend/data/`:
+
 - `settings.json` - User settings (qBittorrent, Jellyfin)
 - `search-history.json` - Search history
 - `logs.json` - Application logs
@@ -163,6 +164,7 @@ docker-compose -f docker-compose.prod.yml down
 ### Backend not connecting to qBittorrent
 
 Check logs:
+
 ```bash
 docker logs piratebay-backend
 ```
@@ -172,12 +174,14 @@ Verify qBittorrent settings in the app Settings page.
 ### Frontend can't reach backend
 
 Ensure `NEXT_PUBLIC_API_URL` is set correctly:
+
 - Local: `http://localhost:3001`
 - Production: `https://api.yourdomain.com`
 
 ### Port already in use
 
 Change ports in `.env` file:
+
 ```env
 BACKEND_PORT=3002
 FRONTEND_PORT=3001
@@ -198,17 +202,27 @@ FRONTEND_PORT=3001
 
 ## 📜 Version History
 
+### v1.0.1 (2025-11-13)
+
+- Removed qBittorrent environment variables from Docker configuration
+- qBittorrent and Jellyfin now fully configured per-user in Settings UI
+- Simplified deployment - no need to set QBITTORRENT_URL, USERNAME, PASSWORD
+- Fixed search history for Pirate Bay direct search (now saves with category tag)
+- Settings page locked for authenticated users only
+- Download counter auto-updates in header
+
 ### v1.0 (2025-11-13)
+
 - Initial production release
 - Full feature set implemented
 - Docker images published to Docker Hub
 
 ## 🔗 Links
 
-- **GitHub**: https://github.com/Tb3c123/piratebay-torrent-finder
+- **GitHub**: <https://github.com/Tb3c123/piratebay-torrent-finder>
 - **Docker Hub**:
-  - https://hub.docker.com/r/tb3c123/piratebay-backend
-  - https://hub.docker.com/r/tb3c123/piratebay-frontend
+  - <https://hub.docker.com/r/tb3c123/piratebay-backend>
+  - <https://hub.docker.com/r/tb3c123/piratebay-frontend>
 
 ## 📄 License
 

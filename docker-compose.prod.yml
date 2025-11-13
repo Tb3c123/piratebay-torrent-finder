@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   backend:
-    image: tb3c123/piratebay-backend:1.0
+    image: tb3c123/piratebay-backend:1.0.1
     container_name: piratebay-backend
     ports:
       - "${BACKEND_PORT:-3001}:3001"
@@ -17,7 +17,7 @@ services:
       - piratebay-network
 
   frontend:
-    image: tb3c123/piratebay-frontend:1.0
+    image: tb3c123/piratebay-frontend:1.0.1
     container_name: piratebay-frontend
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
