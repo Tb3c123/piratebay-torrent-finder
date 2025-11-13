@@ -62,7 +62,8 @@ export default function Header() {
                 const response = await axios.get(`${API_URL}/api/v1/qbittorrent/torrents`, {
                     params: { userId: user.id }
                 })
-                const torrents = response.data.torrents || []
+                // Updated to match standardized API response format
+                const torrents = response.data.data?.torrents || []
                 // Count active downloads (downloading or seeding)
                 const activeCount = torrents.filter((t: any) =>
                     t.state === 'downloading' ||

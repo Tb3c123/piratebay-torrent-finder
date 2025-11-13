@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const qbittorrentService = require('../../services/qbittorrent');
+const { successResponse, errorResponse } = require('../../utils/response');
 
 // Add torrent to qBittorrent
 router.post('/add', async (req, res) => {
@@ -8,16 +9,16 @@ router.post('/add', async (req, res) => {
         const { magnetLink, savePath, userId } = req.body;
 
         if (!magnetLink) {
-            return res.status(400).json({ error: 'Magnet link is required' });
+            return errorResponse(res, 'Magnet link is required', 400);
         }
 
         await qbittorrentService.login(userId);
         const result = await qbittorrentService.addTorrent(magnetLink, savePath, userId);
 
-        res.json({ success: true, message: 'Torrent added successfully', result });
+        successResponse(res, { result }, 'Torrent added successfully');
     } catch (error) {
         console.error('qBittorrent error:', error);
-        res.status(500).json({ error: 'Failed to add torrent to qBittorrent' });
+        errorResponse(res, 'Failed to add torrent to qBittorrent', 500);
     }
 });
 
@@ -29,10 +30,10 @@ router.get('/status', async (req, res) => {
         await qbittorrentService.login(userId);
         const torrents = await qbittorrentService.getTorrents(userId);
 
-        res.json({ success: true, torrents });
+        successResponse(res, { torrents });
     } catch (error) {
         console.error('qBittorrent status error:', error);
-        res.status(500).json({ error: 'Failed to get qBittorrent status' });
+        errorResponse(res, 'Failed to get qBittorrent status', 500);
     }
 });
 
@@ -41,13 +42,18 @@ router.get('/torrents', async (req, res) => {
     try {
         const { userId } = req.query;
 
+        // Disable caching for real-time torrent data
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+
         await qbittorrentService.login(userId);
         const torrents = await qbittorrentService.getTorrents(userId);
 
-        res.json({ success: true, torrents });
+        successResponse(res, { torrents });
     } catch (error) {
         console.error('qBittorrent get torrents error:', error);
-        res.status(500).json({ error: 'Failed to get torrents' });
+        errorResponse(res, 'Failed to get torrents', 500);
     }
 });
 
@@ -60,10 +66,10 @@ router.post('/pause/:hash', async (req, res) => {
         await qbittorrentService.login(userId);
         await qbittorrentService.pauseTorrent(hash, userId);
 
-        res.json({ success: true, message: 'Torrent paused' });
+        successResponse(res, null, 'Torrent paused');
     } catch (error) {
         console.error('qBittorrent pause error:', error);
-        res.status(500).json({ error: 'Failed to pause torrent' });
+        errorResponse(res, 'Failed to pause torrent', 500);
     }
 });
 
@@ -76,10 +82,10 @@ router.post('/resume/:hash', async (req, res) => {
         await qbittorrentService.login(userId);
         await qbittorrentService.resumeTorrent(hash, userId);
 
-        res.json({ success: true, message: 'Torrent resumed' });
+        successResponse(res, null, 'Torrent resumed');
     } catch (error) {
         console.error('qBittorrent resume error:', error);
-        res.status(500).json({ error: 'Failed to resume torrent' });
+        errorResponse(res, 'Failed to resume torrent', 500);
     }
 });
 
@@ -92,10 +98,10 @@ router.post('/force-start/:hash', async (req, res) => {
         await qbittorrentService.login(userId);
         await qbittorrentService.forceStartTorrent(hash, userId);
 
-        res.json({ success: true, message: 'Torrent force started' });
+        successResponse(res, null, 'Torrent force started');
     } catch (error) {
         console.error('qBittorrent force start error:', error);
-        res.status(500).json({ error: 'Failed to force start torrent' });
+        errorResponse(res, 'Failed to force start torrent', 500);
     }
 });
 
@@ -108,10 +114,10 @@ router.delete('/delete/:hash', async (req, res) => {
         await qbittorrentService.login(userId);
         await qbittorrentService.deleteTorrent(hash, deleteFiles === 'true', userId);
 
-        res.json({ success: true, message: 'Torrent deleted' });
+        successResponse(res, null, 'Torrent deleted');
     } catch (error) {
         console.error('qBittorrent delete error:', error);
-        res.status(500).json({ error: 'Failed to delete torrent' });
+        errorResponse(res, 'Failed to delete torrent', 500);
     }
 });
 

@@ -20,6 +20,14 @@ function HomeContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { user } = useAuth()
+
+    // Debug logging
+    useEffect(() => {
+        console.log('🚀 HomeContent mounted!')
+        console.log('📍 API_URL:', API_URL)
+        console.log('👤 User:', user)
+    }, [user])
+
     const [searchQuery, setSearchQuery] = useState('')
     const [searchMode, setSearchMode] = useState<'movie' | 'direct'>('movie') // movie: OMDB search, direct: direct Pirate Bay
     const [searchResults, setSearchResults] = useState<Movie[]>([])
@@ -85,6 +93,7 @@ function HomeContent() {
     }
 
     const loadMovieSections = async () => {
+        console.log('🎬 Loading movie sections...')
         setSectionsLoading(true)
         try {
             const [trending, popular, latest] = await Promise.all([
@@ -109,8 +118,9 @@ function HomeContent() {
             setTrendingMovies(shuffleArray(validateMovies(trending.data.data?.movies || [])))
             setPopularMovies(shuffleArray(validateMovies(popular.data.data?.movies || [])))
             setLatestMovies(shuffleArray(validateMovies(latest.data.data?.movies || [])))
+            console.log('✅ Movies loaded successfully')
         } catch (err) {
-            console.error('Error loading sections:', err)
+            console.error('❌ Error loading sections:', err)
         } finally {
             setSectionsLoading(false)
         }

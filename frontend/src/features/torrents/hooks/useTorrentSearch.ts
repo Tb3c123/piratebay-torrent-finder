@@ -1,9 +1,11 @@
 // Torrents Feature - Torrent Search Hook
 import { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { torrentsService } from '../services/torrentsService'
 import type { Torrent } from '../types'
 
 export function useTorrentSearch() {
+    const { user } = useAuth()
     const [torrents, setTorrents] = useState<Torrent[]>([])
     const [loading, setLoading] = useState(false)
     const [loadingMore, setLoadingMore] = useState(false)
@@ -47,8 +49,8 @@ export function useTorrentSearch() {
             }
 
             // Save to search history (only on first search, not on load more)
-            if (!append) {
-                await torrentsService.saveSearchHistory(query, 'piratebay')
+            if (!append && user?.id) {
+                await torrentsService.saveSearchHistory(query, 'piratebay', user.id.toString())
             }
         } catch (err: any) {
             console.error('Search error:', err)

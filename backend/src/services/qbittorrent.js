@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs').promises;
 const path = require('path');
 
-const SETTINGS_FILE = path.join(__dirname, '../data/settings.json');
+const SETTINGS_FILE = path.join(__dirname, '../../data/settings.json');
 
 let cookie = null;
 
@@ -93,6 +93,11 @@ async function login(userId = null) {
  */
 async function addTorrent(magnetLink, savePath = null, userId = null) {
     try {
+        // Ensure we're logged in before adding torrent
+        if (!cookie) {
+            await login(userId);
+        }
+
         const config = await getSettings(userId);
 
         const params = new URLSearchParams({
@@ -117,6 +122,36 @@ async function addTorrent(magnetLink, savePath = null, userId = null) {
         return response.data;
     } catch (error) {
         console.error('qBittorrent add torrent error:', error.message);
+
+        // If error is unauthorized, try to re-login and retry once
+        if (error.response && error.response.status === 403) {
+            console.log('[qBittorrent] Session expired, re-logging in...');
+            cookie = null;
+            await login(userId);
+
+            // Retry the request
+            const config = await getSettings(userId);
+            const params = new URLSearchParams({
+                urls: magnetLink
+            });
+            if (savePath) {
+                params.append('savepath', savePath);
+            }
+
+            const retryResponse = await axios.post(
+                `${config.url}/api/v2/torrents/add`,
+                params,
+                {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Cookie': cookie
+                    }
+                }
+            );
+
+            return retryResponse.data;
+        }
+
         throw new Error('Failed to add torrent to qBittorrent');
     }
 }
@@ -127,6 +162,11 @@ async function addTorrent(magnetLink, savePath = null, userId = null) {
  */
 async function getTorrents(userId = null) {
     try {
+        // Ensure we're logged in
+        if (!cookie) {
+            await login(userId);
+        }
+
         const config = await getSettings(userId);
 
         const response = await axios.get(
@@ -141,6 +181,25 @@ async function getTorrents(userId = null) {
         return response.data;
     } catch (error) {
         console.error('qBittorrent get torrents error:', error.message);
+
+        // Retry with fresh login if unauthorized
+        if (error.response && error.response.status === 403) {
+            console.log('[qBittorrent] Session expired, re-logging in...');
+            cookie = null;
+            await login(userId);
+
+            const config = await getSettings(userId);
+            const retryResponse = await axios.get(
+                `${config.url}/api/v2/torrents/info`,
+                {
+                    headers: {
+                        'Cookie': cookie
+                    }
+                }
+            );
+            return retryResponse.data;
+        }
+
         throw new Error('Failed to get torrents from qBittorrent');
     }
 }

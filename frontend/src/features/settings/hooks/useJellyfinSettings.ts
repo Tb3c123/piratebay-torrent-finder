@@ -2,10 +2,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { settingsService } from '../services/settingsService'
 import type { JellyfinSettings, JellyfinTestResult } from '../types'
 
 export function useJellyfinSettings(userId?: number) {
+    const { isAuthenticated } = useAuth()
     const [settings, setSettings] = useState<JellyfinSettings>({
         url: '',
         apiKey: '',
@@ -16,12 +18,14 @@ export function useJellyfinSettings(userId?: number) {
     const [testResult, setTestResult] = useState<JellyfinTestResult | null>(null)
     const [showApiKey, setShowApiKey] = useState(false)
 
-    // Load settings on mount
+    // Load settings on mount - only if authenticated
     useEffect(() => {
-        if (userId) {
+        if (isAuthenticated && userId) {
             loadSettings()
+        } else {
+            setLoading(false)
         }
-    }, [userId])
+    }, [isAuthenticated, userId])
 
     const loadSettings = async () => {
         setLoading(true)

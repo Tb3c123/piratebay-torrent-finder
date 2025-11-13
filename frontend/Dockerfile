@@ -28,11 +28,16 @@ WORKDIR /app
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy public folder if it exists (optional)
-RUN mkdir -p ./public
+# Copy public folder (required for static assets)
+COPY --from=builder /app/public ./public
 
 # Expose port
 EXPOSE 3000
+
+# Environment variable for production
+ENV NODE_ENV=production
+ENV HOSTNAME="0.0.0.0"
+ENV PORT=3000
 
 # Start the application
 CMD ["node", "server.js"]

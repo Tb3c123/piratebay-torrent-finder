@@ -236,11 +236,12 @@ export const authService = {
      */
     checkHasUsers: async (): Promise<boolean> => {
         try {
-            const response = await fetch(`${API_URL}/api/v1/auth/admin/users`)
+            const response = await fetch(`${API_URL}/api/v1/auth/check-users`)
             if (!response.ok) return false
 
             const data = await response.json()
-            return Array.isArray(data.users) && data.users.length > 0
+            // Backend returns: { success: true, data: { hasUsers: true/false } }
+            return data.success && data.data?.hasUsers === true
         } catch {
             return false
         }

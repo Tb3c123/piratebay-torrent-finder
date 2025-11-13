@@ -23,7 +23,7 @@ import MainView from './BurgerMenu/MainView'
 import FullHistoryView from './BurgerMenu/FullHistoryView'
 
 export default function BurgerMenu() {
-    const { user } = useAuth()
+    const { user, isAuthenticated } = useAuth()
     // UI State
     const [isOpen, setIsOpen] = useState(false)
     const [currentView, setCurrentView] = useState<MenuView>('main')
@@ -232,6 +232,7 @@ export default function BurgerMenu() {
                             onShowFullHistory={showFullHistory}
                             onNavigateToLogs={navigateToLogs}
                             onNavigateToSettings={navigateToSettings}
+                            isAuthenticated={isAuthenticated}
                         />
                     ) : (
                         <FullHistoryView

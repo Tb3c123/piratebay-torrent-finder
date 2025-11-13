@@ -2,10 +2,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { settingsService } from '../services/settingsService'
 import type { QBittorrentSettings, SettingsTestResult } from '../types'
 
 export function useQBittorrentSettings(userId?: number) {
+    const { isAuthenticated } = useAuth()
     const [settings, setSettings] = useState<QBittorrentSettings>({
         url: '',
         username: '',
@@ -17,12 +19,14 @@ export function useQBittorrentSettings(userId?: number) {
     const [testResult, setTestResult] = useState<SettingsTestResult | null>(null)
     const [showPassword, setShowPassword] = useState(false)
 
-    // Load settings on mount
+    // Load settings on mount - only if authenticated
     useEffect(() => {
-        if (userId) {
+        if (isAuthenticated && userId) {
             loadSettings()
+        } else {
+            setLoading(false)
         }
-    }, [userId])
+    }, [isAuthenticated, userId])
 
     const loadSettings = async () => {
         setLoading(true)

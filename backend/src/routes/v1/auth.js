@@ -9,6 +9,18 @@ const { validateBody } = require('../../middleware/validator');
 const { auth: authValidators } = require('../../validators');
 
 /**
+ * Check if any users exist in the system (public endpoint)
+ * GET /api/auth/check-users
+ */
+router.get('/check-users',
+    asyncHandler(async (req, res) => {
+        const users = AuthService.getAllUsers();
+        const hasUsers = users.length > 0;
+        successResponse(res, { hasUsers });
+    })
+);
+
+/**
  * Register new user
  * POST /api/auth/register
  * Body: { username, password }
