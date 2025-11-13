@@ -30,13 +30,13 @@ export function useRegister() {
                 setSuccess(true)
 
                 if (onSuccess) {
-                    onSuccess()
-                } else {
-                    // Redirect to login after 2 seconds
-                    setTimeout(() => {
-                        router.push('/auth/login')
-                    }, 2000)
+                    await onSuccess()
                 }
+                
+                // Always redirect to login after 2 seconds
+                setTimeout(() => {
+                    router.push('/auth/login')
+                }, 2000)
             } else {
                 setError(result.error || 'Registration failed')
             }

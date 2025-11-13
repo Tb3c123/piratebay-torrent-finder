@@ -46,7 +46,7 @@ const formatLogEntry = (level, message, details = null) => {
  */
 const writeToLogFile = (logEntry) => {
     try {
-        const logFilePath = path.join(__dirname, '../../data/logs.json');
+        const logFilePath = path.join(__dirname, '../data/logs.json');
 
         let logs = [];
         if (fs.existsSync(logFilePath)) {
