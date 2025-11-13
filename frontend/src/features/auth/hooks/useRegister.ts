@@ -32,7 +32,7 @@ export function useRegister() {
                 if (onSuccess) {
                     await onSuccess()
                 }
-                
+
                 // Always redirect to login after 2 seconds
                 setTimeout(() => {
                     router.push('/auth/login')
