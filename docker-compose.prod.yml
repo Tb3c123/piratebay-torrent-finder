@@ -9,9 +9,6 @@ services:
     environment:
       - PORT=${PORT:-3001}
       - OMDB_API_KEY=${OMDB_API_KEY}
-      - QBITTORRENT_URL=${QBITTORRENT_URL}
-      - QBITTORRENT_USERNAME=${QBITTORRENT_USERNAME}
-      - QBITTORRENT_PASSWORD=${QBITTORRENT_PASSWORD}
       - PIRATEBAY_URL=${PIRATEBAY_URL:-https://thepiratebay.org}
     volumes:
       - ./backend/data:/app/src/data

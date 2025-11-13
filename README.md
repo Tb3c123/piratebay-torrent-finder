@@ -102,11 +102,6 @@ BACKEND_PORT=3001
 FRONTEND_PORT=3000
 NEXT_PUBLIC_API_URL=http://localhost:3001
 
-# qBittorrent Configuration
-QBITTORRENT_URL=http://localhost:8080
-QBITTORRENT_USERNAME=admin
-QBITTORRENT_PASSWORD=adminadmin
-
 # OMDB API (Optional - for movie metadata)
 OMDB_API_KEY=your_api_key_here
 

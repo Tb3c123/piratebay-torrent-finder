@@ -31,11 +31,6 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 # OMDB API (Optional - for movie metadata)
 OMDB_API_KEY=your_omdb_api_key_here
 
-# qBittorrent (Required for downloads)
-QBITTORRENT_URL=http://your-qbittorrent-server:8080
-QBITTORRENT_USERNAME=admin
-QBITTORRENT_PASSWORD=your_password
-
 # Pirate Bay URL (Optional - default uses official site)
 PIRATEBAY_URL=https://thepiratebay.org
 ```
@@ -74,9 +69,6 @@ docker run -d \
   --name piratebay-backend \
   -p 3001:3001 \
   -e PORT=3001 \
-  -e QBITTORRENT_URL=http://your-server:8080 \
-  -e QBITTORRENT_USERNAME=admin \
-  -e QBITTORRENT_PASSWORD=yourpass \
   -v ./backend/data:/app/src/data \
   --restart unless-stopped \
   tb3c123/piratebay-backend:1.0
@@ -100,7 +92,6 @@ For production deployment with a custom domain:
 ```bash
 # Set environment variables
 export NEXT_PUBLIC_API_URL=https://api.yourdomain.com
-export QBITTORRENT_URL=https://qbittorrent.yourdomain.com
 
 # Deploy
 docker-compose -f docker-compose.prod.yml up -d
@@ -113,7 +104,7 @@ docker-compose -f docker-compose.prod.yml up -d
 server {
     listen 80;
     server_name yourdomain.com;
-    
+
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -128,7 +119,7 @@ server {
 server {
     listen 80;
     server_name api.yourdomain.com;
-    
+
     location / {
         proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
@@ -215,7 +206,7 @@ FRONTEND_PORT=3001
 ## 🔗 Links
 
 - **GitHub**: https://github.com/Tb3c123/piratebay-torrent-finder
-- **Docker Hub**: 
+- **Docker Hub**:
   - https://hub.docker.com/r/tb3c123/piratebay-backend
   - https://hub.docker.com/r/tb3c123/piratebay-frontend
 
